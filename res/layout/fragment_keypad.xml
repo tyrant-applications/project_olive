@@ -11,25 +11,32 @@
 	    android:layout_weight="1">
 	    
         <Button
-	        android:id="@+id/olive_00_button"
+	        android:id="@+id/olive_1a"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:text="1"/>
         
         <Button
-	        android:id="@+id/olive_10_button"
+	        android:id="@+id/olive_1b"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:text="2"/>
         
         <Button
-	        android:id="@+id/olive_20_button"
+	        android:id="@+id/olive_1c"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:text="3"/>
+        
+        <Button
+	        android:id="@+id/olive_1d"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_weight="1"
+	        android:text="4"/>
         
 	</LinearLayout>
 	
@@ -40,54 +47,33 @@
 	    android:layout_weight="1">
 	    
         <Button
-	        android:id="@+id/olive_01_button"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:layout_weight="1"
-	        android:text="4"/>
-        
-        <Button
-	        android:id="@+id/olive_11_button"
+	        android:id="@+id/olive_2a"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:text="5"/>
         
         <Button
-	        android:id="@+id/olive_21_button"
+	        android:id="@+id/olive_2b"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:text="6"/>
         
-	</LinearLayout>
-	
-    <LinearLayout
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:orientation="horizontal"
-	    android:layout_weight="1">
-	    
         <Button
-	        android:id="@+id/olive_02_button"
+	        android:id="@+id/olive_2c"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:text="7"/>
         
+        
         <Button
-	        android:id="@+id/olive_12_button"
+	        android:id="@+id/olive_2d"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:text="8"/>
-        
-        <Button
-	        android:id="@+id/olive_22_button"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:layout_weight="1"
-	        android:text="9"/>
         
 	</LinearLayout>
 	
@@ -98,25 +84,32 @@
 	    android:layout_weight="1">
 	    
         <Button
-	        android:id="@+id/olive_03_button"
+	        android:id="@+id/olive_3a"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
-	        android:text="-"/>
+	        android:text="9"/>
         
         <Button
-	        android:id="@+id/olive_13_button"
+	        android:id="@+id/olive_3b"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
-	        android:text="0"/>
+	        android:text="10"/>
         
         <Button
-	        android:id="@+id/olive_23_button"
+	        android:id="@+id/olive_3c"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
-	        android:text="SEND"/>
+	        android:text="11"/>
+                
+        <Button
+	        android:id="@+id/olive_3d"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_weight="1"
+	        android:text="12"/>
         
 	</LinearLayout>
     

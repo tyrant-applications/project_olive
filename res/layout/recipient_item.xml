@@ -1,25 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
     android:padding="10dp" >
 
-    <TextView
-        android:id="@+id/recipient_name"
+    <RelativeLayout
+        android:id="@+id/recipient_favorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="25dp"
-        android:textSize="25dp" />
+        android:layout_marginLeft="50dp">
 
-    <EditText
-        android:id="@+id/recipient_edit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="25dp"
-        android:textSize="25dp"
-        android:inputType="textPersonName"
-        android:imeOptions="actionDone"
-        android:visibility="gone" />
+        <ImageView
+            android:id="@+id/recipient_pic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/toast_frame" />
+        
+        <TextView
+            android:id="@+id/recipient_unread"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:background="@android:drawable/toast_frame"
+            android:textColor="#ffffff"
+            android:text="2"
+            android:textSize="15dp" />
+        
+    </RelativeLayout>
+
+    <TextView
+	    android:id="@+id/recipient_name"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_marginLeft="10dp"
+	    android:textSize="25dp"
+	    android:text="RECIPIENT NAME" />
+
 </LinearLayout>

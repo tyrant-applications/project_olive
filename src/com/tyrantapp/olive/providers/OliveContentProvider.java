@@ -1,4 +1,4 @@
-package com.tyrantapp.olive.provider;
+package com.tyrantapp.olive.providers;
 
 import java.util.HashMap;
 import android.content.ContentProvider;
@@ -20,7 +20,7 @@ public class OliveContentProvider extends ContentProvider {
 	public static final Uri		CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 	
 	
-    private static final String LOGTAG = "OliveContentProvider";
+    private static final String TAG = "OliveContentProvider";
     private static final String DATABASE_NAME = "olive.db";
     private static final String RECIPIENTS_TABLE_NAME = "recipients";
     private static final String CONVERSATIONS_TABLE_NAME = "conversations";
@@ -39,24 +39,31 @@ public class OliveContentProvider extends ContentProvider {
     private static HashMap<String, String> mapConversationsProjection;
     
     public static final class RecipientColumns implements BaseColumns {     
-        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/recipients");     
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tyrantapp.olive.recipients";
+        public static final Uri 		CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/recipients");  
+        public static final String 		CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tyrantapp.olive.recipients";
         
-        public static final String USERNAME = "username";     
-        public static final String UNREAD	= "unread";
+        public static final String 		USERNAME = "username";
+        public static final String 		UNREAD	= "unread";
+        public static final String 		STARRED	= "starred";
+        
+        public static final String[] 	PROJECTIONS = new String[] { _ID, USERNAME, UNREAD, STARRED, };
+        public static final String 		ORDERBY = UNREAD + " DESC, " + STARRED + " DESC, " + USERNAME;
     }  
     
     public static final class ConversationColumns implements BaseColumns {     
-        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/conversations");     
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tyrantapp.olive.conversations";
+        public static final Uri 		CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/conversations");     
+        public static final String 		CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tyrantapp.olive.conversations";
         
-        public static final String RECIPIENT	= "recipient";     
-        public static final String IS_RECV		= "is_receive";
-        public static final String CTX_AUTHOR	= "context_author";
-        public static final String CTX_CATEGORY	= "context_category";
-        public static final String CTX_DETAIL	= "context_detail";
-        public static final String DATE			= "date";
-        public static final String IS_PENDING	= "is_pending";
+        public static final String 		RECIPIENT	= "recipient";     
+        public static final String 		IS_RECV		= "is_receive";
+        public static final String 		CTX_AUTHOR	= "context_author";
+        public static final String 		CTX_CATEGORY	= "context_category";
+        public static final String 		CTX_DETAIL	= "context_detail";
+        public static final String 		DATE			= "date";
+        public static final String 		IS_PENDING	= "is_pending";
+        
+        public static final String[] 	PROJECTIONS = new String[] { _ID, RECIPIENT, IS_RECV, CTX_AUTHOR, CTX_CATEGORY, CTX_DETAIL, DATE, IS_PENDING, };
+        public static final String 		ORDERBY = null;
     }
 
     static {
@@ -70,6 +77,7 @@ public class OliveContentProvider extends ContentProvider {
         mapRecipientsProjection.put(RecipientColumns._ID, RecipientColumns._ID);
         mapRecipientsProjection.put(RecipientColumns.USERNAME, RecipientColumns.USERNAME);
         mapRecipientsProjection.put(RecipientColumns.UNREAD, RecipientColumns.UNREAD);
+        mapRecipientsProjection.put(RecipientColumns.STARRED, RecipientColumns.STARRED);
         
         // Conversations
         sUriMatcher.addURI(AUTHORITY, CONVERSATIONS_TABLE_NAME, CONVERSATIONS);
@@ -96,8 +104,9 @@ public class OliveContentProvider extends ContentProvider {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE IF NOT EXISTS " + RECIPIENTS_TABLE_NAME + " (" + 
             		RecipientColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + 
-            		RecipientColumns.USERNAME + " VARCHAR(255)," + 
-            		RecipientColumns.UNREAD + " INTEGER" + ");");
+            		RecipientColumns.USERNAME + " VARCHAR(255)," +            		
+            		RecipientColumns.UNREAD + " INTEGER," +
+            		RecipientColumns.STARRED + " BOOLEAN" + ");");
             
             db.execSQL("CREATE TABLE IF NOT EXISTS " + CONVERSATIONS_TABLE_NAME + " (" + 
             		ConversationColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + 
@@ -112,7 +121,7 @@ public class OliveContentProvider extends ContentProvider {
  
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Log.w(LOGTAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
+            Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
             db.execSQL("DROP TABLE IF EXISTS " + RECIPIENTS_TABLE_NAME);
             db.execSQL("DROP TABLE IF EXISTS " + CONVERSATIONS_TABLE_NAME);
             onCreate(db);
@@ -171,7 +180,7 @@ public class OliveContentProvider extends ContentProvider {
  
     @Override
     public Uri insert(Uri uri, ContentValues initialValues) {
-    	android.util.Log.d("Olive", "insert data to " + uri.toString());
+    	Log.d(TAG, "insert data to " + uri.toString());
     	
         if (sUriMatcher.match(uri) != RECIPIENTS &&
         	sUriMatcher.match(uri) != CONVERSATIONS &&
@@ -204,9 +213,6 @@ public class OliveContentProvider extends ContentProvider {
         } else {
         	rowId = db.insert(CONVERSATIONS_TABLE_NAME, null /*ConversationColumns.CTX_CATEGORY*/, values);
 	        if (rowId > 0) {
-	        	int nRecipient = values.getAsInteger(ConversationColumns.RECIPIENT);
-	        	String pszText = values.getAsString(ConversationColumns.CTX_DETAIL);
-	        	android.util.Log.d("Olive", "Insert Data = " + nRecipient + " : " + rowId + " = " + pszText);
 	            Uri insertUri = ContentUris.withAppendedId(ConversationColumns.CONTENT_URI, rowId);
 	            getContext().getContentResolver().notifyChange(insertUri, null);
 	            return insertUri;

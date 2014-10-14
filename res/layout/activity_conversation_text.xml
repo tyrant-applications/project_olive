@@ -1,0 +1,22 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/olive_text_editor"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:layout_weight="1">
+      
+    <EditText
+	    android:id="@+id/olive_extend_text_editor"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:layout_weight="1"
+	    android:hint="Up to 30 characters"/>
+    
+    <Button 
+        android:id="@+id/olive_extend_send_button"
+	    android:layout_width="100dp"
+	    android:layout_height="match_parent"
+	    android:text="SEND"/>
+        
+</LinearLayout>

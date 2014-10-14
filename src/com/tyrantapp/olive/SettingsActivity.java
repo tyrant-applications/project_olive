@@ -46,9 +46,6 @@ public class SettingsActivity extends PreferenceActivity {
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 
-		//getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-	    getActionBar().hide();
-
 		setupSimplePreferencesScreen();
 	}
 

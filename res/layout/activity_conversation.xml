@@ -1,0 +1,114 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.tyrantapp.olive.ConversationActivity"
+    tools:ignore="MergeRootFrame" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:orientation="horizontal"
+        android:background="@android:color/background_dark">
+
+        <FrameLayout
+            android:layout_width="52dp"
+            android:layout_height="52dp" >
+            
+	        <Button
+	            android:id="@+id/back_button"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:text="B" />
+	        
+	    </FrameLayout>
+
+        <TextView
+            android:id="@+id/title_name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="TITLE" 
+            android:textColor="@android:color/primary_text_dark"
+            android:textSize="20sp"
+            android:gravity="center" />
+        
+        <FrameLayout
+            android:layout_width="52dp"
+            android:layout_height="52dp">
+	        
+	        <Button
+	            android:id="@+id/call_button"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:text="C" />
+	        
+	    </FrameLayout>
+
+    </LinearLayout>
+    
+        
+    <com.tyrantapp.olive.components.ConversationListView 
+        android:id="@+id/conversations_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        />
+    
+    <LinearLayout
+        android:id="@+id/conversation_last_olive"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1" 
+        android:gravity="center"
+        android:orientation="vertical" >
+        
+        <TextView 
+            android:id="@+id/conversation_last_olive_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="25dp"
+            android:text="OLIVE" />
+        
+    </LinearLayout>
+    
+    <Button 
+        android:id="@+id/conversation_last_olive_expander"
+        android:layout_width="match_parent"
+        android:layout_height="16dp" />
+    	    
+	<ViewFlipper
+        android:id="@+id/input_method_flipper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </ViewFlipper>
+	    <!-- android:id="@+id/input_method" -->
+	    
+	    <LinearLayout
+	        android:id="@+id/input_method_keypad"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content" 
+	        android:orientation="vertical" >
+	        
+		    <android.support.v4.view.ViewPager
+			    android:id="@+id/olive_keypad_pager"
+			    android:layout_width="match_parent"
+			    android:layout_height="240dp" />
+		    
+			<include layout="@layout/activity_conversation_footer"/>    
+		    
+		</LinearLayout>
+		
+	    <LinearLayout
+	        android:id="@+id/input_method_text"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content" 
+	        android:orientation="vertical"
+	        android:visibility="gone">
+				        
+			<include layout="@layout/activity_conversation_text"/>    
+		    
+		</LinearLayout>
+	
+</LinearLayout>

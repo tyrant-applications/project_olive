@@ -7,14 +7,16 @@ import com.tyrantapp.olive.components.ConversationItem;
 import com.tyrantapp.olive.components.ConversationListView;
 import com.tyrantapp.olive.components.ConversationItem;
 import com.tyrantapp.olive.components.RecipientItem;
-import com.tyrantapp.olive.provider.OliveContentProvider.ConversationColumns;
-import com.tyrantapp.olive.provider.OliveContentProvider.RecipientColumns;
+import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
+import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,90 +26,77 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ConversationListAdapter extends BaseAdapter {
+public class ConversationListAdapter extends CursorAdapter {
+	final static private String 		TAG	= "ConversationListAdapter";
 
-    private Context 						mContext;
-    private Cursor							mCursor;
-
+	// member variables
+    private Context 	mContext;
+    private String		mRecipientName;
     
-    private ContentObserver mObserver = null;
-    
-    private class UpdateHandler extends Handler {
-		@Override
-		public void handleMessage(Message msg) {
-			super.handleMessage(msg);
-			
-			notifyDataSetChanged();
+    public ConversationListAdapter(Context context, long recipient_id) {
+        super(
+        	context, 
+        	context.getContentResolver().query(
+				ConversationColumns.CONTENT_URI,
+				ConversationColumns.PROJECTIONS,
+				ConversationColumns.RECIPIENT + "=?", 
+				new String[] { String.valueOf(recipient_id), }, 
+				null
+			)
+		);
+        
+        // for update recipient name
+		Cursor cursor = context.getContentResolver().query(
+				RecipientColumns.CONTENT_URI, 
+				new String[] { RecipientColumns.USERNAME, },
+				RecipientColumns._ID + "=?", 
+				new String[] { String.valueOf(recipient_id), },
+				null);
+		
+		cursor.moveToFirst();
+		if (cursor.getCount() > 0) {
+			mRecipientName = cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME));
+		} else {
+			mRecipientName = "Not Found";
 		}
-    };
-    
-    private UpdateHandler mUpdateHandler = new UpdateHandler();
-
-    public ConversationListAdapter(Context context, ArrayList<ConversationItem> groups) {
+        
         mContext = context;
     }
     
     public ConversationListAdapter(Context context, Cursor cursor) {
+    	super(context, cursor);
+    	
 		mContext = context;
-		mCursor = cursor;
-		
-        mObserver = new ContentObserver(null) {
-        	@Override public void onChange(boolean self){
-        		mCursor.requery();
-        		mUpdateHandler.sendEmptyMessage(0);
-        		
-        		//android.util.Log.d("Olive", "Conversation Changed! = " + self);
-        	}
-        };
-        
-        context.getContentResolver().registerContentObserver(ConversationColumns.CONTENT_URI, true, mObserver);
-        
-		mCursor.moveToFirst();
-		for (int j=0; j<mCursor.getCount(); j++) {
-			int nChildID = mCursor.getInt(mCursor.getColumnIndex(ConversationColumns._ID));
-			int nParentID = mCursor.getInt(mCursor.getColumnIndex(ConversationColumns.RECIPIENT));
-			String pszText = mCursor.getString(mCursor.getColumnIndex(ConversationColumns.CTX_DETAIL));
-			
-			//android.util.Log.d("Olive", ">>> [" + nParentID + " : " + nChildID + "] " + pszText);
-			
-			mCursor.moveToNext();
-		}
 	}
 
 	@Override
-    public int getCount() {
-		//android.util.Log.d("Olive", "Conversation getCount = " + mCursor.getCount());
-		return mCursor.getCount();
-        //return mItems.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-    	mCursor.moveToPosition(position);
-    	return mCursor;
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return (long)mCursor.getInt(mCursor.getColumnIndex(ConversationColumns._ID));
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-    	//android.util.Log.d("Olive", "getView::Coversation = " + position);
-    	
-    	//ConversationItem item = mItems.get(position);
-    	if (convertView == null) {
-        	LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);// LayoutInflater.from(parent.getContext());//
-            convertView = inflater.inflate(R.layout.olive_item, null);
-        }
+    public void bindView(View view, Context context, Cursor cursor) {
+		Button btnOlive = (Button) view.findViewById(R.id.olive_button);
         
-        if (mCursor.moveToPosition(position)) {
-        	Button btn = (Button) convertView.findViewById(R.id.olive_button);
-			//android.util.Log.d("Olive", "View Item Text = " + mCursor.getString(mCursor.getColumnIndex(ConversationColumns.CTX_DETAIL)));
-	        btn.setText(mCursor.getString(mCursor.getColumnIndex(ConversationColumns.CTX_DETAIL)));
+		if (btnOlive != null) {
+			btnOlive.setText(cursor.getString(cursor.getColumnIndex(ConversationColumns.CTX_DETAIL)));
         }
-        return convertView;
+    }
+	
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		//abandon current focus
+	    View currentFocus = ((Activity)mContext).getCurrentFocus();
+	    if (currentFocus != null) {
+	        currentFocus.clearFocus();
+	    }
+	    
+		return super.getView(position, convertView, parent);
+	}
+
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.conversation_item, parent, false);
+        return view;
     }
 
+    public String getRecipientName() {
+    	return mRecipientName;
+    }
 }

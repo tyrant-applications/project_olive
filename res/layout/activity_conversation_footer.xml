@@ -1,0 +1,44 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/olive_keypad_extend"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:layout_weight="1">
+        
+    <Button
+     android:id="@+id/olive_extend_text"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+     android:layout_weight="1"
+     android:text="TEXT"/>
+    
+    <Button
+     android:id="@+id/olive_extend_gallery"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+     android:layout_weight="1"
+     android:text="GALLERY"/>
+    
+    <Button
+     android:id="@+id/olive_extend_camera"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+     android:layout_weight="1"
+     android:text="CAMERA"/>
+    
+    <Button
+     android:id="@+id/olive_extend_voice"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+     android:layout_weight="1"
+     android:text="VOICE"/>
+    
+    <Button
+     android:id="@+id/olive_extend_location"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+     android:layout_weight="1"
+     android:text="LOCATION"/>
+        
+</LinearLayout>

@@ -12,7 +12,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/NoActionBar">
+        <!-- android:theme="@style/AppTheme" -->
         <activity
             android:name=".SplashActivity"
             android:label="@string/title_activity_splash" >
@@ -24,18 +25,30 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:label="@string/title_activity_main" >
+            android:label="@string/title_activity_main"
+            android:windowSoftInputMode="adjustPan" >
         </activity>
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings" >
+            android:label="@string/title_activity_settings"
+            android:windowSoftInputMode="adjustPan" >
         </activity>
 
         <provider
-            android:name="com.tyrantapp.olive.provider.OliveContentProvider"
-            android:authorities="com.tyrantapp.olive" 
+            android:name=".providers.OliveContentProvider"
+            android:authorities="com.tyrantapp.olive"
             android:enabled="true"
             android:exported="true" />
+
+        <activity
+            android:name=".ConversationActivity"
+            android:label="@string/title_activity_conversation"
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustResize" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.tyrantapp.olive.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

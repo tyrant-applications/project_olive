@@ -40,8 +40,8 @@ public class SplashActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-	    getActionBar().hide();
+		//getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+	    //getActionBar().hide();
 	    
 		setContentView(R.layout.activity_splash);
 		

@@ -145,8 +145,8 @@ public class ConversationListView extends AdapterView<ListAdapter> {
 	}
 
 	@Override
-		public void setSelection(int position) {
-		}
+	public void setSelection(int position) {
+	}
 
 	private void addAndMeasureChild(final View child, int viewPos) {
 		LayoutParams params = child.getLayoutParams();

@@ -16,5 +16,10 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
+    
+    <!-- No ActionBar theme -->
+    <style name="NoActionBar" parent="AppBaseTheme">
+	    <item name="android:windowNoTitle">true</item>
+	</style>
 
 </resources>

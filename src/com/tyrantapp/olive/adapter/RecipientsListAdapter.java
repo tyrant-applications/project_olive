@@ -6,148 +6,114 @@ import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.components.ConversationItem;
 import com.tyrantapp.olive.components.ConversationListView;
 import com.tyrantapp.olive.components.RecipientItem;
-import com.tyrantapp.olive.provider.OliveContentProvider.ConversationColumns;
-import com.tyrantapp.olive.provider.OliveContentProvider.RecipientColumns;
+import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
+import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
 
+import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout.LayoutParams;
 import android.widget.TextView;
 
-public class RecipientsListAdapter extends BaseExpandableListAdapter {
-
-    private Context mContext;
-    private Cursor mCursor;
-    
-    
-    private ContentObserver mObserver = null;
-    
-    private class UpdateHandler extends Handler {
-		@Override
-		public void handleMessage(Message msg) {
-			super.handleMessage(msg);
-			
-			notifyDataSetChanged();
-		}
-    };
-    
-    private UpdateHandler mUpdateHandler = new UpdateHandler();
-    
-    public RecipientsListAdapter(Context context, ArrayList<RecipientItem> groups) {
+public class RecipientsListAdapter extends CursorAdapter {
+	final static private String TAG	= "RecipientListAdapter";
+	
+	// member variables
+	private Context				mContext;
+	
+	public RecipientsListAdapter(Context context) {
+        super(
+        	context, 
+        	context.getContentResolver().query(
+				RecipientColumns.CONTENT_URI,
+				RecipientColumns.PROJECTIONS,
+				null, null, 
+				RecipientColumns.ORDERBY
+			)
+		);
+        
         mContext = context;
-        mCursor = context.getContentResolver().query(RecipientColumns.CONTENT_URI, new String[] {RecipientColumns._ID, RecipientColumns.USERNAME, RecipientColumns.UNREAD}, null, null, null);
-        
-        mObserver = new ContentObserver(null) {
-        	@Override public void onChange(boolean self){
-        		mCursor.requery();
-        		mUpdateHandler.sendEmptyMessage(0);
-        		android.util.Log.d("Olive", "Recipient Changed! = " + self);
-        	}
-        };
-        
-        context.getContentResolver().registerContentObserver(RecipientColumns.CONTENT_URI, true, mObserver);
-    }    
-
-    @Override
-    public Object getChild(int groupPosition, int childPosition) {
-    	if (mCursor == null) return null;
-    	mCursor.moveToPosition(groupPosition);
-    	int nRecipientID = mCursor.getInt(mCursor.getColumnIndex(RecipientColumns._ID));
-    	return mContext.getContentResolver().query(
-    			ConversationColumns.CONTENT_URI, 
-    			new String[] {ConversationColumns._ID, ConversationColumns.RECIPIENT, ConversationColumns.CTX_DETAIL, ConversationColumns.DATE}, 
-    			ConversationColumns.RECIPIENT + "=" + String.valueOf(nRecipientID), 
-    			null, 
-    			null);
     }
-
-    @Override
-    public long getChildId(int groupPosition, int childPosition) {
-        return childPosition;
-    }
-
-    @Override
-    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.conversation_item, null);
-        }
-        ConversationListView lv = (ConversationListView) convertView.findViewById(R.id.conversation_list);
-        
-//        android.view.ViewGroup.LayoutParams childParams = lv.getLayoutParams();
-//        childParams.height = LayoutParams.MATCH_PARENT;
-//        lv.setLayoutParams(childParams);
-
-        lv.setAdapter(new ConversationListAdapter(mContext, (Cursor)getChild(groupPosition, childPosition)));
-        
-        return convertView;
-    }
-
-    @Override
-    public int getChildrenCount(int groupPosition) {
-    	return 1;
-    }
-
-    @Override
-    public Object getGroup(int groupPosition) {
-    	if (mCursor == null) return null;
+	
+    public RecipientsListAdapter(Context context, Cursor cursor) {
+    	super(context, cursor);
     	
-    	if (mCursor.getCount() <= groupPosition) {
-    		return null;
-    	} else {
-    		mCursor.moveToPosition(groupPosition);
-        	return mCursor;
-    	}
+    	mContext = context;
     }
 
-    @Override
-    public int getGroupCount() {
-    	if (mCursor == null) return 1;
-    	
-    	return mCursor.getCount() + 1;
-    }
-
-    @Override
-    public long getGroupId(int groupPosition) {
-        return groupPosition;
-    }
-
-    @Override
-    public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.recipient_item, null);
+	@Override
+    public void bindView(View view, Context context, Cursor cursor) {
+		RelativeLayout favView = (RelativeLayout) view.findViewById(R.id.recipient_favorite);
+		ImageView picView = (ImageView) view.findViewById(R.id.recipient_pic);
+    	TextView unreadView = (TextView) view.findViewById(R.id.recipient_unread);
+        TextView nameView = (TextView) view.findViewById(R.id.recipient_name);
+        
+        if (nameView != null) {
+        	nameView.setText(cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME)));
+        	unreadView.setText(String.valueOf(cursor.getInt(cursor.getColumnIndex(RecipientColumns.UNREAD))));
+        	
+        	// favorite (starred)
+        	final long recipientId = cursor.getLong(cursor.getColumnIndex(RecipientColumns._ID));
+        	final boolean bStarred = cursor.getInt(cursor.getColumnIndex(RecipientColumns.STARRED)) > 0;
+        	
+			if (bStarred) {
+				favView.setBackground(mContext.getResources().getDrawable(android.R.drawable.toast_frame));
+			} else {
+				favView.setBackground(null);
+			}
+        	        	
+        	final Cursor finalCursor = cursor;
+        	favView.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					ContentValues values = new ContentValues();
+					
+					if (!bStarred) {
+						android.util.Log.d(TAG, "Starred to ON");
+						values.put(RecipientColumns.STARRED, true);
+					} else {
+						android.util.Log.d(TAG, "Starred to OFF");
+						values.put(RecipientColumns.STARRED, false);
+					}
+					
+					mContext.getContentResolver().update(
+							Uri.withAppendedPath(RecipientColumns.CONTENT_URI, String.valueOf(recipientId)),
+							values,
+							null, null);
+				}
+        	});
         }
-        TextView tv = (TextView) convertView.findViewById(R.id.recipient_name);
-
-    	//RecipientItem group = (RecipientItem) getGroup(groupPosition);
-    	Cursor cursor = (Cursor)getGroup(groupPosition);
-    	if (cursor != null) {
-	    	String recipientName = cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME));
-	        tv.setText(recipientName);
-    	} else {
-    		tv.setText("+");
-    	}
-        return convertView;
     }
-
-    @Override
-    public boolean hasStableIds() {
-        return true;
-    }
+	
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		//abandon current focus
+	    View currentFocus = ((Activity)mContext).getCurrentFocus();
+	    if (currentFocus != null) {
+	        currentFocus.clearFocus();
+	    }
+	    
+		return super.getView(position, convertView, parent);
+	}
 
     @Override
-    public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return false;
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.recipient_item, parent, false);
+        return view;
     }
-    
 }

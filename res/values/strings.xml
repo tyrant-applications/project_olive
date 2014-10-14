@@ -17,10 +17,12 @@
 
     <string name="title_activity_splash">Olive</string>
     <string name="title_activity_main">Olive</string>
- 
     <string name="title_sectionNum">Olive Keyboard Preset Number</string>
     <string name="title_sectionOlive00">Olive Keyboard Preset #0</string>
     <string name="title_sectionOlive01">Olive Keyboard Preset #1</string>
     <string name="title_sectionOlive02">Olive Keyboard Preset #2</string>
-    
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_conversation">Conversation</string>
+    <string name="hello_world">Hello world!</string>
+
 </resources>

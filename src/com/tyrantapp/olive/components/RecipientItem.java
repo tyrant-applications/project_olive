@@ -21,9 +21,5 @@ public class RecipientItem {
         return mAdapter;
     }
 
-    public void setAdapter(ConversationListAdapter adapter) {
-    	mAdapter = adapter;
-    }
-
 }
 
