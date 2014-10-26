@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:padding="10dp" >
+    android:padding="5dp" >
 
     <RelativeLayout
         android:id="@+id/recipient_favorite"
@@ -16,17 +16,19 @@
             android:id="@+id/recipient_pic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/toast_frame" />
+            android:src="@drawable/ic_no_photo"
+            android:background="@drawable/bg_badge_normal"/>
         
         <TextView
             android:id="@+id/recipient_unread"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:background="@android:drawable/toast_frame"
+            android:layout_marginLeft="40dp"
+            android:gravity="center"
+            android:background="@drawable/bg_badge_unread"
             android:textColor="#ffffff"
             android:text="2"
-            android:textSize="15dp" />
+            android:textSize="10sp" />
         
     </RelativeLayout>
 

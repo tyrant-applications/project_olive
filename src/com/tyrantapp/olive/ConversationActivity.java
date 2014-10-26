@@ -256,8 +256,22 @@ public class ConversationActivity extends ActionBarActivity implements OnOliveKe
 	public void onKeypadCreate(int sectionNumber) {
 		KeypadFragment fragment = (KeypadFragment)KeypadFragment.getFragment(sectionNumber);
 		
-		for (int i=0; i<12; i++) {
-			((Button)fragment.getOliveButton(i)).setText(String.valueOf(i));
+		switch (sectionNumber) {
+		case 0:
+			((Button)fragment.getOliveButton(0)).setText("Eat");
+			((Button)fragment.getOliveButton(1)).setText("Can We Meet?");
+			((Button)fragment.getOliveButton(2)).setText("Yes");
+			((Button)fragment.getOliveButton(3)).setText("Where?");
+			((Button)fragment.getOliveButton(4)).setText("Coffee");
+			((Button)fragment.getOliveButton(5)).setText("Can We Talk?");
+			((Button)fragment.getOliveButton(6)).setText("No");
+			((Button)fragment.getOliveButton(7)).setText("When?");
+			((Button)fragment.getOliveButton(8)).setText("Pub");
+			((Button)fragment.getOliveButton(9)).setText("Wanna Do Something?");
+			((Button)fragment.getOliveButton(10)).setText("Busy");
+			((Button)fragment.getOliveButton(11)).setText("With?");
+			break;
+		default:
 		}		
 	}
 

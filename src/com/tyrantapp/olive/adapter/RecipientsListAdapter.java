@@ -71,7 +71,7 @@ public class RecipientsListAdapter extends CursorAdapter {
         	final boolean bStarred = cursor.getInt(cursor.getColumnIndex(RecipientColumns.STARRED)) > 0;
         	
 			if (bStarred) {
-				favView.setBackground(mContext.getResources().getDrawable(android.R.drawable.toast_frame));
+				favView.setBackground(mContext.getResources().getDrawable(R.drawable.bg_badge_favorite));
 			} else {
 				favView.setBackground(null);
 			}

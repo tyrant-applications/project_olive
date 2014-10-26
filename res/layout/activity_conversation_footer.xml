@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/olive_keypad_extend"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="68dp"
     android:orientation="horizontal"
     android:layout_weight="1">
         
@@ -11,34 +11,34 @@
      android:layout_width="match_parent"
      android:layout_height="match_parent"
      android:layout_weight="1"
-     android:text="TEXT"/>
+     android:background="@drawable/bg_keypad_text"/>
     
     <Button
      android:id="@+id/olive_extend_gallery"
      android:layout_width="match_parent"
      android:layout_height="match_parent"
      android:layout_weight="1"
-     android:text="GALLERY"/>
+     android:background="@drawable/bg_keypad_gallery"/>
     
     <Button
      android:id="@+id/olive_extend_camera"
      android:layout_width="match_parent"
      android:layout_height="match_parent"
      android:layout_weight="1"
-     android:text="CAMERA"/>
+     android:background="@drawable/bg_keypad_camera"/>
     
     <Button
      android:id="@+id/olive_extend_voice"
      android:layout_width="match_parent"
      android:layout_height="match_parent"
      android:layout_weight="1"
-     android:text="VOICE"/>
+     android:background="@drawable/bg_keypad_voice"/>
     
     <Button
      android:id="@+id/olive_extend_location"
      android:layout_width="match_parent"
      android:layout_height="match_parent"
      android:layout_weight="1"
-     android:text="LOCATION"/>
+     android:background="@drawable/bg_keypad_locate"/>
         
 </LinearLayout>

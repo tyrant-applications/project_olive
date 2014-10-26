@@ -11,11 +11,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" 
         android:orientation="horizontal"
-        android:background="@android:color/background_dark">
+        android:background="@color/olivedark">
 
         <FrameLayout
-            android:layout_width="52dp"
-            android:layout_height="52dp" >
+            android:layout_width="68dp"
+            android:layout_height="68dp" >
             
 	        <Button
 	            android:id="@+id/back_button"
@@ -31,19 +31,19 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="TITLE" 
-            android:textColor="@android:color/primary_text_dark"
+            android:textColor="@color/olivegreen"
             android:textSize="20sp"
             android:gravity="center" />
         
         <FrameLayout
-            android:layout_width="52dp"
-            android:layout_height="52dp">
+            android:layout_width="68dp"
+            android:layout_height="68dp">
 	        
 	        <Button
 	            android:id="@+id/call_button"
 	            android:layout_width="match_parent"
 	            android:layout_height="match_parent"
-	            android:text="C" />
+	            android:background="@drawable/bg_call_button"/>
 	        
 	    </FrameLayout>
 
@@ -83,32 +83,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
     </ViewFlipper>
-	    <!-- android:id="@+id/input_method" -->
+    <!-- android:id="@+id/input_method" -->
+    
+    <LinearLayout
+        android:id="@+id/input_method_keypad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:orientation="vertical" >
+        
+	    <android.support.v4.view.ViewPager
+		    android:id="@+id/olive_keypad_pager"
+		    android:layout_width="match_parent"
+		    android:layout_height="240dp" />
 	    
-	    <LinearLayout
-	        android:id="@+id/input_method_keypad"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content" 
-	        android:orientation="vertical" >
-	        
-		    <android.support.v4.view.ViewPager
-			    android:id="@+id/olive_keypad_pager"
-			    android:layout_width="match_parent"
-			    android:layout_height="240dp" />
-		    
-			<include layout="@layout/activity_conversation_footer"/>    
-		    
-		</LinearLayout>
-		
-	    <LinearLayout
-	        android:id="@+id/input_method_text"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content" 
-	        android:orientation="vertical"
-	        android:visibility="gone">
-				        
-			<include layout="@layout/activity_conversation_text"/>    
-		    
-		</LinearLayout>
+		<include layout="@layout/activity_conversation_footer"/>    
+	    
+	</LinearLayout>
+	
+    <LinearLayout
+        android:id="@+id/input_method_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:orientation="vertical"
+        android:visibility="gone">
+			        
+		<include layout="@layout/activity_conversation_text"/>    
+	    
+	</LinearLayout>
 	
 </LinearLayout>

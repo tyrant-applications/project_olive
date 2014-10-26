@@ -134,7 +134,7 @@ public class MainActivity extends ActionBarActivity {
 
 				if (rootView != null) {
 					mRecipientsListView = (RecipientsListView)rootView.findViewById(R.id.recipients_list_view);
-					PrepareRecipientsFragment();
+					//PrepareRecipientsFragment();
 				}
 				break;
 				
@@ -145,29 +145,29 @@ public class MainActivity extends ActionBarActivity {
 		}
 		
 
-		public void PrepareRecipientsFragment() {
-			// Set up our adapter
-			final Activity activity = getActivity();
-			
-			mRecipientsAdapter = new RecipientsListAdapter(activity);
-			mRecipientsListView.setAdapter(mRecipientsAdapter);
-
-			mRecipientsListView.setOnItemClickListener(new OnItemClickListener() {
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					// Find current item's recipient ID and start conversation activity
-					
-					android.util.Log.d(TAG, "id = " + id);
-					
-					if (id >= 0) {
-						Intent intent = new Intent(getActivity(), ConversationActivity.class)
-							.putExtra(ConversationColumns.RECIPIENT, id);
-						startActivity(intent);
-					}
-				}
-			});
-
-		}
+//		public void PrepareRecipientsFragment() {
+//			// Set up our adapter
+//			final Activity activity = getActivity();
+//			
+//			mRecipientsAdapter = new RecipientsListAdapter(activity);
+//			mRecipientsListView.setAdapter(mRecipientsAdapter);
+//
+//			mRecipientsListView.setOnItemClickListener(new OnItemClickListener() {
+//				@Override
+//				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//					// Find current item's recipient ID and start conversation activity
+//					
+//					android.util.Log.d(TAG, "2. id = " + id);
+//					
+//					if (id >= 0) {
+//						Intent intent = new Intent(getActivity(), ConversationActivity.class)
+//							.putExtra(ConversationColumns.RECIPIENT, id);
+//						startActivity(intent);
+//					}
+//				}
+//			});
+//
+//		}
 	}
 	
 	public void onSetting(View v) {		
