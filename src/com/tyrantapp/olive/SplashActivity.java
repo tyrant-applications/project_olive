@@ -1,8 +1,9 @@
 package com.tyrantapp.olive;
 
 import com.tyrantapp.olive.R;
+import com.tyrantapp.olive.R.layout;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,7 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 
-public class SplashActivity extends ActionBarActivity {
+public class SplashActivity extends Activity {
 	final private int LONG_SHOWING_TIME = 2000;
 	final private int SHORT_SHOWING_TIME = 500;
 	
@@ -26,7 +27,8 @@ public class SplashActivity extends ActionBarActivity {
 			switch(msg.what) {
 			case SPLASH_TO_MAIN:
 				finish();
-				mIntent = new Intent(getApplicationContext(), MainActivity.class);
+				//mIntent = new Intent(getApplicationContext(), MainActivity.class);
+				mIntent = new Intent(getApplicationContext(), LoginActivity.class);
 				startActivity(mIntent);
 				overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 				break;

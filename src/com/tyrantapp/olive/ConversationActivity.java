@@ -1,14 +1,19 @@
 package com.tyrantapp.olive;
 
-import com.tyrantapp.olive.adapter.ConversationListAdapter;
-import com.tyrantapp.olive.adapter.KeypadPagerAdapter;
+import com.tyrantapp.olive.R;
+import com.tyrantapp.olive.R.id;
+import com.tyrantapp.olive.R.layout;
+import com.tyrantapp.olive.R.menu;
+import com.tyrantapp.olive.adapters.ConversationListAdapter;
+import com.tyrantapp.olive.adapters.KeypadPagerAdapter;
 import com.tyrantapp.olive.components.ConversationListView;
 import com.tyrantapp.olive.fragments.KeypadFragment;
 import com.tyrantapp.olive.interfaces.OnOliveKeypadListener;
 import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
 
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -33,7 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-public class ConversationActivity extends ActionBarActivity implements OnOliveKeypadListener {
+public class ConversationActivity extends FragmentActivity implements OnOliveKeypadListener {
 	final static private String			TAG = "ConversationActivity";
 
 	final static private int			RESULT_LOAD_IMAGE	= 1;

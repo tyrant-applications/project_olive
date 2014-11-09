@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.tyrantapp.olive.MainActivity" >
+    tools:context="com.tyrantapp.olive.activities.MainActivity" >
      
     <android.support.v4.view.ViewPager
 	    android:id="@+id/root_fragments_pager"

@@ -1,4 +1,4 @@
-package com.tyrantapp.olive.adapter;
+package com.tyrantapp.olive.adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

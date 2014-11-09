@@ -1,12 +1,11 @@
 package com.tyrantapp.olive;
 
-import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,18 +13,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 
 import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.adapter.RecipientsListAdapter;
+import com.tyrantapp.olive.R.id;
+import com.tyrantapp.olive.R.layout;
+import com.tyrantapp.olive.R.menu;
+import com.tyrantapp.olive.adapters.RecipientsListAdapter;
 import com.tyrantapp.olive.components.RecipientsListView;
-import com.tyrantapp.olive.fragments.RootFragment;
-import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
+import com.tyrantapp.olive.fragments.ParentsFragment;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends FragmentActivity {
 	// static variable
 	static private final String		TAG = "MainActivity";
 			
@@ -44,8 +43,8 @@ public class MainActivity extends ActionBarActivity {
 		//getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
 	    //getActionBar().hide();
 	    
-	    // Initialize	   
-		setContentView(R.layout.activity_main); 
+	    // Initialize
+		setContentView(R.layout.activity_main);
 		
 		// Load main fragments
 		mRootFragmentsAdapter = new RootFragmentsPagerAdapter(getSupportFragmentManager());
@@ -80,94 +79,19 @@ public class MainActivity extends ActionBarActivity {
 	 * one of the sections/tabs/pages.
 	 */
 	public class RootFragmentsPagerAdapter extends FragmentPagerAdapter {
-		public RootFragmentsPagerAdapter(FragmentManager fm) {
-			super(fm);
-		}
-
-		@Override
-		public Fragment getItem(int position) {
-			return RootFragment.newInstance(position);
+		public RootFragmentsPagerAdapter(FragmentManager fragmentManager) {
+			super(fragmentManager);
 		}
 
 		@Override
 		public int getCount() {
 			return 1;
 		}
-	}
-
-	/**
-	 * A placeholder fragment containing a simple view.
-	 */
-	public static class ParentFragment extends Fragment {
-		// for Recipient Fragments
-		private RecipientsListView			mRecipientsListView;
-		private RecipientsListAdapter 		mRecipientsAdapter;
-		
-		/**
-		 * The fragment argument representing the section number for this
-		 * fragment.
-		 */
-		private static final String ARG_SECTION_NUMBER = "section_number";
-
-		/**
-		 * Returns a new instance of this fragment for the given section number.
-		 */
-		public static ParentFragment newInstance(int sectionNumber) {
-			ParentFragment fragment = new ParentFragment();
-			Bundle args = new Bundle();
-			args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-			fragment.setArguments(args);
-			
-			return fragment;
-		}
-
-		public ParentFragment() {}
 
 		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			View rootView = null;
-			
-			switch (getArguments().getInt(ARG_SECTION_NUMBER)) {
-			// Recipients Fragment
-			case 0:
-				rootView = inflater.inflate(R.layout.fragment_recipients, container, false);
-
-				if (rootView != null) {
-					mRecipientsListView = (RecipientsListView)rootView.findViewById(R.id.recipients_list_view);
-					//PrepareRecipientsFragment();
-				}
-				break;
-				
-			default:
-			}
-			
-			return rootView;
+		public Fragment getItem(int sectionNumber) {
+			return ParentsFragment.newInstance(sectionNumber);
 		}
-		
-
-//		public void PrepareRecipientsFragment() {
-//			// Set up our adapter
-//			final Activity activity = getActivity();
-//			
-//			mRecipientsAdapter = new RecipientsListAdapter(activity);
-//			mRecipientsListView.setAdapter(mRecipientsAdapter);
-//
-//			mRecipientsListView.setOnItemClickListener(new OnItemClickListener() {
-//				@Override
-//				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//					// Find current item's recipient ID and start conversation activity
-//					
-//					android.util.Log.d(TAG, "2. id = " + id);
-//					
-//					if (id >= 0) {
-//						Intent intent = new Intent(getActivity(), ConversationActivity.class)
-//							.putExtra(ConversationColumns.RECIPIENT, id);
-//						startActivity(intent);
-//					}
-//				}
-//			});
-//
-//		}
 	}
 	
 	public void onSetting(View v) {		

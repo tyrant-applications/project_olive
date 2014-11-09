@@ -1,4 +1,4 @@
-package com.tyrantapp.olive.adapter;
+package com.tyrantapp.olive.adapters;
 
 import java.util.ArrayList;
 

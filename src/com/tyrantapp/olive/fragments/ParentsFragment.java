@@ -2,9 +2,8 @@ package com.tyrantapp.olive.fragments;
 
 import com.tyrantapp.olive.ConversationActivity;
 import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.MainActivity.ParentFragment;
 import com.tyrantapp.olive.R.layout;
-import com.tyrantapp.olive.adapter.RecipientsListAdapter;
+import com.tyrantapp.olive.adapters.RecipientsListAdapter;
 import com.tyrantapp.olive.components.RecipientsListView;
 import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
 
@@ -21,13 +20,13 @@ import android.widget.AdapterView.OnItemClickListener;
 
 /**
  * A simple {@link Fragment} subclass. Activities that contain this fragment
- * must implement the {@link RootFragment.OnFragmentInteractionListener}
+ * must implement the {@link ParentsFragment.OnFragmentInteractionListener}
  * interface to handle interaction events. Use the
- * {@link RootFragment#newInstance} factory method to create an instance
+ * {@link ParentsFragment#newInstance} factory method to create an instance
  * of this fragment.
  * 
  */
-public class RootFragment extends Fragment {
+public class ParentsFragment extends Fragment {
 	final static private String			TAG = "RecipientsFragment";
 	
 	// for Recipient Fragments
@@ -43,8 +42,8 @@ public class RootFragment extends Fragment {
 	/**
 	 * Returns a new instance of this fragment for the given section number.
 	 */
-	public static RootFragment newInstance(int sectionNumber) {
-		RootFragment fragment = new RootFragment();
+	public static ParentsFragment newInstance(int sectionNumber) {
+		ParentsFragment fragment = new ParentsFragment();
 		Bundle args = new Bundle();
 		args.putInt(ARG_SECTION_NUMBER, sectionNumber);
 		fragment.setArguments(args);
@@ -52,7 +51,7 @@ public class RootFragment extends Fragment {
 		return fragment;
 	}
 
-	public RootFragment() {}
+	public ParentsFragment() {}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

@@ -21,6 +21,8 @@ import android.view.Window;
 import java.util.List;
 
 import com.tyrantapp.olive.R;
+import com.tyrantapp.olive.R.string;
+import com.tyrantapp.olive.R.xml;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On

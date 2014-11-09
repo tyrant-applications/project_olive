@@ -14,7 +14,7 @@
         <item>Setting 11</item>
         <item>Setting 22</item>
     </string-array>
-
+    
     <string name="title_activity_splash">Olive</string>
     <string name="title_activity_main">Olive</string>
     <string name="title_sectionNum">Olive Keyboard Preset Number</string>

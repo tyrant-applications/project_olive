@@ -2,7 +2,7 @@ package com.tyrantapp.olive.components;
 
 import java.util.ArrayList;
 
-import com.tyrantapp.olive.adapter.ConversationListAdapter;
+import com.tyrantapp.olive.adapters.ConversationListAdapter;
 
 public class RecipientItem {
 
