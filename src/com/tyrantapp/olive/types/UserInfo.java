@@ -6,20 +6,20 @@ import android.os.Parcelable;
 
 public class UserInfo  implements Parcelable {
 	public String	mUsername;
-	public String	mPhoneNumber;
 	public String	mNickname;
+	public String	mPhoneNumber;
 	//public String	mEmail;
 	//public Bitmap	mPicture;
 	public long		mCreated;
 	public long		mModified;	
 
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+    public static final Parcelable.Creator<UserInfo> CREATOR = new Parcelable.Creator<UserInfo>() {
         public UserInfo createFromParcel(Parcel in) {
         	UserInfo oRet = new UserInfo();
         	
         	oRet.mUsername = in.readString();
-        	oRet.mPhoneNumber = in.readString();
         	oRet.mNickname = in.readString();
+        	oRet.mPhoneNumber = in.readString();
         	oRet.mCreated = in.readLong();
         	oRet.mModified = in.readLong();
             
@@ -38,8 +38,8 @@ public class UserInfo  implements Parcelable {
 
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mUsername);
-        dest.writeString(mPhoneNumber);
         dest.writeString(mNickname);
+        dest.writeString(mPhoneNumber);
         dest.writeLong(mCreated);
         dest.writeLong(mModified);
     }

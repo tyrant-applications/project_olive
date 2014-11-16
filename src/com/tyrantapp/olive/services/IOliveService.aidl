@@ -1,11 +1,13 @@
-package com.tyrantapp.olive.services.aidl;
+package com.tyrantapp.olive.services;
 
-import com.tyrantapp.olive.services.aidl.IOliveServiceCallback;
 import com.tyrantapp.olive.types.UserInfo;
 
 interface IOliveService {	
 	int     	signUp(String username, String password);	
 	int			signIn(String username, String password);
-	UserInfo	getSignedUserInfo();
+	int 		signOut();
+	boolean 	isSignedIn();
+	UserInfo 	getUserProfile();
+	UserInfo 	getRecipientProfile(String username);
 }
 

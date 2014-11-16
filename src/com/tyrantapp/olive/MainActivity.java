@@ -35,6 +35,8 @@ public class MainActivity extends FragmentActivity {
 	
 	// for Setting
 	private Button						mSettingButton;
+	
+	private String						mUsername;
 
 		@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +54,10 @@ public class MainActivity extends FragmentActivity {
 		mRootFragmentsPager.setAdapter(mRootFragmentsAdapter);
 				
 		// Setting Button
-		mSettingButton = (Button) findViewById(R.id.setting_button);		
+		mSettingButton = (Button) findViewById(R.id.setting_button);
+		
+		mUsername = getIntent().getStringExtra("username");
+		android.util.Log.d(TAG, "Username = " + mUsername);
 	}
 
 	@Override

@@ -16,9 +16,14 @@ import org.json.JSONObject;
 
 import com.kth.baasio.Baas;
 import com.kth.baasio.callback.BaasioCallback;
+import com.kth.baasio.callback.BaasioSignUpCallback;
+import com.kth.baasio.entity.BaasioBaseEntity;
 import com.kth.baasio.entity.entity.BaasioEntity;
 import com.kth.baasio.entity.user.BaasioUser;
 import com.kth.baasio.exception.BaasioException;
+import com.kth.baasio.query.BaasioQuery;
+import com.kth.baasio.query.BaasioQuery.ORDER_BY;
+import com.kth.baasio.response.BaasioResponse;
 
 import android.app.Service;
 import android.content.Intent;
@@ -33,7 +38,7 @@ import android.widget.Toast;
 
 import com.tyrantapp.olive.MainActivity;
 import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.services.aidl.*;
+import com.tyrantapp.olive.services.*;
 import com.tyrantapp.olive.types.UserInfo;
 
 public class OliveService extends Service {
@@ -75,120 +80,27 @@ public class OliveService extends Service {
 		}
 		
 		@Override
-		public UserInfo getSignedUserInfo() throws RemoteException {
-			return mService.getSignedUserInfo();
+		public int signOut() throws RemoteException {
+			return mService.signOut();
 		}
 		
+		@Override
+		public boolean isSignedIn() throws RemoteException {
+			return mService.isSignedIn();
+		}
 		
-
+		@Override
+		public UserInfo getUserProfile() throws RemoteException {
+			return mService.getUserProfile();
+		}
+		
+		@Override
+		public UserInfo getRecipientProfile(String username) throws RemoteException {
+			return mService.getRecipientProfile(username);
+		}
+		
 	};
-	
-	
-	/* Database
-	 * 
-	 * 1. getUserProfile
-	 * 1.1 param : n/a
-	 * 1.2 return : id, passwd, photo, phone number, nick name, timestamp
-	 * 
-	 * 2. updateUserProfile
-	 * 2.1 param :
-	 * 2.2 return :
-	 * 
-	 */
-	
-	/* Preference
-	 * 
-	 * 1. Set/GetAlarmState()
-	 * 2. Password On/Off
-	 * 3. Password Value
-	 * 
-	 */
 		
-	/*
-	 *  Service
-	 *  
-	 *  0. getLastError
-	 *  0.1 param : n/a
-	 *  0.2 return : success, fail_nosignin, fail_alreadyexist, fail_nodata, fail_bad_network, fail_timeout, fail_unknown, fail_bad_passwd, fail_invalid_passwd
-	 *  
-	 *  1. Sign Up
-	 *  1.1 param : id, passwd, check_passwd
-	 *  1.2 return : true, false
-	 *  
-	 *  2. Sign In
-	 *  2.1 param : id, passwd
-	 *  2.2 return : true, false
-	 *  
-	 *  3. Sign Out
-	 *  3.1 param : n/a
-	 *  3.2 return : true, false
-	 *  
-	 *  4. queryByHttp
-	 *  4.1 param : n/a
-	 *  4.2 return : string (JSON)
-	 *  
-	 *  5. parseFromJSON
-	 *  5.1 param : string
-	 *  5.2 return : map<string, string>
-	 *  
-	 *  6. isSignedIn
-	 *  6.1 param : n/a
-	 *  6.2 return : true, false
-	 *  
-	 *  7. getPendingData
-	 *  7.1 param : id, timestamp
-	 *  7.2 return : success, fail_no_user, fail_bad_network, fail_timeout, fail_unknown
-	 *  
-	 *  8. postData
-	 *  8.1 param : id, timestamp, string
-	 *  8.1 return : success, fail_no_user, fail_bad_network, fail_timeout, fail_unknown
-	 *  
-	 *  9. getRecipientList
-	 *  9.1 param : id
-	 *  9.2 return : vector< struct { id, nick, phone, timestamp } >
-	 *  
-	 *  10. addRecipient
-	 *  10.1 param : id, recipient
-	 *  10.2 return : true / false
-	 *  
-	 *  11. removeRecipient
-	 *  11.1 param : id, recipient
-	 *  11.2 return : true / false
-	 *  
-	 *  12. getRecipientInfo
-	 *  12.1 param : id, recipient
-	 *  12.2 return : struct { id, nick, phone, timestamp }
-	 *  
-	 *  13. getRecipientPicture
-	 *  13.1 param : id, recipient
-	 *  13.2 return : bitmap
-	 *  
-	 *  14. syncRecipientList
-	 *  14.1 param : id
-	 *  14.2 return : true / false
-	 *  
-	 *  15. getUserProfileInfo
-	 *  15.1 param : id
-	 *  15.2 return : struct { id, nick, phone, timestamp }
-	 *  
-	 *  16. getUserProfilePicture
-	 *  16.1 param : id
-	 *  16.2 return : bitmap
-	 *  
-	 *  17. updateUserProfileInfo
-	 *  17.1 param : id, struct { id, nick, phone, timestamp }
-	 *  17.2 return : true / false
-	 *  
-	 *  18. updateUserProfilePicture
-	 *  18.1 param : id, bitmap, timestamp
-	 *  18.2 return : true / false
-	 *  
-	 *  19. syncUserProfile
-	 *  19.1 param : id
-	 *  19.2 return : true / false
-	 */
-	
-	
 	@Override
 	public void onCreate() {
 		Log.d(TAG, "onCreate");
@@ -228,7 +140,7 @@ public class OliveService extends Service {
 		
 		BaasioUser user = null;
 		try {
-			user = BaasioUser.signUp(username, username, "", password);
+			user = BaasioUser.signUp(username, username, username+"@"+username.hashCode(), password);
 
 			android.util.Log.d(TAG, "Success to sign up [" + user.getUsername() + "]");
 			
@@ -267,10 +179,51 @@ public class OliveService extends Service {
 		return eRet;
 	}
 	
-	private UserInfo getSignedUserInfo() {
+	private int signOut() {
+		int eRet = OLIVE_SUCCESS;
+		
+		return eRet;
+	}
+	
+	private boolean isSignedIn() {
+		String token = Baas.io().getAccessToken();
+		return token != null;
+	}
+	
+	private UserInfo getUserProfile() {
 		UserInfo oRet = null;		
 		
 		BaasioUser user = Baas.io().getSignedInUser();
+		
+		if (user != null) {
+			oRet = new UserInfo();
+			oRet.mUsername = user.getUsername();			
+			oRet.mNickname = user.getName();
+			oRet.mPhoneNumber = user.getMiddlename();
+			oRet.mCreated = user.getCreated();
+			oRet.mModified = user.getModified();
+		}
+		
+		return oRet;
+	}
+	
+	private UserInfo getRecipientProfile(String username) {
+		UserInfo oRet = null;		
+		
+		BaasioQuery mQuery = new BaasioQuery();
+		mQuery.setType("user");
+		//mQuery.setWheres("username LIKE " + username);
+		mQuery.setOrderBy(BaasioBaseEntity.PROPERTY_NAME, ORDER_BY.DESCENDING);
+		mQuery.setLimit(10);
+		
+		BaasioUser user = null;
+		try {
+			BaasioResponse response = mQuery.query();
+			user = response.getUser();
+		} catch (BaasioException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		if (user != null) {
 			oRet = new UserInfo();
