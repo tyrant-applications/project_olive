@@ -1,63 +1,160 @@
 package com.tyrantapp.olive;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
+import java.util.ArrayList;
+import java.util.List;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ViewFlipper;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.TextView.OnEditorActionListener;
 
 import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.R.id;
-import com.tyrantapp.olive.R.layout;
-import com.tyrantapp.olive.R.menu;
 import com.tyrantapp.olive.adapters.RecipientsListAdapter;
 import com.tyrantapp.olive.components.RecipientsListView;
-import com.tyrantapp.olive.fragments.ParentsFragment;
+import com.tyrantapp.olive.providers.OliveContentProvider;
+import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
+import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
+import com.tyrantapp.olive.types.UserInfo;
 
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends BaseActivity implements BaseActivity.OnConnectServiceListener {
 	// static variable
 	static private final String		TAG = "MainActivity";
 			
+	// View
+	private RecipientsListView		mRecipientsListView;
+	private RecipientsListAdapter 	mRecipientsAdapter;
+	private ViewFlipper				mFooterFlipper;
+	private EditText				mRecipientEdit;
 	
-	// for Layout
-	private RootFragmentsPagerAdapter	mRootFragmentsAdapter;
-	private ViewPager					mRootFragmentsPager;
-	
-	// for Setting
-	private Button						mSettingButton;
-	
-	private String						mUsername;
 
+	// for common
+	private String					mUsername;	
+	private boolean 				mFooterFlipped;
+
+	
+	// listener
+	private OnItemClickListener mOnItemClickListener = new OnItemClickListener() {
 		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			// Find current item's recipient ID and start conversation activity
+			android.util.Log.d(TAG, "id = " + id);
+			
+			Cursor cursor = getContentResolver().query(
+					RecipientColumns.CONTENT_URI, 
+					new String[] { RecipientColumns.USERNAME, },
+					RecipientColumns._ID + "=?", new String[] { String.valueOf(id), },
+					null);
+			
+			String recipientName = null;
+			if (cursor != null) {
+				cursor.moveToFirst();
+				recipientName = cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME));
+			}
+			
+			if (id >= 0) {
+				Intent intent = new Intent(getApplicationContext(), ConversationActivity.class)
+					.putExtra(ConversationColumns.RECIPIENT_ID, id)
+					.putExtra(ConversationActivity.EXTRA_FROM, mUsername)
+					.putExtra(ConversationActivity.EXTRA_TO, recipientName);
+				startActivity(intent);
+			}
+		}
+	};
+	
+	private OnEditorActionListener mOnEditorActionListener = new OnEditorActionListener() {
+		@Override
+		public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+			if (actionId == EditorInfo.IME_ACTION_DONE) {
+				String pszTag = v.getText().toString();
+				
+				if (!pszTag.isEmpty()) {
+					UserInfo info =  mRESTHelper.getRecipientProfile(pszTag);
+					
+					if (info != null) {
+						ContentValues values = new ContentValues();
+						values.put(RecipientColumns.USERNAME, pszTag);
+						values.put(RecipientColumns.NICKNAME, pszTag);
+						values.put(RecipientColumns.UNREAD, false);
+						
+						getContentResolver().insert(RecipientColumns.CONTENT_URI, values);	
+						android.util.Log.d("Olive", "Insert recipient!");
+						Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_succeed_add_recipient), Toast.LENGTH_SHORT).show();
+					} else {
+						android.util.Log.d("Olive", "Failed Insert recipient!");
+						Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_failed_add_recipient), Toast.LENGTH_SHORT).show();
+					}
+				} else {
+					android.util.Log.d("Olive", "Failed Insert recipient!");
+				}
+
+				flipFooter(false);
+			}
+			return false;
+		}
+	};
+	
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		//getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-	    //getActionBar().hide();
-	    
 	    // Initialize
 		setContentView(R.layout.activity_main);
 		
-		// Load main fragments
-		mRootFragmentsAdapter = new RootFragmentsPagerAdapter(getSupportFragmentManager());
-		mRootFragmentsPager = (ViewPager) findViewById(R.id.root_fragments_pager);
-		mRootFragmentsPager.setAdapter(mRootFragmentsAdapter);
-				
-		// Setting Button
-		mSettingButton = (Button) findViewById(R.id.setting_button);
-		
 		mUsername = getIntent().getStringExtra("username");
-		android.util.Log.d(TAG, "Username = " + mUsername);
+		android.util.Log.d(TAG, "Your ID = " + mUsername);
+		mFooterFlipped = false;
+		
+		mRecipientsListView = (RecipientsListView)findViewById(R.id.recipients_list_view);
+		mRecipientsAdapter = new RecipientsListAdapter(this);
+		mRecipientsListView.setAdapter(mRecipientsAdapter);
+
+		mRecipientsListView.setOnItemClickListener(mOnItemClickListener);
+		
+
+		// prepare components
+		mFooterFlipper = (ViewFlipper) findViewById(R.id.footer_flipper);
+		mRecipientEdit = (EditText) findViewById(R.id.recipient_edit);
+		
+		// register event
+		mRecipientEdit.setOnEditorActionListener(mOnEditorActionListener);
+		
+		setOnConnectServiceListener(this);
+	}
+	
+	@Override
+	public void onConnected() {
+		// Run Handler
+		try {
+			mService.syncUnreadCount();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+	public void onDisconnected() {
 	}
 
 	@Override
@@ -78,25 +175,13 @@ public class MainActivity extends FragmentActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
+	public void onVoting(View v) {		
+		Toast.makeText(this,  getResources().getString(R.string.error_not_supported_yet), Toast.LENGTH_SHORT).show();
+	}
 	
-	/**
-	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-	 * one of the sections/tabs/pages.
-	 */
-	public class RootFragmentsPagerAdapter extends FragmentPagerAdapter {
-		public RootFragmentsPagerAdapter(FragmentManager fragmentManager) {
-			super(fragmentManager);
-		}
-
-		@Override
-		public int getCount() {
-			return 1;
-		}
-
-		@Override
-		public Fragment getItem(int sectionNumber) {
-			return ParentsFragment.newInstance(sectionNumber);
-		}
+	public void onAdding(View v) {		
+		flipFooter(true);
 	}
 	
 	public void onSetting(View v) {		
@@ -104,4 +189,113 @@ public class MainActivity extends FragmentActivity {
 		this.startActivity(intent);
 		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 	}
+
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		boolean isActionBack = event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP;
+		
+		if (isFooterFlipped() && isActionBack) {
+			flipFooter(false);
+			return true;
+		} else {
+			return super.dispatchKeyEvent(event);
+		}
+	}
+	
+//	@Override
+//	public boolean dispatchTouchEvent(MotionEvent ev) {
+//		flipFooter(false);
+//		return super.dispatchTouchEvent(ev);
+//	}
+	
+	public boolean isFooterFlipped() {
+		return mFooterFlipped;
+	}
+	
+	public void flipFooter(boolean bFlip) {
+		if (bFlip) {
+			if (!isFooterFlipped()) {
+				mFooterFlipped = true;
+				mFooterFlipper.showNext();
+				showSoftImputMethod(mRecipientEdit);
+			}
+		} else {
+			if (isFooterFlipped()) {
+				mFooterFlipped = false;
+				mFooterFlipper.showPrevious();					
+				hideSoftInputMethod(mRecipientEdit);
+			}
+		}
+	}
+	
+	public void showSoftImputMethod(final EditText focusView) {
+		if (focusView != null) {
+			focusView.requestFocus();
+			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.showSoftInput(focusView, InputMethodManager.SHOW_IMPLICIT);
+		}
+	}
+	
+	public void hideSoftInputMethod(final EditText focusView) {
+		if (focusView != null) {
+			focusView.setText(null);
+			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
+		}
+	}
+//	
+//
+//	// Handler for sync db & server (Unread)
+//	class UnreadHandler extends Handler {
+//		public static final int WHAT_SYNC = 0x1000;
+//		public static final int INTERVAL = 30000;
+//		
+//		@Override
+//		public void handleMessage(Message msg) {
+//			super.handleMessage(msg);
+//			
+//			removeMessages(WHAT_SYNC);
+//			
+//			if (msg.what == WHAT_SYNC) {
+//				boolean bSyncFailed = false;
+//				
+//				// get recipient list from db
+//				Cursor cursor = getContentResolver().query(
+//						RecipientColumns.CONTENT_URI, 
+//						RecipientColumns.PROJECTIONS, 
+//						null, null, null);
+//				
+//				ArrayList<String> listRecipients = new ArrayList<String>();
+//				if (cursor != null) {
+//					cursor.moveToFirst();
+//					
+//					for (int i=0; i<cursor.getCount(); i++) {
+//						listRecipients.add(cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME)));
+//						cursor.moveToNext();
+//					}
+//				}
+//				
+//				for (String username : listRecipients) {
+//					// get unread count from server
+//					int nUnreadCount = mRESTHelper.getUnreadCount(username);
+//					
+//					android.util.Log.d(TAG, "Unread count [" + username + "] = " + nUnreadCount);
+//					
+//					// update to db
+//					ContentValues values = new ContentValues();
+//					values.put(RecipientColumns.UNREAD, nUnreadCount);
+//					
+//					getContentResolver().update(
+//							RecipientColumns.CONTENT_URI,
+//							values,
+//							RecipientColumns.USERNAME + "=?",
+//							new String[] { username, });
+//				}
+//							
+//				if (bSyncFailed) {
+//					sendEmptyMessageDelayed(WHAT_SYNC, INTERVAL);
+//				}
+//			}
+//		}
+//	};
 }

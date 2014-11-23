@@ -10,6 +10,10 @@ import com.tyrantapp.olive.components.ConversationListView;
 import com.tyrantapp.olive.fragments.KeypadFragment;
 import com.tyrantapp.olive.interfaces.OnOliveKeypadListener;
 import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
+import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
+import com.tyrantapp.olive.types.OliveMessage;
+import com.tyrantapp.olive.types.UserInfo;
+import com.tyrantapp.olive.BaseActivity.OnConnectServiceListener;
 
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
@@ -24,6 +28,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,7 +43,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-public class ConversationActivity extends FragmentActivity implements OnOliveKeypadListener {
+public class ConversationActivity extends BaseActivity implements OnOliveKeypadListener, OnConnectServiceListener {
 	final static private String			TAG = "ConversationActivity";
 
 	final static private int			RESULT_LOAD_IMAGE	= 1;
@@ -47,8 +52,15 @@ public class ConversationActivity extends FragmentActivity implements OnOliveKey
 	final static private int			RESULT_RECORD_VOICE	= 4;
 	final static private int			RESULT_GET_LOCATION	= 5;
 	
+	final static public String			EXTRA_FROM	= "from";
+	final static public String			EXTRA_TO	= "to";
+	
 	
 	private long						mRecipientId;
+	private String						mUsername;
+	private String						mRecipientName;
+	
+	private UserInfo					mRecipientInfo;
 
 	private ConversationListAdapter		mConversationAdapter;
 	private ConversationListView		mConversationListView;
@@ -73,7 +85,7 @@ public class ConversationActivity extends FragmentActivity implements OnOliveKey
 	private EditText					mTextEditor;
 	private Button						mTextSender;
 	
-	private DataSetObserver				mConversationObserver = new DataSetObserver() {
+	private DataSetObserver	mConversationObserver = new DataSetObserver() {
 		@Override
 		public void onChanged() {
 			Cursor cursor = (Cursor) mConversationAdapter.getCursor();
@@ -85,7 +97,7 @@ public class ConversationActivity extends FragmentActivity implements OnOliveKey
 		}
 	};
 	
-	private OnItemClickListener			mOnConversationClickListener = new OnItemClickListener() {
+	private OnItemClickListener	mOnConversationClickListener = new OnItemClickListener() {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			Cursor cursor = (Cursor) mConversationAdapter.getItem(position);
@@ -94,7 +106,7 @@ public class ConversationActivity extends FragmentActivity implements OnOliveKey
 		}		
 	};
 	
-	private OnClickListener				mOnTextClickListener = new OnClickListener() {
+	private OnClickListener	mOnTextClickListener = new OnClickListener() {
 		public void onClick(View view) {
 			if (!mTypingMode) {
 				changeTypingMode();
@@ -102,31 +114,31 @@ public class ConversationActivity extends FragmentActivity implements OnOliveKey
 		}
 	};
 	
-	private OnClickListener				mOnGalleryClickListener = new OnClickListener() {
+	private OnClickListener	mOnGalleryClickListener = new OnClickListener() {
 		public void onClick(View view) {
 			Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 			startActivityForResult(intent, RESULT_LOAD_IMAGE);
 		}
 	};
 	
-	private OnClickListener				mOnCameraClickListener = new OnClickListener() {
+	private OnClickListener	mOnCameraClickListener = new OnClickListener() {
 		public void onClick(View view) {
 			Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 			startActivityForResult(intent, RESULT_TAKE_PICTURE);
 		}
 	};
 	
-	private OnClickListener				mOnVoiceClickListener = new OnClickListener() {
+	private OnClickListener	mOnVoiceClickListener = new OnClickListener() {
 		public void onClick(View view) {
 		}
 	};
 	
-	private OnClickListener				mOnLocationClickListener = new OnClickListener() {
+	private OnClickListener	mOnLocationClickListener = new OnClickListener() {
 		public void onClick(View view) {
 		}
 	};
 	
-	private OnClickListener				mOnSendClickListener = new OnClickListener() {
+	private OnClickListener	mOnSendClickListener = new OnClickListener() {
 		public void onClick(View view) {
 		}
 	};
@@ -140,8 +152,24 @@ public class ConversationActivity extends FragmentActivity implements OnOliveKey
 		// Initialize
 		Intent intent = getIntent();
 		if (intent != null) {
-			mRecipientId = intent.getLongExtra(ConversationColumns.RECIPIENT, -1); 
-		}
+			mUsername = intent.getStringExtra(EXTRA_FROM);
+			mRecipientName = intent.getStringExtra(EXTRA_TO);
+			
+			mRecipientId = intent.getLongExtra(ConversationColumns.RECIPIENT_ID, -1);
+			if (mRecipientId < 0) {
+				Cursor cursor = getContentResolver().query(
+						RecipientColumns.CONTENT_URI, 
+						new String[] { RecipientColumns._ID, },
+						RecipientColumns.USERNAME + "=?",
+						new String[] { mRecipientName, },
+						null);
+				
+				if (cursor != null) {
+					cursor.moveToFirst();
+					mRecipientId = cursor.getLong(cursor.getColumnIndex(RecipientColumns._ID));
+				}
+			}			
+		}		
 		
 		if (mRecipientId >= 0) {
 			mConversationAdapter = new ConversationListAdapter(this, mRecipientId);
@@ -196,13 +224,41 @@ public class ConversationActivity extends FragmentActivity implements OnOliveKey
 		// Update UI
 		if (mConversationAdapter != null) {
 			TextView tv = (TextView) findViewById(R.id.title_name);
-			tv.setText(mConversationAdapter.getRecipientName());
+			tv.setText(mConversationAdapter.getNickName());
 			
 			Cursor cursor = mConversationAdapter.getCursor();
 			if (cursor != null) cursor.moveToLast();
 			updateLastOlive(cursor);
 		
 		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		ContentValues values = new ContentValues();
+		values.put(ConversationColumns.IS_READ, "true");
+		
+		getContentResolver().update(
+				ConversationColumns.CONTENT_URI, 
+				values, 
+				ConversationColumns.RECIPIENT_ID + "=" + mRecipientId, 
+				null);
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+	}
+
+	@Override
+	public void onConnected() {
+		mRecipientInfo = mRESTHelper.getRecipientProfile(mRecipientName);
+	}
+
+	@Override
+	public void onDisconnected() {
 	}
 
 	@Override
@@ -286,14 +342,24 @@ public class ConversationActivity extends FragmentActivity implements OnOliveKey
 		Button view = (Button)fragment.getOliveButton(index);
 		
 		ContentValues values = new ContentValues();
+		OliveMessage msg = null; 
 		
 		if (mRecipientId >= 0) {
-			values.put(ConversationColumns.RECIPIENT, mRecipientId);
-			values.put(ConversationColumns.CTX_DETAIL, String.valueOf(view.getText()));
-			
-			//android.util.Log.d("Olive", "Insert Conversation = " + sSelectedRecipientID + " / " + String.valueOf(view.getText()));
-			
-			getContentResolver().insert(ConversationColumns.CONTENT_URI, values);
+			// Send Message to Server
+			msg = mRESTHelper.postOlive(mRecipientName, String.valueOf(view.getText()));
+			if (msg != null) {
+				values.put(ConversationColumns.RECIPIENT_ID, mRecipientId);
+				values.put(ConversationColumns.CTX_DETAIL, msg.mContext);
+				values.put(ConversationColumns.IS_RECV, false);
+				values.put(ConversationColumns.IS_PENDING, false);
+				values.put(ConversationColumns.IS_READ, false);
+				values.put(ConversationColumns.MODIFIED, msg.mModified);
+				
+				//android.util.Log.d("Olive", "Insert Conversation = " + sSelectedRecipientID + " / " + String.valueOf(view.getText()));
+				getContentResolver().insert(ConversationColumns.CONTENT_URI, values);
+			} else {
+				Toast.makeText(this, R.string.toast_failed_post_olive, Toast.LENGTH_SHORT).show();
+			}				
 		}
 	}
 	

@@ -46,53 +46,12 @@ import android.widget.TextView.OnEditorActionListener;
 public class RecipientsListView extends ListView {
 	final static private String TAG = "RecipientsListView";
 	
-	final static private boolean DEBUG = true;
-	
 	// Member variables.
 	private Context 	mContext;
-	
-	private ViewFlipper	mFlipper;
-	private EditText	mAddUserEdit;
-	
-	private boolean 	mAddMode = false;
 	
 	private ListAdapter	mAdapter;
 	private View		mHeader;
 	private boolean		mShowHeader = false;
-	
-	private OnClickListener mOnFooterClickListener = new OnClickListener() {
-		@Override
-		public void onClick(View view) {
-			changeAddMode();
-		}
-	};
-	
-	private OnEditorActionListener mOnEditorActionListener = new OnEditorActionListener() {
-		@Override
-		public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-			if (actionId == EditorInfo.IME_ACTION_DONE) {
-				String pszTag = v.getText().toString();
-				
-				if (DEBUG) {
-					if (!pszTag.isEmpty()) {
-						ContentValues values = new ContentValues();
-						values.put(RecipientColumns.USERNAME, pszTag);
-						values.put(RecipientColumns.UNREAD, false);
-						mContext.getContentResolver().insert(RecipientColumns.CONTENT_URI, values);
-
-						android.util.Log.d("Olive", "Insert recipient!");
-					} else {
-						android.util.Log.d("Olive", "Failed Insert recipient!");
-					}
-				} else {
-					// Check server.
-				}
-				
-				changeNormalMode();
-			}
-			return false;
-		}
-	};
 	
 	public RecipientsListView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -102,18 +61,6 @@ public class RecipientsListView extends ListView {
 		
 		// Add header for empty database.
 		mHeader = inflater.inflate(R.layout.recipient_item_header, this, false);
-		
-		// Add + button for adding new recipient.
-		View footer = inflater.inflate(R.layout.recipient_item_footer, this, false);
-		addFooterView(footer);
-		
-		// prepare components
-		mFlipper = (ViewFlipper) footer.findViewById(R.id.recipient_add_flipper);
-		mAddUserEdit = (EditText) footer.findViewById(R.id.recipient_edit);
-		
-		// register event
-		footer.setOnClickListener(mOnFooterClickListener);
-		mAddUserEdit.setOnEditorActionListener(mOnEditorActionListener);	
 	}
 
 	@Override
@@ -145,25 +92,6 @@ public class RecipientsListView extends ListView {
 		}
 	}
 
-	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
-		boolean isActionBack = event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP;
-		
-		if (isAddMode() && isActionBack) {
-			changeNormalMode();
-			return true;
-		} else {
-			return super.dispatchKeyEvent(event);
-		}
-	}
-	
-
-	@Override
-	public boolean dispatchTouchEvent(MotionEvent ev) {
-		changeNormalMode();
-		return super.dispatchTouchEvent(ev);
-	}
-	
 	public void showHeader() {
 		if (!mShowHeader) {
 			mShowHeader = true;
@@ -177,42 +105,6 @@ public class RecipientsListView extends ListView {
 			mShowHeader = false;
 			removeHeaderView(mHeader);
 			
-		}
-	}
-	
-	public boolean isAddMode() {
-		return mAddMode;
-	}
-	
-	public void changeAddMode() {
-		if (!mAddMode) {
-			mAddMode = true;
-			mFlipper.showNext();
-			showSoftImputMethod(mAddUserEdit);
-		}
-	}
-	
-	public void changeNormalMode() {
-		if (mAddMode) {
-			mAddMode = false;
-			mFlipper.showPrevious();					
-			hideSoftInputMethod(mAddUserEdit);
-		}
-	}
-
-	public void showSoftImputMethod(final EditText focusView) {
-		if (focusView != null) {
-			focusView.requestFocus();
-			InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.showSoftInput(focusView, InputMethodManager.SHOW_IMPLICIT);
-		}
-	}
-	
-	public void hideSoftInputMethod(final EditText focusView) {
-		if (focusView != null) {
-			focusView.setText(null);
-			InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
 		}
 	}
 }

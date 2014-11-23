@@ -3,15 +3,10 @@ package com.tyrantapp.olive;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -25,13 +20,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.services.IOliveService;
-import com.tyrantapp.olive.services.OliveService;
+import com.tyrantapp.olive.helper.RESTHelper;
+import com.tyrantapp.olive.services.SyncNetworkService;
 
 /**
  * A sign up screen that offers sign up via email/password.
  */
-public class SignUpActivity extends Activity {
+public class SignUpActivity extends BaseActivity {
 
 	/**
 	 * A dummy authentication store containing known user names and passwords.
@@ -97,18 +92,6 @@ public class SignUpActivity extends Activity {
 		mProgressView = findViewById(R.id.signup_progress);
 	}
 
-	@Override
-	protected void onStart() {
-		startServiceBind();
-		super.onStart();
-	}
-
-	@Override
-	protected void onStop() {
-		stopServiceBind();
-		super.onStop();
-	}
-
 	public void attemptSignUp() {
 		// Reset errors.
 		mUsernameView.setError(null);
@@ -150,25 +133,19 @@ public class SignUpActivity extends Activity {
 			// Show a progress spinner, and kick off a background task to
 			// perform the user sign up attempt.
 			showProgress(true);			
-			try {
-				int eError = mService.signUp(username, password);
-				if (eError == OliveService.OLIVE_SUCCESS) {
-					Toast.makeText(getApplicationContext(), "Succeed to create new account.", Toast.LENGTH_SHORT);
-					showProgress(false);
-					finish();
-				} else {
-					Toast.makeText(getApplicationContext(), "Failed to create new account. (" + eError + ")", Toast.LENGTH_SHORT).show();
-				}
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				Toast.makeText(getApplicationContext(), "Failed to create new account.", Toast.LENGTH_SHORT).show();
-			} finally {
+			int eError = mRESTHelper.signUp(username, password);
+			if (eError == RESTHelper.OLIVE_SUCCESS) {
+				Toast.makeText(getApplicationContext(), "Succeed to create new account.", Toast.LENGTH_SHORT);
 				showProgress(false);
+				finish();
+			} else {
+				Toast.makeText(getApplicationContext(), "Failed to create new account. (" + eError + ")", Toast.LENGTH_SHORT).show();
 			}
+			
+			showProgress(false);
 		}
 	}
-
+	
 	private boolean isPasswordValid(String password) {
 		// TODO: Replace this with your own logic
 		return password.length() > 4;
@@ -276,48 +253,4 @@ public class SignUpActivity extends Activity {
 			showProgress(false);
 		}
 	}
-	
-
-	
-	
-//	IOliveServiceCallback mCallbcak = new IOliveServiceCallback.Stub() {
-//		
-//		@Override
-//		public void valueChanged(long value) throws OliveException {
-//			Log.i("BHC_TEST", "Activity Callback value : " + value);
-//		}
-//	};
-	
-	IOliveService mService;
-	ServiceConnection mConntection = new ServiceConnection() {
-		
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			// TODO Auto-generated method stub
-			
-			if(service != null){
-				mService = IOliveService.Stub.asInterface(service);
-			}
-		}
-		
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			// TODO Auto-generated method stub
-			
-			if(mService != null){
-				mService = null;
-			}
-		}
-	};
-	
-	private void startServiceBind(){
-		//startService(new Intent(this, OliveService.class));
-		bindService(new Intent(this, OliveService.class), mConntection, Context.BIND_AUTO_CREATE);
-	}
-	
-	private void stopServiceBind(){
-		unbindService(mConntection);
-		//stopService(new Intent(this, OliveService.class));
-	}	
-
 }

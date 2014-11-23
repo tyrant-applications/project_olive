@@ -24,5 +24,12 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_conversation">Conversation</string>
     <string name="hello_world">Hello world!</string>
+    
+    <string name="toast_succeed_add_recipient">Success to add new friend.</string>
+    <string name="toast_failed_add_recipient">Sorry. Cannot find a friend.</string>
+    <string name="toast_failed_post_olive">Failed to post olive message.</string>
+    <string name="toast_error_invalid_email">Check email address please.</string>
+    
+    <string name="error_not_supported_yet">Not support yet.</string>
 
 </resources>

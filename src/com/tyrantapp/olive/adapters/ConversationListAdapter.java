@@ -32,6 +32,7 @@ public class ConversationListAdapter extends CursorAdapter {
 	// member variables
     private Context 	mContext;
     private String		mRecipientName;
+    private String		mNickName;
     
     public ConversationListAdapter(Context context, long recipient_id) {
         super(
@@ -39,7 +40,7 @@ public class ConversationListAdapter extends CursorAdapter {
         	context.getContentResolver().query(
 				ConversationColumns.CONTENT_URI,
 				ConversationColumns.PROJECTIONS,
-				ConversationColumns.RECIPIENT + "=?", 
+				ConversationColumns.RECIPIENT_ID + "=?", 
 				new String[] { String.valueOf(recipient_id), }, 
 				null
 			)
@@ -48,7 +49,7 @@ public class ConversationListAdapter extends CursorAdapter {
         // for update recipient name
 		Cursor cursor = context.getContentResolver().query(
 				RecipientColumns.CONTENT_URI, 
-				new String[] { RecipientColumns.USERNAME, },
+				new String[] { RecipientColumns.USERNAME, RecipientColumns.NICKNAME, },
 				RecipientColumns._ID + "=?", 
 				new String[] { String.valueOf(recipient_id), },
 				null);
@@ -56,8 +57,10 @@ public class ConversationListAdapter extends CursorAdapter {
 		cursor.moveToFirst();
 		if (cursor.getCount() > 0) {
 			mRecipientName = cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME));
+			mNickName = cursor.getString(cursor.getColumnIndex(RecipientColumns.NICKNAME));
 		} else {
 			mRecipientName = "Not Found";
+			mNickName = "Unknown User";
 		}
         
         mContext = context;
@@ -98,5 +101,9 @@ public class ConversationListAdapter extends CursorAdapter {
 
     public String getRecipientName() {
     	return mRecipientName;
+    }
+    
+    public String getNickName() {
+    	return mNickName;
     }
 }

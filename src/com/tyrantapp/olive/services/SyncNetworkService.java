@@ -1,22 +1,8 @@
 package com.tyrantapp.olive.services;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Set;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.ArrayList;
 
 import com.kth.baasio.Baas;
-import com.kth.baasio.callback.BaasioCallback;
-import com.kth.baasio.callback.BaasioSignUpCallback;
 import com.kth.baasio.entity.BaasioBaseEntity;
 import com.kth.baasio.entity.entity.BaasioEntity;
 import com.kth.baasio.entity.user.BaasioUser;
@@ -26,92 +12,59 @@ import com.kth.baasio.query.BaasioQuery.ORDER_BY;
 import com.kth.baasio.response.BaasioResponse;
 
 import android.app.Service;
+import android.content.ContentValues;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.database.Cursor;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.StrictMode;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
-import com.tyrantapp.olive.MainActivity;
+import com.tyrantapp.olive.ConversationActivity;
 import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.services.*;
+import com.tyrantapp.olive.helper.RESTHelper;
+import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
+import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
+import com.tyrantapp.olive.types.OliveMessage;
 import com.tyrantapp.olive.types.UserInfo;
 
-public class OliveService extends Service {
+public class SyncNetworkService extends Service {
 	public static final String TAG = "OliveService";
 	
 	public static final String INTENT_ACTION = "intent.action.tyrantapp.olive.service";
+	public static final String INTENT_ACTION_SYNC_CONVERSATION = INTENT_ACTION + ".sync_conversation";
 		
-	// User custom
-	public static final int OLIVE_SUCCESS					=  1;
-	public static final int OLIVE_FAIL_UNKNOWN				=  0;
-	public static final int OLIVE_FAIL_NO_SIGNIN			= -1;
-	public static final int OLIVE_FAIL_NO_EXIST 			= -2;
-	public static final int OLIVE_FAIL_NO_PARAMETER			= -3;
-	public static final int OLIVE_FAIL_ALREADY_EXIST		= -4;	
-	public static final int OLIVE_FAIL_BAD_NETWORK			= -5;
-	public static final int OLIVE_FAIL_TIMEOUT				= -6;
-	public static final int OLIVE_FAIL_INVALID_ID			= -7;
-	public static final int OLIVE_FAIL_BAD_PASSWORD			= -8;
-	public static final int OLIVE_FAIL_INVALID_PASSWORD		= -9;
+	private	SyncNetworkService mService = null;
 	
-	public static final String OLIVE_RETURN_FAILED			= "__FAILED__";
-	
-	
-	private static final String SERVER_URL = "http://0.0.0.0:8080/MyServer/JSONServer.jsp";
-	private	OliveService mService = null;
-	private boolean	mOnlined = false;
-	
-	
-	private final IOliveService.Stub mBinder = new IOliveService.Stub() {
-		
-		@Override
-		public int signUp(String username, String password) throws RemoteException {
-			return mService.signUp(username, password);
+	private final ISyncNetworkService.Stub mBinder = new ISyncNetworkService.Stub() {
+		public void syncRecipientInfo() {
+			onSyncRecipientInfo();
 		}
 		
-		@Override
-		public int signIn(String username, String password) throws RemoteException {
-			return mService.signIn(username, password);
+		public void syncUnreadCount() {
+			android.util.Log.d(TAG, "recv call syncUnread count");
+			onSyncUnreadCount();
 		}
 		
-		@Override
-		public int signOut() throws RemoteException {
-			return mService.signOut();
+		public void syncConversation(String username) {
+			onSyncConversation(username);
 		}
-		
-		@Override
-		public boolean isSignedIn() throws RemoteException {
-			return mService.isSignedIn();
-		}
-		
-		@Override
-		public UserInfo getUserProfile() throws RemoteException {
-			return mService.getUserProfile();
-		}
-		
-		@Override
-		public UserInfo getRecipientProfile(String username) throws RemoteException {
-			return mService.getRecipientProfile(username);
-		}
-		
 	};
 		
 	@Override
 	public void onCreate() {
 		Log.d(TAG, "onCreate");
-		
+
 		if(android.os.Build.VERSION.SDK_INT > 9) {
+			android.util.Log.d(TAG, "Network Strict Mode On!");
+			
 		    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 	        StrictMode.setThreadPolicy(policy);
 		}
 		
 		mService = this;
-		
+
 		super.onCreate();		
 		
 	}
@@ -125,118 +78,132 @@ public class OliveService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		Log.d(TAG, "onStartCommand");
+		android.util.Log.d(TAG, "onStartCommand");
+		if (intent != null && INTENT_ACTION_SYNC_CONVERSATION.equals(intent.getAction())) {
+			android.util.Log.d(TAG, "SYNC CONVERSATION");
+			String from = intent.getStringExtra(ConversationActivity.EXTRA_FROM);
+			onSyncConversation(from);
+		}
 		return START_STICKY;
 	}
 	
 	@Override
 	public IBinder onBind(Intent intent) {
-		Log.d(TAG, "onBind..");
 		return mBinder;
 	}
 	
-	private int signUp(String username, String password) {
-		int eRet = OLIVE_SUCCESS;
+	private void onSyncRecipientInfo() {
 		
-		BaasioUser user = null;
-		try {
-			user = BaasioUser.signUp(username, username, username+"@"+username.hashCode(), password);
-
-			android.util.Log.d(TAG, "Success to sign up [" + user.getUsername() + "]");
+	}
+	
+	private void onSyncUnreadCount() {
+		final boolean FROM_SERVER = false;
+		
+		RESTHelper helper = RESTHelper.getInstance();
+		
+		// get recipient list from db
+		Cursor cursor = getContentResolver().query(
+				RecipientColumns.CONTENT_URI, 
+				RecipientColumns.PROJECTIONS, 
+				null, null, null);
+		
+		ArrayList<String> listRecipients = new ArrayList<String>();
+		if (cursor != null) {
+			cursor.moveToFirst();
 			
-			eRet = OLIVE_SUCCESS;
-		} catch (BaasioException e) {
-			if (e.getErrorCode() == 913) {
-				// 이미 가입된 사용자
-				eRet = OLIVE_FAIL_ALREADY_EXIST;
-			} else {
-				eRet = OLIVE_FAIL_UNKNOWN;
+			for (int i=0; i<cursor.getCount(); i++) {
+				listRecipients.add(cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME)));
+				cursor.moveToNext();
 			}
 		}
 		
-		return eRet;
-	}
-	
-	private int signIn(String username, String password) {
-		int eRet = OLIVE_SUCCESS;
-		
-		BaasioUser user = null;
-		try {
-			user = BaasioUser.signIn(this, username, password);
-			
-			android.util.Log.d(TAG, "Success to sign up [" + user.getUsername() + "]");
-			
-			eRet = OLIVE_SUCCESS;
-		} catch (BaasioException e) {
-			if (e.getErrorCode() == 913) {
-				// 이미 가입된 사용자
-				eRet = OLIVE_FAIL_ALREADY_EXIST;
+		for (String username : listRecipients) {
+			// get unread count from server
+			//int nUnreadCount = helper.getUnreadCount(username);
+			int nUnreadCount = 0;
+			if (FROM_SERVER) {
+				nUnreadCount = helper.getUnreadCount(username);
 			} else {
-				eRet = OLIVE_FAIL_UNKNOWN;
+				// preapre recipient id
+				long lRecipientId = -1;
+				Cursor recpCursor = getContentResolver().query(
+						RecipientColumns.CONTENT_URI, 
+						new String[] { RecipientColumns._ID, },
+						RecipientColumns.USERNAME + "=?",
+						new String[] { username, },
+						null);
+				
+				if (recpCursor != null) {
+					recpCursor.moveToFirst();
+					lRecipientId = recpCursor.getLong(cursor.getColumnIndex(RecipientColumns._ID));
+				}
+				
+				Cursor countCursor = getContentResolver().query(
+						ConversationColumns.CONTENT_URI, 
+						new String[] { ConversationColumns._ID, },
+						ConversationColumns.RECIPIENT_ID + "=" + lRecipientId + " AND " + ConversationColumns.IS_READ + "=0 AND " + ConversationColumns.IS_RECV + "=1",
+						null, null);
+				
+				if (countCursor != null) nUnreadCount = countCursor.getCount();
+			}			
+			
+			android.util.Log.d(TAG, "Unread count [" + username + "] = " + nUnreadCount);
+			
+			// update to db
+			ContentValues values = new ContentValues();
+			values.put(RecipientColumns.UNREAD, nUnreadCount);
+			
+			getContentResolver().update(
+					RecipientColumns.CONTENT_URI,
+					values,
+					RecipientColumns.USERNAME + "=?",
+					new String[] { username, });
+		}
+		
+		// if failed, repeat again... (NOT SUPPORTED YET)
+	}
+	
+	private void onSyncConversation(String username) {
+		RESTHelper helper = RESTHelper.getInstance();
+		
+		// get pending data list
+		OliveMessage[] arrMessages = helper.getPendingOlives(username);
+		
+		android.util.Log.d(TAG, "SyncConv " + username + " = " + arrMessages.length);
+		
+		// send mark to server
+		helper.markToRead(username);
+		
+		// preapre recipient id
+		long lRecipientId = -1;
+		Cursor cursor = getContentResolver().query(
+				RecipientColumns.CONTENT_URI, 
+				new String[] { RecipientColumns._ID, },
+				RecipientColumns.USERNAME + "=?",
+				new String[] { username, },
+				null);
+			
+		if (cursor != null) {
+			cursor.moveToFirst();
+			lRecipientId = cursor.getLong(cursor.getColumnIndex(RecipientColumns._ID));
+		
+			// add to db
+			ContentValues values = new ContentValues();
+			for (OliveMessage msg : arrMessages) {
+				values.put(ConversationColumns.RECIPIENT_ID, lRecipientId);
+				values.put(ConversationColumns.CTX_DETAIL, msg.mContext);
+				values.put(ConversationColumns.IS_RECV, true);
+				values.put(ConversationColumns.IS_PENDING, false);
+				values.put(ConversationColumns.IS_READ, false);
+				values.put(ConversationColumns.MODIFIED, msg.mModified);
+				
+				getContentResolver().insert(
+						ConversationColumns.CONTENT_URI, 
+						values);
+				
 			}
-		}
-		
-		return eRet;
+		}		
 	}
-	
-	private int signOut() {
-		int eRet = OLIVE_SUCCESS;
-		
-		return eRet;
-	}
-	
-	private boolean isSignedIn() {
-		String token = Baas.io().getAccessToken();
-		return token != null;
-	}
-	
-	private UserInfo getUserProfile() {
-		UserInfo oRet = null;		
-		
-		BaasioUser user = Baas.io().getSignedInUser();
-		
-		if (user != null) {
-			oRet = new UserInfo();
-			oRet.mUsername = user.getUsername();			
-			oRet.mNickname = user.getName();
-			oRet.mPhoneNumber = user.getMiddlename();
-			oRet.mCreated = user.getCreated();
-			oRet.mModified = user.getModified();
-		}
-		
-		return oRet;
-	}
-	
-	private UserInfo getRecipientProfile(String username) {
-		UserInfo oRet = null;		
-		
-		BaasioQuery mQuery = new BaasioQuery();
-		mQuery.setType("user");
-		//mQuery.setWheres("username LIKE " + username);
-		mQuery.setOrderBy(BaasioBaseEntity.PROPERTY_NAME, ORDER_BY.DESCENDING);
-		mQuery.setLimit(10);
-		
-		BaasioUser user = null;
-		try {
-			BaasioResponse response = mQuery.query();
-			user = response.getUser();
-		} catch (BaasioException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		if (user != null) {
-			oRet = new UserInfo();
-			oRet.mUsername = user.getUsername();			
-			oRet.mNickname = user.getName();
-			oRet.mPhoneNumber = user.getMiddlename();
-			oRet.mCreated = user.getCreated();
-			oRet.mModified = user.getModified();
-		}
-		
-		return oRet;
-	}
-	
 	
 	/*
 	public boolean signIn(String id, String passwd) {

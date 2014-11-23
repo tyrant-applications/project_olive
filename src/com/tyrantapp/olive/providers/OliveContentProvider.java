@@ -42,28 +42,34 @@ public class OliveContentProvider extends ContentProvider {
         public static final Uri 		CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/recipients");  
         public static final String 		CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tyrantapp.olive.recipients";
         
-        public static final String 		USERNAME = "username";
-        public static final String 		UNREAD	= "unread";
-        public static final String 		STARRED	= "starred";
+        public static final String 		USERNAME		= "username";
+        public static final String		NICKNAME		= "nickname";
+        public static final String		PHONENUMBER		= "phonenumber";
+        public static final String		EMAIL			= "email";
+        public static final String 		UNREAD			= "unread";
+        public static final String		MODIFIED		= "modified";
+        public static final String		PICTURE			= "picture";
+        public static final String 		STARRED			= "starred";
         
-        public static final String[] 	PROJECTIONS = new String[] { _ID, USERNAME, UNREAD, STARRED, };
-        public static final String 		ORDERBY = UNREAD + " DESC, " + STARRED + " DESC, " + USERNAME;
+        public static final String[] 	PROJECTIONS = new String[] { _ID, USERNAME, NICKNAME, PHONENUMBER, EMAIL, UNREAD, MODIFIED ,PICTURE, STARRED, };
+        public static final String 		ORDERBY = UNREAD + " DESC, " + STARRED + " DESC, " + NICKNAME;
     }  
     
     public static final class ConversationColumns implements BaseColumns {     
         public static final Uri 		CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/conversations");     
         public static final String 		CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tyrantapp.olive.conversations";
         
-        public static final String 		RECIPIENT	= "recipient";     
-        public static final String 		IS_RECV		= "is_receive";
-        public static final String 		CTX_AUTHOR	= "context_author";
+        public static final String 		RECIPIENT_ID	= "recipient_id";     
+        public static final String 		CTX_AUTHOR		= "context_author";
         public static final String 		CTX_CATEGORY	= "context_category";
-        public static final String 		CTX_DETAIL	= "context_detail";
-        public static final String 		DATE			= "date";
-        public static final String 		IS_PENDING	= "is_pending";
+        public static final String 		CTX_DETAIL		= "context_detail";
+        public static final String 		IS_RECV			= "is_receive";
+        public static final String 		IS_PENDING		= "is_pending";
+        public static final String		IS_READ			= "is_read";
+        public static final String 		MODIFIED		= "modified";
         
-        public static final String[] 	PROJECTIONS = new String[] { _ID, RECIPIENT, IS_RECV, CTX_AUTHOR, CTX_CATEGORY, CTX_DETAIL, DATE, IS_PENDING, };
-        public static final String 		ORDERBY = null;
+        public static final String[] 	PROJECTIONS = new String[] { _ID, RECIPIENT_ID, CTX_AUTHOR, CTX_CATEGORY, CTX_DETAIL, IS_RECV, IS_PENDING, IS_READ, MODIFIED };
+        public static final String 		ORDERBY = MODIFIED;
     }
 
     static {
@@ -76,23 +82,29 @@ public class OliveContentProvider extends ContentProvider {
         mapRecipientsProjection = new HashMap<String, String>();
         mapRecipientsProjection.put(RecipientColumns._ID, RecipientColumns._ID);
         mapRecipientsProjection.put(RecipientColumns.USERNAME, RecipientColumns.USERNAME);
+        mapRecipientsProjection.put(RecipientColumns.NICKNAME, RecipientColumns.NICKNAME);
+        mapRecipientsProjection.put(RecipientColumns.PHONENUMBER, RecipientColumns.PHONENUMBER);
+        mapRecipientsProjection.put(RecipientColumns.EMAIL, RecipientColumns.EMAIL);
         mapRecipientsProjection.put(RecipientColumns.UNREAD, RecipientColumns.UNREAD);
+        mapRecipientsProjection.put(RecipientColumns.MODIFIED, RecipientColumns.MODIFIED);
+        mapRecipientsProjection.put(RecipientColumns.PICTURE, RecipientColumns.PICTURE);
         mapRecipientsProjection.put(RecipientColumns.STARRED, RecipientColumns.STARRED);
         
         // Conversations
         sUriMatcher.addURI(AUTHORITY, CONVERSATIONS_TABLE_NAME, CONVERSATIONS);
         sUriMatcher.addURI(AUTHORITY, CONVERSATIONS_TABLE_NAME + "/#", CONVERSATION_ID);
-        sUriMatcher.addURI(AUTHORITY, CONVERSATIONS_TABLE_NAME + "/" + ConversationColumns.RECIPIENT + "/#", CONVERSATION_RECIPIENT_ID);
+        sUriMatcher.addURI(AUTHORITY, CONVERSATIONS_TABLE_NAME + "/" + ConversationColumns.RECIPIENT_ID + "/#", CONVERSATION_RECIPIENT_ID);
  
         mapConversationsProjection = new HashMap<String, String>();
         mapConversationsProjection.put(ConversationColumns._ID, ConversationColumns._ID);
-        mapConversationsProjection.put(ConversationColumns.RECIPIENT, ConversationColumns.RECIPIENT);
-        mapConversationsProjection.put(ConversationColumns.IS_RECV, ConversationColumns.IS_RECV);
+        mapConversationsProjection.put(ConversationColumns.RECIPIENT_ID, ConversationColumns.RECIPIENT_ID);
         mapConversationsProjection.put(ConversationColumns.CTX_AUTHOR, ConversationColumns.CTX_AUTHOR);
         mapConversationsProjection.put(ConversationColumns.CTX_CATEGORY, ConversationColumns.CTX_CATEGORY);
         mapConversationsProjection.put(ConversationColumns.CTX_DETAIL, ConversationColumns.CTX_DETAIL);
-        mapConversationsProjection.put(ConversationColumns.DATE, ConversationColumns.DATE);
+        mapConversationsProjection.put(ConversationColumns.IS_RECV, ConversationColumns.IS_RECV);
         mapConversationsProjection.put(ConversationColumns.IS_PENDING, ConversationColumns.IS_PENDING);
+        mapConversationsProjection.put(ConversationColumns.IS_READ, ConversationColumns.IS_READ);
+        mapConversationsProjection.put(ConversationColumns.MODIFIED, ConversationColumns.MODIFIED);        
     }
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -104,19 +116,27 @@ public class OliveContentProvider extends ContentProvider {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE IF NOT EXISTS " + RECIPIENTS_TABLE_NAME + " (" + 
             		RecipientColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + 
-            		RecipientColumns.USERNAME + " VARCHAR(255)," +            		
-            		RecipientColumns.UNREAD + " INTEGER," +
-            		RecipientColumns.STARRED + " BOOLEAN" + ");");
+            		RecipientColumns.USERNAME + " VARCHAR(255) NOT NULL," +            		
+            		RecipientColumns.NICKNAME + " VARCHAR(255)," +
+            		RecipientColumns.PHONENUMBER + " VARCHAR(255)," +
+            		RecipientColumns.EMAIL + " VARCHAR(255)," +
+            		RecipientColumns.MODIFIED + " DATE," +
+            		RecipientColumns.PICTURE + " BLOB," +
+            		RecipientColumns.UNREAD + " INTEGER NOT NULL DEFAULT 0," +
+            		RecipientColumns.STARRED + " BOOLEAN" +
+            		");");
             
             db.execSQL("CREATE TABLE IF NOT EXISTS " + CONVERSATIONS_TABLE_NAME + " (" + 
             		ConversationColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + 
-            		ConversationColumns.RECIPIENT + " INTEGER," + 
-            		ConversationColumns.IS_RECV + " BOOLEAN," + 
+            		ConversationColumns.RECIPIENT_ID + " INTEGER," + 
             		ConversationColumns.CTX_AUTHOR + " INTEGER," + 
             		ConversationColumns.CTX_CATEGORY + " INTEGER," + 
             		ConversationColumns.CTX_DETAIL + " VARCHAR(255)," + 
-            		ConversationColumns.DATE + " DATE," + 
-            		ConversationColumns.IS_PENDING + " BOOLEAN" + ");");
+            		ConversationColumns.IS_RECV + " BOOLEAN," + 
+            		ConversationColumns.IS_PENDING + " BOOLEAN," +
+            		ConversationColumns.IS_READ + " BOOLEAN," +
+            		ConversationColumns.MODIFIED + " DATE" + 
+            		");");
         }
  
         @Override
@@ -138,18 +158,18 @@ public class OliveContentProvider extends ContentProvider {
             case RECIPIENTS:
                 break;
             case RECIPIENT_ID:
-                where = where + "_id = " + uri.getLastPathSegment();
+                where = where + RecipientColumns._ID + " = " + uri.getLastPathSegment();
                 break;
             case CONVERSATIONS:
             	bIsRecipientTable = false;
                 break;
             case CONVERSATION_ID:
             	bIsRecipientTable = false;
-                where = where + "_id = " + uri.getLastPathSegment();
+                where = where + RecipientColumns._ID + " = " + uri.getLastPathSegment();
                 break;
             case CONVERSATION_RECIPIENT_ID:
             	bIsRecipientTable = false;
-                where = where + "recipient = " + uri.getLastPathSegment();
+                where = where + ConversationColumns.RECIPIENT_ID + " = " + uri.getLastPathSegment();
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -251,15 +271,15 @@ public class OliveContentProvider extends ContentProvider {
             case RECIPIENTS:
                 break;
             case RECIPIENT_ID:
-                selection = selection + "_id = " + uri.getLastPathSegment();
+                selection = selection + RecipientColumns._ID + " = " + uri.getLastPathSegment();
                 break;
             case CONVERSATIONS:
                 break;
             case CONVERSATION_ID:
-                selection = selection + "_id = " + uri.getLastPathSegment();
+                selection = selection + ConversationColumns._ID + " = " + uri.getLastPathSegment();
                 break;
             case CONVERSATION_RECIPIENT_ID:
-                selection = selection + "recipient = " + uri.getLastPathSegment();
+                selection = selection + ConversationColumns.RECIPIENT_ID + " = " + uri.getLastPathSegment();
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -281,13 +301,13 @@ public class OliveContentProvider extends ContentProvider {
                 count = db.update(RECIPIENTS_TABLE_NAME, values, where, whereArgs);
                 break;
             case RECIPIENT_ID:
-                count = db.update(RECIPIENTS_TABLE_NAME, values, "_id=" + uri.getLastPathSegment(), null);
+                count = db.update(RECIPIENTS_TABLE_NAME, values, RecipientColumns._ID + "=" + uri.getLastPathSegment(), null);
                 break;
             case CONVERSATIONS:
                 count = db.update(CONVERSATIONS_TABLE_NAME, values, where, whereArgs);
                 break;
             case CONVERSATION_ID:
-                count = db.update(CONVERSATIONS_TABLE_NAME, values, "_id=" + uri.getLastPathSegment(), null);
+                count = db.update(CONVERSATIONS_TABLE_NAME, values, ConversationColumns._ID + "=" + uri.getLastPathSegment(), null);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);

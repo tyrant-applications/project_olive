@@ -3,15 +3,10 @@ package com.tyrantapp.olive;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -25,14 +20,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.services.OliveService;
-import com.tyrantapp.olive.services.IOliveService;
+import com.tyrantapp.olive.helper.RESTHelper;
+import com.tyrantapp.olive.services.SyncNetworkService;
 import com.tyrantapp.olive.types.UserInfo;
 
 /**
  * A sign in screen that offers sign in via email/password.
  */
-public class SignInActivity extends Activity {
+public class SignInActivity extends BaseActivity {
 
 	/**
 	 * A dummy authentication store containing known user names and passwords.
@@ -94,18 +89,6 @@ public class SignInActivity extends Activity {
 		mProgressView = findViewById(R.id.signin_progress);
 	}
 
-	@Override
-	protected void onStart() {
-		startServiceBind();
-		super.onStart();
-	}
-
-	@Override
-	protected void onStop() {
-		stopServiceBind();
-		super.onStop();
-	}
-
 	/**
 	 * Attempts to sign in or register the account specified by the sign in form.
 	 * If there are form errors (invalid email, missing fields, etc.), the
@@ -145,26 +128,20 @@ public class SignInActivity extends Activity {
 			// Show a progress spinner, and kick off a background task to
 			// perform the user sign in attempt.
 			showProgress(true);
-			try {
-				int eError = mService.signIn(username, password);
-				if (eError == OliveService.OLIVE_SUCCESS) {
-					UserInfo info = mService.getUserProfile();					
-					
-					finish();					
-					Intent intent = new Intent(getApplicationContext(), MainActivity.class).putExtra("username", info.mUsername);
-					startActivity(intent);
-					overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-				} else 
-				if (eError == OliveService.OLIVE_FAIL_BAD_PASSWORD){
-					Toast.makeText(getApplicationContext(), "Failed to sign in.", Toast.LENGTH_SHORT).show();
-				}
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			int eError = mRESTHelper.signIn(username, password);
+			if (eError == RESTHelper.OLIVE_SUCCESS) {
+				UserInfo info = mRESTHelper.getUserProfile();					
+				
+				finish();					
+				Intent intent = new Intent(getApplicationContext(), MainActivity.class).putExtra("username", info.mUsername);
+				startActivity(intent);
+				overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+			} else 
+			if (eError == RESTHelper.OLIVE_FAIL_BAD_PASSWORD){
 				Toast.makeText(getApplicationContext(), "Failed to sign in.", Toast.LENGTH_SHORT).show();
-			} finally {
-				showProgress(false);
 			}
+			
+			showProgress(false);
 		}
 	}
 	
@@ -275,48 +252,4 @@ public class SignInActivity extends Activity {
 			showProgress(false);
 		}
 	}
-	
-
-	
-	
-//	IOliveServiceCallback mCallbcak = new IOliveServiceCallback.Stub() {
-//		
-//		@Override
-//		public void valueChanged(long value) throws OliveException {
-//			Log.i("BHC_TEST", "Activity Callback value : " + value);
-//		}
-//	};
-	
-	IOliveService mService;
-	ServiceConnection mConntection = new ServiceConnection() {
-		
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			// TODO Auto-generated method stub
-			
-			if(service != null){
-				mService = IOliveService.Stub.asInterface(service);
-			}
-		}
-		
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			// TODO Auto-generated method stub
-			
-			if(mService != null){
-				mService = null;
-			}
-		}
-	};
-	
-	private void startServiceBind(){
-		//startService(new Intent(this, OliveService.class));
-		bindService(new Intent(this, OliveService.class), mConntection, Context.BIND_AUTO_CREATE);
-	}
-	
-	private void stopServiceBind(){
-		unbindService(mConntection);
-		//stopService(new Intent(this, OliveService.class));
-	}	
-
 }

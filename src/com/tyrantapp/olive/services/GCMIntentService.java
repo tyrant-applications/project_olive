@@ -23,15 +23,27 @@ import com.kth.baasio.exception.BaasioException;
 import com.kth.baasio.utils.JsonUtils;
 import com.kth.baasio.utils.ObjectUtils;
 import com.kth.common.utils.LogUtils;
+import com.tyrantapp.olive.ConversationActivity;
 import com.tyrantapp.olive.MainActivity;
 import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.configurations.BaasioConfig;
+import com.tyrantapp.olive.helper.RESTHelper;
+import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
+import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
+import com.tyrantapp.olive.types.OliveMessage;
+import com.tyrantapp.olive.types.UserInfo;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.database.Cursor;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 
 /**
@@ -48,7 +60,7 @@ public class GCMIntentService extends GCMBaseIntentService {
     @Override
     protected void onRegistered(Context context, String regId) {
         LogUtils.LOGI(TAG, "Device registered: regId=" + regId);
-
+        
         try {
             BaasioPush.register(context, regId);
         } catch (BaasioException e) {
@@ -74,6 +86,8 @@ public class GCMIntentService extends GCMBaseIntentService {
         String announcement = intent.getStringExtra("message");
         if (announcement != null) {
             generateNotification(context, announcement);
+
+            syncConversation(announcement);            
             return;
         }
     }
@@ -92,12 +106,21 @@ public class GCMIntentService extends GCMBaseIntentService {
             alert = msg.getAlert().replace("\\r\\n", "\n");
         }
 
+        String from = msg.getProperty(ConversationActivity.EXTRA_TO).asText();
+        String to = msg.getProperty(ConversationActivity.EXTRA_FROM).asText();
+        
         int icon = R.drawable.ic_launcher;
         long when = System.currentTimeMillis();
         NotificationManager notificationManager = (NotificationManager)context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent notificationIntent = new Intent(context, MainActivity.class);
+        Intent notificationIntent = new Intent(context, ConversationActivity.class)
+        		.putExtra(ConversationActivity.EXTRA_FROM, from)
+        		.putExtra(ConversationActivity.EXTRA_TO, to);
+        
+        android.util.Log.d(TAG, "Receive by push [" + from + "] => [" + to + "]");
+        
+        
         // set intent so it does not start a new activity
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -105,12 +128,12 @@ public class GCMIntentService extends GCMBaseIntentService {
 
         Notification notification = new NotificationCompat.Builder(context).setWhen(when)
                 .setSmallIcon(icon).setContentTitle(context.getString(R.string.app_name))
-                .setContentText(alert).setContentIntent(intent).setTicker(alert)
-                .setAutoCancel(true).getNotification();
-
+                .setContentText(from + " : " + alert).setContentIntent(intent).setTicker(from + " : " + alert)
+                .setAutoCancel(true).setVibrate(new long[]{200, 100, 200, 100}).getNotification();
+        
         notificationManager.notify(0, notification);
     }
-
+    
     @Override
     public void onError(Context context, String errorId) {
         LogUtils.LOGE(TAG, "Received error: " + errorId);
@@ -121,5 +144,19 @@ public class GCMIntentService extends GCMBaseIntentService {
         // log message
         LogUtils.LOGW(TAG, "Received recoverable error: " + errorId);
         return super.onRecoverableError(context, errorId);
+    }
+    
+    private void syncConversation(String message) {
+        BaasioPayload payload = JsonUtils.parse(message, BaasioPayload.class);
+        if (ObjectUtils.isEmpty(payload)) {
+            return;
+        }
+
+        String from = payload.getProperty(ConversationActivity.EXTRA_TO).asText();
+        
+        Intent intent = new Intent(this, SyncNetworkService.class)
+        	.setAction(SyncNetworkService.INTENT_ACTION_SYNC_CONVERSATION)
+        	.putExtra(ConversationActivity.EXTRA_FROM, from);
+        startService(intent);	
     }
 }

@@ -1,31 +1,104 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.tyrantapp.olive.activities.MainActivity" >
      
-    <android.support.v4.view.ViewPager
-	    android:id="@+id/root_fragments_pager"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent" />
+    <com.tyrantapp.olive.components.RecipientsListView
+        android:id="@+id/recipients_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:descendantFocusability="afterDescendants"
+        android:dividerHeight="0dp"
+        android:divider="@color/transparent"
+        android:background="@color/white"
+    	android:focusable="true" />
 
     <RelativeLayout
 	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
+	    android:layout_height="wrap_content"
 	    android:paddingBottom="@dimen/activity_vertical_margin"
 	    android:paddingLeft="@dimen/activity_horizontal_margin"
 	    android:paddingRight="@dimen/activity_horizontal_margin"
 	    android:paddingTop="@dimen/activity_vertical_margin">
 	    
-	    <Button
-	        android:id="@+id/setting_button"
+	    <ViewFlipper
+	        android:id="@+id/footer_flipper"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_alignParentBottom="true"
-	        android:layout_alignParentRight="true"
-	        android:text="*" 
-	        android:onClick="onSetting"/>
+	        android:layout_centerInParent="true" >
+	
+	        <LinearLayout
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:orientation="horizontal">
+	            
+	            <RelativeLayout
+	                android:layout_width="match_parent"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:gravity="center" >
+	                
+		            <Button
+		                android:id="@+id/group_vote_button"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:text="#"
+		                android:onClick="onVoting" />
+		                
+	            </RelativeLayout>
+	                
+	            <RelativeLayout
+	                android:layout_width="match_parent"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:gravity="center" >
+	                
+		            <Button
+		                android:id="@+id/recipient_add_button"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:text="+"
+		                android:onClick="onAdding" />
+		                
+	            </RelativeLayout>
+	            
+	            <RelativeLayout
+	                android:layout_width="match_parent"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:gravity="center" >
+	                
+		            <Button
+				        android:id="@+id/setting_button"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:text="*" 
+				        android:onClick="onSetting" />
+		                
+	            </RelativeLayout>
+			            
+	        </LinearLayout>
+	        
+	        <!-- Edit \view for add new recipient -->
+	        <RelativeLayout
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content" >
+	
+	            <EditText
+	                android:id="@+id/recipient_edit"
+	                android:layout_width="match_parent"
+	                android:layout_height="wrap_content"
+	                android:inputType="textPersonName"
+	                android:imeOptions="actionDone" >
+	                <requestFocus />
+	            </EditText>
+	        </RelativeLayout>
+	        
+	    </ViewFlipper>	    
 	    
 	</RelativeLayout>
 
-</RelativeLayout>
+</LinearLayout>
