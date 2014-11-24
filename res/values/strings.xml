@@ -29,6 +29,7 @@
     <string name="toast_failed_add_recipient">Sorry. Cannot find a friend.</string>
     <string name="toast_failed_post_olive">Failed to post olive message.</string>
     <string name="toast_error_invalid_email">Check email address please.</string>
+    <string name="toast_error_no_registered_recipient">This message from stranger.</string>
     
     <string name="error_not_supported_yet">Not support yet.</string>
 

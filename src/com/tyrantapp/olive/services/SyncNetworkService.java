@@ -15,6 +15,7 @@ import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.StrictMode;
@@ -33,23 +34,25 @@ public class SyncNetworkService extends Service {
 	public static final String TAG = "OliveService";
 	
 	public static final String INTENT_ACTION = "intent.action.tyrantapp.olive.service";
-	public static final String INTENT_ACTION_SYNC_CONVERSATION = INTENT_ACTION + ".sync_conversation";
+	
+	public static final String INTENT_ACTION_SYNC_CONVERSATION		= INTENT_ACTION + ".sync_conversation";
+	// sync unread count acquired by sync conversation
+	//public static final String INTENT_ACTION_SYNC_UNREAD_COUNT		= INTENT_ACTION + ".sync_unread_count";
+
+	public static final String INTENT_ACTION_SYNC_RECIPIENT_INFO	= INTENT_ACTION + ".sync_recipient_info";
+	public static final String INTENT_ACTION_SYNC_USER_INFO			= INTENT_ACTION + ".sync_user_info";
+	
+	public static final String INTENT_ACTION_POST_OLIVE				= INTENT_ACTION + ".post_olive";
+	public static final String INTENT_ACTION_MARK_TO_READ			= INTENT_ACTION + ".mark_to_read";
+	
+	
+	public static final String EXTRA_FROM							= "from";
+	public static final String EXTRA_RECIPIENTNAME					= "recipient_name";
+	public static final String EXTRA_MESSAGE						= "message";
 		
 	private	SyncNetworkService mService = null;
 	
 	private final ISyncNetworkService.Stub mBinder = new ISyncNetworkService.Stub() {
-		public void syncRecipientInfo() {
-			onSyncRecipientInfo();
-		}
-		
-		public void syncUnreadCount() {
-			android.util.Log.d(TAG, "recv call syncUnread count");
-			onSyncUnreadCount();
-		}
-		
-		public void syncConversation(String username) {
-			onSyncConversation(username);
-		}
 	};
 		
 	@Override
@@ -65,8 +68,11 @@ public class SyncNetworkService extends Service {
 		
 		mService = this;
 
-		super.onCreate();		
+		super.onCreate();
 		
+		// run SyncConversation();
+		onSyncConversation(null);
+		onSyncUnreadCount(null);
 	}
 	
 	@Override
@@ -78,12 +84,39 @@ public class SyncNetworkService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		android.util.Log.d(TAG, "onStartCommand");
+		if (intent != null && intent.getAction() != null)
+			android.util.Log.d(TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ onStartCommand + " + intent.getAction().toString());
+		else
+			android.util.Log.d(TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ onStartCommand + ");
+		
 		if (intent != null && INTENT_ACTION_SYNC_CONVERSATION.equals(intent.getAction())) {
+			// sync unread count acquired by sync conversation
 			android.util.Log.d(TAG, "SYNC CONVERSATION");
-			String from = intent.getStringExtra(ConversationActivity.EXTRA_FROM);
+			String from = intent.getStringExtra(EXTRA_FROM);
 			onSyncConversation(from);
+			onSyncUnreadCount(from);
+		} else 
+		if (intent != null && INTENT_ACTION_SYNC_RECIPIENT_INFO.equals(intent.getAction())) {
+			android.util.Log.d(TAG, "SYNC RECIPIENT INFO");
+			onSyncRecipientInfo();
+		} else
+		if (intent != null && INTENT_ACTION_SYNC_USER_INFO.equals(intent.getAction())) {
+			android.util.Log.d(TAG, "SYNC USER INFO");
+			onSyncUserInfo();
+		} else
+		if (intent != null && INTENT_ACTION_POST_OLIVE.equals(intent.getAction())) {
+			android.util.Log.d(TAG, "POST OLIVE");
+			String recipientName = intent.getStringExtra(EXTRA_RECIPIENTNAME);
+			String message = intent.getStringExtra(EXTRA_MESSAGE);
+			onPostOlive(recipientName, message);
+		} else
+		if (intent != null && INTENT_ACTION_MARK_TO_READ.equals(intent.getAction())) {
+			android.util.Log.d(TAG, "MARK TO READ");
+			String recipientName = intent.getStringExtra(EXTRA_RECIPIENTNAME);
+			onMarkToRead(recipientName);
+			onSyncUnreadCount(recipientName);
 		}
+		
 		return START_STICKY;
 	}
 	
@@ -92,62 +125,136 @@ public class SyncNetworkService extends Service {
 		return mBinder;
 	}
 	
-	private void onSyncRecipientInfo() {
-		
-	}
-	
-	private void onSyncUnreadCount() {
-		final boolean FROM_SERVER = false;
-		
+	// Service function
+	private void onSyncConversation(String recipientName) {
 		RESTHelper helper = RESTHelper.getInstance();
 		
-		// get recipient list from db
-		Cursor cursor = getContentResolver().query(
-				RecipientColumns.CONTENT_URI, 
-				RecipientColumns.PROJECTIONS, 
-				null, null, null);
-		
 		ArrayList<String> listRecipients = new ArrayList<String>();
-		if (cursor != null) {
-			cursor.moveToFirst();
+
+		if (recipientName == null) {
+			// All recipients
+			// get recipient list from db
+			Cursor cursor = getContentResolver().query(
+					RecipientColumns.CONTENT_URI, 
+					RecipientColumns.PROJECTIONS, 
+					null, null, null);
 			
-			for (int i=0; i<cursor.getCount(); i++) {
-				listRecipients.add(cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME)));
-				cursor.moveToNext();
+			if (cursor != null && cursor.getCount() > 0) {
+				cursor.moveToFirst();
+				
+				for (int i=0; i<cursor.getCount(); i++) {
+					listRecipients.add(cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME)));
+					cursor.moveToNext();
+				}
 			}
+		} else {
+			// Selected recipients
+			listRecipients.add(recipientName);
 		}
 		
 		for (String username : listRecipients) {
-			// get unread count from server
-			//int nUnreadCount = helper.getUnreadCount(username);
-			int nUnreadCount = 0;
-			if (FROM_SERVER) {
-				nUnreadCount = helper.getUnreadCount(username);
-			} else {
+			// get pending data list
+			OliveMessage[] arrMessages = helper.getPendingOlives(username);
+			
+			if (arrMessages != null) {
+				android.util.Log.d(TAG, "SyncConv " + username + " = " + arrMessages.length);
+			
+				// send mark to server
+				helper.markToRead(username);
+				
 				// preapre recipient id
 				long lRecipientId = -1;
-				Cursor recpCursor = getContentResolver().query(
+				Cursor cursor = getContentResolver().query(
 						RecipientColumns.CONTENT_URI, 
 						new String[] { RecipientColumns._ID, },
 						RecipientColumns.USERNAME + "=?",
 						new String[] { username, },
 						null);
+					
+				if (cursor != null && cursor.getCount() > 0) {
+					cursor.moveToFirst();
+					lRecipientId = cursor.getLong(cursor.getColumnIndex(RecipientColumns._ID));
 				
-				if (recpCursor != null) {
-					recpCursor.moveToFirst();
-					lRecipientId = recpCursor.getLong(cursor.getColumnIndex(RecipientColumns._ID));
+					// add to db
+					ContentValues values = new ContentValues();
+					for (OliveMessage msg : arrMessages) {
+						android.util.Log.d(TAG, "Message+++  ");
+						android.util.Log.d(TAG, "Message = " + msg.mContext);
+						values.put(ConversationColumns.RECIPIENT_ID, lRecipientId);
+						values.put(ConversationColumns.CTX_DETAIL, msg.mContext);
+						values.put(ConversationColumns.IS_RECV, true);
+						values.put(ConversationColumns.IS_PENDING, false);
+						values.put(ConversationColumns.IS_READ, false);
+						values.put(ConversationColumns.MODIFIED, msg.mModified);
+						
+						getContentResolver().insert(
+								ConversationColumns.CONTENT_URI, 
+								values);
+						
+					}
 				}
 				
-				Cursor countCursor = getContentResolver().query(
-						ConversationColumns.CONTENT_URI, 
-						new String[] { ConversationColumns._ID, },
-						ConversationColumns.RECIPIENT_ID + "=" + lRecipientId + " AND " + ConversationColumns.IS_READ + "=0 AND " + ConversationColumns.IS_RECV + "=1",
-						null, null);
-				
-				if (countCursor != null) nUnreadCount = countCursor.getCount();
-			}			
+				helper.markToDispend(username);
+			}
+		}
+	}
+	
+	private void onSyncUnreadCount(String recipientName) {
+		android.util.Log.d(TAG, "onSyncUnreadCount = " + recipientName);
+		
+		ArrayList<String> listRecipients = new ArrayList<String>();
+
+		if (recipientName == null) {
+			// All recipients
+			// get recipient list from db
+			Cursor cursor = getContentResolver().query(
+					RecipientColumns.CONTENT_URI, 
+					RecipientColumns.PROJECTIONS, 
+					null, null, null);
 			
-			android.util.Log.d(TAG, "Unread count [" + username + "] = " + nUnreadCount);
+			if (cursor != null && cursor.getCount() > 0) {
+				cursor.moveToFirst();
+				
+				for (int i=0; i<cursor.getCount(); i++) {
+					listRecipients.add(cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME)));
+					cursor.moveToNext();
+				}
+			}
+		} else {
+			// Selected recipients
+			listRecipients.add(recipientName);
+		}
+		
+		android.util.Log.d(TAG, "onSyncUnreadCount + " + listRecipients.size());
+		
+		for (String username : listRecipients) {
+			// get unread count from server
+			//int nUnreadCount = helper.getUnreadCount(username);
+			int nUnreadCount = 0;
+			
+			// preapre recipient id
+			long lRecipientId = -1;
+			Cursor recpCursor = getContentResolver().query(
+					RecipientColumns.CONTENT_URI, 
+					new String[] { RecipientColumns._ID, },
+					RecipientColumns.USERNAME + "=?",
+					new String[] { username, },
+					null);
+			
+			if (recpCursor != null && recpCursor.getCount() > 0) {
+				recpCursor.moveToFirst();
+				lRecipientId = recpCursor.getLong(recpCursor.getColumnIndex(RecipientColumns._ID));
+			}
+			
+			Cursor countCursor = getContentResolver().query(
+					ConversationColumns.CONTENT_URI, 
+					new String[] { ConversationColumns._ID, },
+					ConversationColumns.RECIPIENT_ID + "=" + lRecipientId + " AND " + ConversationColumns.IS_READ + "=0 AND " + ConversationColumns.IS_RECV + "=1",
+					null, null);
+			
+			if (countCursor != null) nUnreadCount = countCursor.getCount();
+			
+			android.util.Log.d(TAG, "Unread count [" + lRecipientId + "] = " + nUnreadCount);
 			
 			// update to db
 			ContentValues values = new ContentValues();
@@ -159,20 +266,18 @@ public class SyncNetworkService extends Service {
 					RecipientColumns.USERNAME + "=?",
 					new String[] { username, });
 		}
+	}
+
+	private void onSyncRecipientInfo() {
 		
-		// if failed, repeat again... (NOT SUPPORTED YET)
+	}
+		
+	private void onSyncUserInfo() {
+		
 	}
 	
-	private void onSyncConversation(String username) {
+	private void onPostOlive(String recipientName, String message) {
 		RESTHelper helper = RESTHelper.getInstance();
-		
-		// get pending data list
-		OliveMessage[] arrMessages = helper.getPendingOlives(username);
-		
-		android.util.Log.d(TAG, "SyncConv " + username + " = " + arrMessages.length);
-		
-		// send mark to server
-		helper.markToRead(username);
 		
 		// preapre recipient id
 		long lRecipientId = -1;
@@ -180,160 +285,69 @@ public class SyncNetworkService extends Service {
 				RecipientColumns.CONTENT_URI, 
 				new String[] { RecipientColumns._ID, },
 				RecipientColumns.USERNAME + "=?",
-				new String[] { username, },
+				new String[] { recipientName, },
 				null);
 			
-		if (cursor != null) {
+		Uri uri = null;
+		ContentValues values = new ContentValues();
+		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();
 			lRecipientId = cursor.getLong(cursor.getColumnIndex(RecipientColumns._ID));
-		
-			// add to db
-			ContentValues values = new ContentValues();
-			for (OliveMessage msg : arrMessages) {
-				values.put(ConversationColumns.RECIPIENT_ID, lRecipientId);
-				values.put(ConversationColumns.CTX_DETAIL, msg.mContext);
-				values.put(ConversationColumns.IS_RECV, true);
-				values.put(ConversationColumns.IS_PENDING, false);
-				values.put(ConversationColumns.IS_READ, false);
-				values.put(ConversationColumns.MODIFIED, msg.mModified);
-				
-				getContentResolver().insert(
-						ConversationColumns.CONTENT_URI, 
-						values);
-				
-			}
-		}		
-	}
-	
-	/*
-	public boolean signIn(String id, String passwd) {
-		boolean bRet = false;
-		
-		if (requestSignIn(id, passwd)) {
-			mLastError = OLIVE_SUCCESS;
-			mSignedIn = true;
-			bRet = true;
-		} else {
-			mLastError = OLIVE_BAD_PASSWORD;
-		}
-		
-		return bRet;
-	}
-	
-	public boolean signOut() {
-		boolean bRet = false;
-		
-		if (requestSignOut()) {
-			mLastError = OLIVE_SUCCESS;
-			mSignedIn = false;
-			bRet = true;
-		} else {
-			mLastError = OLIVE_NO_SIGNIN;
-		}
-		
-		return bRet;
-	}
-	
-	public boolean isSignedIn() {
-		return mSignedIn;
-	}
-	
-	public boolean getPendingData() {
-		boolean bRet = false;
-		
-		if (isSignedIn()) {
-			long lTimestamp = System.currentTimeMillis();
-			requestPendingData();
 			
-			mLastError = OLIVE_SUCCESS;
-			bRet = true;
-		} else {
-			mLastError = OLIVE_FAIL_NO_SIGNIN;
+			// Send Message to Server
+			values.put(ConversationColumns.RECIPIENT_ID, lRecipientId);
+			values.put(ConversationColumns.CTX_DETAIL, message);
+			values.put(ConversationColumns.IS_RECV, false);
+			values.put(ConversationColumns.IS_PENDING, true);
+			values.put(ConversationColumns.IS_READ, false);
+			values.put(ConversationColumns.MODIFIED, System.currentTimeMillis());
+		
+			uri = getContentResolver().insert(ConversationColumns.CONTENT_URI, values);
 		}
 		
-		return bRet;
+		OliveMessage msg = helper.postOlive(recipientName, message);
+		if (msg != null) {
+			values.put(ConversationColumns.IS_PENDING, false);
+			values.put(ConversationColumns.MODIFIED, msg.mModified);
+			
+			getContentResolver().update(uri, values, null, null);
+		} else {
+			Toast.makeText(this, R.string.toast_failed_post_olive, Toast.LENGTH_SHORT).show();
+		}
 	}
 	
-	public boolean postData() {
-		boolean bRet = false;
+	private void onMarkToRead(String recipientName) {
+		RESTHelper helper = RESTHelper.getInstance();
 		
-		if (isSignedIn()) {
-			long lTimestamp = System.currentTimeMillis();
-			sendgData();
-			
-			mLastError = OLIVE_SUCCESS;
-			bRet = true;
-		} else {
-			mLastError = OLIVE_FAIL_NO_SIGNIN;
+		// preapre recipient id
+		long lRecipientId = -1;
+		Cursor recpCursor = getContentResolver().query(
+				RecipientColumns.CONTENT_URI, 
+				new String[] { RecipientColumns._ID, },
+				RecipientColumns.USERNAME + "=?",
+				new String[] { recipientName, },
+				null);
+		
+		android.util.Log.d(TAG, "____ RECIPIENT = " + recipientName);
+		
+		if (recpCursor != null && recpCursor.getCount() > 0) {
+			android.util.Log.d(TAG, "Cursur Find!!!!!!!!!!!!!!!!11");
+			recpCursor.moveToFirst();
+			lRecipientId = recpCursor.getLong(recpCursor.getColumnIndex(RecipientColumns._ID));
 		}
 		
-		return bRet;
-	}
-	
-	public List<RecipientInfo> getRecipientList() {
-		boolean bRet = false;
+		ContentValues values = new ContentValues();
+		values.put(ConversationColumns.IS_READ, 1);
+		int nCount = getContentResolver().update(
+				ConversationColumns.CONTENT_URI,
+				values,
+				ConversationColumns.RECIPIENT_ID + "=" + lRecipientId + " AND " + ConversationColumns.IS_READ + "=0 AND " + ConversationColumns.IS_RECV + "=1",
+				null);
 		
-		if (isSignedIn()) {
-			long lTimestamp = System.currentTimeMillis();
-			requestPendingData();
-			
-			mLastError = OLIVE_SUCCESS;
-			bRet = true;
-		} else {
-			mLastError = OLIVE_FAIL_NO_SIGNIN;
-		}
+		android.util.Log.d(TAG, "onMarkToRead = " +  lRecipientId + " / " + nCount + " recpCursor = " + recpCursor.toString());
 		
-		return bRet;
+		helper.markToRead(recipientName);
 	}
-	*/
-	/*
-
-	 *  9. getRecipientList
-	 *  9.1 param : id
-	 *  9.2 return : vector< struct { id, nick, phone, timestamp } >
-	 *  
-	 *  10. addRecipient
-	 *  10.1 param : id, recipient
-	 *  10.2 return : true / false
-			 
-			 
-
-			 *  11. removeRecipient
-			 *  11.1 param : id, recipient
-			 *  11.2 return : true / false
-			 *  
-			 *  12. getRecipientInfo
-			 *  12.1 param : id, recipient
-			 *  12.2 return : struct { id, nick, phone, timestamp }
-			 *  
-			 *  13. getRecipientPicture
-			 *  13.1 param : id, recipient
-			 *  13.2 return : bitmap
-			 *  
-			 *  14. syncRecipientList
-			 *  14.1 param : id
-			 *  14.2 return : true / false
-			 *  
-			 *  15. getUserProfileInfo
-			 *  15.1 param : id
-			 *  15.2 return : struct { id, nick, phone, timestamp }
-			 *  
-			 *  16. getUserProfilePicture
-			 *  16.1 param : id
-			 *  16.2 return : bitmap
-			 *  
-			 *  17. updateUserProfileInfo
-			 *  17.1 param : id, struct { id, nick, phone, timestamp }
-			 *  17.2 return : true / false
-			 *  
-			 *  18. updateUserProfilePicture
-			 *  18.1 param : id, bitmap, timestamp
-			 *  18.2 return : true / false
-			 *  
-			 *  19. syncUserProfile
-			 *  19.1 param : id
-			 *  19.2 return : true / false
-	*/
 	
 	/*
 	public String queryByHttp(HashMap<String, String> mapMessage) {

@@ -43,6 +43,7 @@ public class BaasioHelper extends RESTHelper {
 	private static final String		PROPERTY_FROM 		= "from";
 	private static final String		PROPERTY_TO 		= "to";
 	private static final String		PROPERTY_CONTEXT 	= "context";
+	private static final String		PROPERTY_PENDING	= "pending";
 	private static final String		PROPERTY_UNREAD 	= "unread";
 
 	public static void initialize(Context context) {
@@ -175,31 +176,31 @@ public class BaasioHelper extends RESTHelper {
 		return nRet;
 	}
 	
-	public int	getUnreadCount(String username) {
-		int nRet = 0;	
-		
-		if (isSignedIn()) {
-			UserInfo info = getUserProfile();
-			
-			BaasioQuery mQuery = new BaasioQuery();
-	        mQuery.setType(COLLECTION);
-	        mQuery.setWheres(PROPERTY_FROM + " = '" + username + "' AND " + PROPERTY_TO + " = '" + info.mUsername + "' AND " + PROPERTY_UNREAD + " = true" );
-	        //mQuery.setProjectionIn(PROPERTY_FROM);
-	        mQuery.setLimit(999);
-	        mQuery.setOrderBy(BaasioBaseEntity.PROPERTY_MODIFIED, ORDER_BY.DESCENDING);
-	    	
-	        try {
-				BaasioResponse response = mQuery.query();
-				nRet = response.getEntities().size();
-			} catch (BaasioException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		return nRet;
-	}
-	
+//	public int	getUnreadCount(String username) {
+//		int nRet = 0;	
+//		
+//		if (isSignedIn()) {
+//			UserInfo info = getUserProfile();
+//			
+//			BaasioQuery mQuery = new BaasioQuery();
+//	        mQuery.setType(COLLECTION);
+//	        mQuery.setWheres(PROPERTY_FROM + " = '" + username + "' AND " + PROPERTY_TO + " = '" + info.mUsername + "' AND " + PROPERTY_UNREAD + " = true" );
+//	        //mQuery.setProjectionIn(PROPERTY_FROM);
+//	        mQuery.setLimit(999);
+//	        mQuery.setOrderBy(BaasioBaseEntity.PROPERTY_MODIFIED, ORDER_BY.DESCENDING);
+//	    	
+//	        try {
+//				BaasioResponse response = mQuery.query();
+//				nRet = response.getEntities().size();
+//			} catch (BaasioException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+//		
+//		return nRet;
+//	}
+//	
 	public	OliveMessage postOlive(String username, String contents) {
 		OliveMessage msg = null;
 		
@@ -219,6 +220,7 @@ public class BaasioHelper extends RESTHelper {
 			entity.setProperty(PROPERTY_FROM, msg.mFrom);
 			entity.setProperty(PROPERTY_TO, msg.mTo);
 			entity.setProperty(PROPERTY_CONTEXT, msg.mContext);
+			entity.setProperty(PROPERTY_PENDING, true);
 			entity.setProperty(PROPERTY_UNREAD, true);
 			
 			try {
@@ -266,9 +268,11 @@ public class BaasioHelper extends RESTHelper {
 			
 			BaasioQuery mQuery = new BaasioQuery();
 	        mQuery.setType(COLLECTION);
-	        mQuery.setWheres(PROPERTY_FROM + "='" + username + "' AND " + PROPERTY_TO + "='" + info.mUsername + "' AND " + PROPERTY_UNREAD + "=true" );
+	        mQuery.setWheres(PROPERTY_FROM + "='" + username + "' AND " + PROPERTY_TO + "='" + info.mUsername + "' AND " + PROPERTY_PENDING + "=true" );
 	        mQuery.setOrderBy(BaasioBaseEntity.PROPERTY_MODIFIED, ORDER_BY.DESCENDING);
 	        mQuery.setLimit(999);
+	        
+	        android.util.Log.d(TAG, "FROM " + username + " / TO = " + info.mUsername);
 	    	
 	        try {
 				BaasioResponse reponse = mQuery.query();
@@ -286,6 +290,7 @@ public class BaasioHelper extends RESTHelper {
 					arrRet[nIndex].mIsRead = entity.getProperty(PROPERTY_UNREAD).asBoolean();
 					arrRet[nIndex].mIsPending = false;
 					arrRet[nIndex].mModified = entity.getModified();
+					nIndex++;
 				}
 			} catch (BaasioException e) {
 				e.printStackTrace();
@@ -293,6 +298,37 @@ public class BaasioHelper extends RESTHelper {
 		}
 		
 		return arrRet;
+	}
+	
+	public boolean markToDispend(String username) {
+		boolean bRet = false;
+		
+		if (isSignedIn()) {
+			UserInfo info = getUserProfile();
+			
+			BaasioQuery mQuery = new BaasioQuery();
+	        mQuery.setType(COLLECTION);
+	        mQuery.setWheres(PROPERTY_FROM + "='" + username + "' AND " + PROPERTY_TO + "='" + info.mUsername + "' AND " + PROPERTY_PENDING + "=true" );
+	        mQuery.setOrderBy(BaasioBaseEntity.PROPERTY_MODIFIED, ORDER_BY.DESCENDING);
+	        mQuery.setLimit(999);
+	    	
+	        try {
+				BaasioResponse reponse = mQuery.query();
+				List<BaasioBaseEntity> entities = reponse.getEntities();
+				BaasioEntity updateEntity = new BaasioEntity(COLLECTION);
+				
+				for (BaasioBaseEntity entity : entities) {
+					updateEntity.setUuid(entity.getUuid());
+					updateEntity.setProperty(PROPERTY_PENDING, false);
+					updateEntity.update();
+				}
+				bRet = true;
+			} catch (BaasioException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return bRet;
 	}
 	
 	public boolean markToRead(String username) {

@@ -11,6 +11,7 @@ import com.tyrantapp.olive.fragments.KeypadFragment;
 import com.tyrantapp.olive.interfaces.OnOliveKeypadListener;
 import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
 import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
+import com.tyrantapp.olive.services.SyncNetworkService;
 import com.tyrantapp.olive.types.OliveMessage;
 import com.tyrantapp.olive.types.UserInfo;
 import com.tyrantapp.olive.BaseActivity.OnConnectServiceListener;
@@ -43,7 +44,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-public class ConversationActivity extends BaseActivity implements OnOliveKeypadListener, OnConnectServiceListener {
+public class ConversationActivity extends BaseActivity implements OnOliveKeypadListener {
 	final static private String			TAG = "ConversationActivity";
 
 	final static private int			RESULT_LOAD_IMAGE	= 1;
@@ -60,8 +61,6 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	private String						mUsername;
 	private String						mRecipientName;
 	
-	private UserInfo					mRecipientInfo;
-
 	private ConversationListAdapter		mConversationAdapter;
 	private ConversationListView		mConversationListView;
 	
@@ -152,7 +151,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		// Initialize
 		Intent intent = getIntent();
 		if (intent != null) {
-			mUsername = intent.getStringExtra(EXTRA_FROM);
+			mUsername= intent.getStringExtra(EXTRA_FROM);
 			mRecipientName = intent.getStringExtra(EXTRA_TO);
 			
 			mRecipientId = intent.getLongExtra(ConversationColumns.RECIPIENT_ID, -1);
@@ -161,14 +160,17 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 						RecipientColumns.CONTENT_URI, 
 						new String[] { RecipientColumns._ID, },
 						RecipientColumns.USERNAME + "=?",
-						new String[] { mRecipientName, },
+						new String[] { mUsername, },
 						null);
 				
-				if (cursor != null) {
+				if (cursor != null && cursor.getCount() > 0) {
 					cursor.moveToFirst();
 					mRecipientId = cursor.getLong(cursor.getColumnIndex(RecipientColumns._ID));
+				} else {
+					Toast.makeText(this, R.string.toast_error_no_registered_recipient, Toast.LENGTH_SHORT).show();
+					finish();
 				}
-			}			
+			}
 		}		
 		
 		if (mRecipientId >= 0) {
@@ -231,8 +233,23 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 			updateLastOlive(cursor);
 		
 		}
+		
+		android.util.Log.d(TAG, "onCreate Finished");
 	}
 
+	@Override
+	public void onStart() {
+		android.util.Log.d(TAG, "onStart Begin");
+		super.onStart();
+
+        Intent intent = new Intent(this, SyncNetworkService.class)
+        	.setAction(SyncNetworkService.INTENT_ACTION_MARK_TO_READ)
+        	.putExtra(SyncNetworkService.EXTRA_RECIPIENTNAME, mRecipientName);
+        startService(intent);
+        
+        android.util.Log.d(TAG, "onStart Finished");
+	}
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -250,15 +267,6 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	@Override
 	protected void onPause() {
 		super.onPause();
-	}
-
-	@Override
-	public void onConnected() {
-		mRecipientInfo = mRESTHelper.getRecipientProfile(mRecipientName);
-	}
-
-	@Override
-	public void onDisconnected() {
 	}
 
 	@Override
@@ -341,26 +349,31 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		KeypadFragment fragment = (KeypadFragment)KeypadFragment.getFragment(sectionNumber);
 		Button view = (Button)fragment.getOliveButton(index);
 		
-		ContentValues values = new ContentValues();
-		OliveMessage msg = null; 
-		
-		if (mRecipientId >= 0) {
-			// Send Message to Server
-			msg = mRESTHelper.postOlive(mRecipientName, String.valueOf(view.getText()));
-			if (msg != null) {
-				values.put(ConversationColumns.RECIPIENT_ID, mRecipientId);
-				values.put(ConversationColumns.CTX_DETAIL, msg.mContext);
-				values.put(ConversationColumns.IS_RECV, false);
-				values.put(ConversationColumns.IS_PENDING, false);
-				values.put(ConversationColumns.IS_READ, false);
-				values.put(ConversationColumns.MODIFIED, msg.mModified);
-				
-				//android.util.Log.d("Olive", "Insert Conversation = " + sSelectedRecipientID + " / " + String.valueOf(view.getText()));
-				getContentResolver().insert(ConversationColumns.CONTENT_URI, values);
-			} else {
-				Toast.makeText(this, R.string.toast_failed_post_olive, Toast.LENGTH_SHORT).show();
-			}				
-		}
+        Intent intent = new Intent(this, SyncNetworkService.class)
+        	.setAction(SyncNetworkService.INTENT_ACTION_POST_OLIVE)
+        	.putExtra(SyncNetworkService.EXTRA_RECIPIENTNAME, mRecipientName)
+        	.putExtra(SyncNetworkService.EXTRA_MESSAGE, String.valueOf(view.getText()));
+        startService(intent);	
+
+//		ContentValues values = new ContentValues();
+//		OliveMessage msg = null; 
+//		
+//		if (mRecipientId >= 0) {
+//			// Send Message to Server
+//			msg = mRESTHelper.postOlive(mRecipientName, String.valueOf(view.getText()));
+//			if (msg != null) {
+//				values.put(ConversationColumns.RECIPIENT_ID, mRecipientId);
+//				values.put(ConversationColumns.CTX_DETAIL, msg.mContext);
+//				values.put(ConversationColumns.IS_RECV, false);
+//				values.put(ConversationColumns.IS_PENDING, false);
+//				values.put(ConversationColumns.IS_READ, false);
+//				values.put(ConversationColumns.MODIFIED, msg.mModified);
+//				
+//				getContentResolver().insert(ConversationColumns.CONTENT_URI, values);
+//			} else {
+//				Toast.makeText(this, R.string.toast_failed_post_olive, Toast.LENGTH_SHORT).show();
+//			}				
+//		}
 	}
 	
 	public void updateLastOlive(Cursor cursor) {

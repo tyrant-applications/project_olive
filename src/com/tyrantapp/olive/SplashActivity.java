@@ -1,6 +1,7 @@
 package com.tyrantapp.olive;
 
 import com.tyrantapp.olive.R;
+import com.tyrantapp.olive.services.SyncNetworkService;
 import com.tyrantapp.olive.types.UserInfo;
 import com.tyrantapp.olive.BaseActivity.OnConnectServiceListener;
 
@@ -50,6 +51,9 @@ public class SplashActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_splash);
+		
+		Intent intent = new Intent(this, SyncNetworkService.class);
+		startService(intent);	
 	}
 	
 	@Override

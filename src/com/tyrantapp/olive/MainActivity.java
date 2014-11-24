@@ -32,10 +32,11 @@ import com.tyrantapp.olive.components.RecipientsListView;
 import com.tyrantapp.olive.providers.OliveContentProvider;
 import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
 import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
+import com.tyrantapp.olive.services.SyncNetworkService;
 import com.tyrantapp.olive.types.UserInfo;
 
 
-public class MainActivity extends BaseActivity implements BaseActivity.OnConnectServiceListener {
+public class MainActivity extends BaseActivity {
 	// static variable
 	static private final String		TAG = "MainActivity";
 			
@@ -137,26 +138,23 @@ public class MainActivity extends BaseActivity implements BaseActivity.OnConnect
 		
 		// register event
 		mRecipientEdit.setOnEditorActionListener(mOnEditorActionListener);
-		
-		setOnConnectServiceListener(this);
 	}
 	
 	@Override
-	public void onConnected() {
-		// Run Handler
-		try {
-			mService.syncUnreadCount();
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
+	public void onStart() {
+		super.onStart();
 
+        Intent intent = new Intent(this, SyncNetworkService.class)
+        	.setAction(SyncNetworkService.INTENT_ACTION_SYNC_RECIPIENT_INFO);
+        startService(intent);	
+	}
+	
 	@Override
-	public void onDisconnected() {
+	public void onPause() {
+		super.onPause();
+		flipFooter(false);
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -202,12 +200,6 @@ public class MainActivity extends BaseActivity implements BaseActivity.OnConnect
 		}
 	}
 	
-//	@Override
-//	public boolean dispatchTouchEvent(MotionEvent ev) {
-//		flipFooter(false);
-//		return super.dispatchTouchEvent(ev);
-//	}
-	
 	public boolean isFooterFlipped() {
 		return mFooterFlipped;
 	}
@@ -243,59 +235,4 @@ public class MainActivity extends BaseActivity implements BaseActivity.OnConnect
 			imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
 		}
 	}
-//	
-//
-//	// Handler for sync db & server (Unread)
-//	class UnreadHandler extends Handler {
-//		public static final int WHAT_SYNC = 0x1000;
-//		public static final int INTERVAL = 30000;
-//		
-//		@Override
-//		public void handleMessage(Message msg) {
-//			super.handleMessage(msg);
-//			
-//			removeMessages(WHAT_SYNC);
-//			
-//			if (msg.what == WHAT_SYNC) {
-//				boolean bSyncFailed = false;
-//				
-//				// get recipient list from db
-//				Cursor cursor = getContentResolver().query(
-//						RecipientColumns.CONTENT_URI, 
-//						RecipientColumns.PROJECTIONS, 
-//						null, null, null);
-//				
-//				ArrayList<String> listRecipients = new ArrayList<String>();
-//				if (cursor != null) {
-//					cursor.moveToFirst();
-//					
-//					for (int i=0; i<cursor.getCount(); i++) {
-//						listRecipients.add(cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME)));
-//						cursor.moveToNext();
-//					}
-//				}
-//				
-//				for (String username : listRecipients) {
-//					// get unread count from server
-//					int nUnreadCount = mRESTHelper.getUnreadCount(username);
-//					
-//					android.util.Log.d(TAG, "Unread count [" + username + "] = " + nUnreadCount);
-//					
-//					// update to db
-//					ContentValues values = new ContentValues();
-//					values.put(RecipientColumns.UNREAD, nUnreadCount);
-//					
-//					getContentResolver().update(
-//							RecipientColumns.CONTENT_URI,
-//							values,
-//							RecipientColumns.USERNAME + "=?",
-//							new String[] { username, });
-//				}
-//							
-//				if (bSyncFailed) {
-//					sendEmptyMessageDelayed(WHAT_SYNC, INTERVAL);
-//				}
-//			}
-//		}
-//	};
 }

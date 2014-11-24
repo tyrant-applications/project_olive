@@ -106,8 +106,8 @@ public class GCMIntentService extends GCMBaseIntentService {
             alert = msg.getAlert().replace("\\r\\n", "\n");
         }
 
-        String from = msg.getProperty(ConversationActivity.EXTRA_TO).asText();
-        String to = msg.getProperty(ConversationActivity.EXTRA_FROM).asText();
+        String to = msg.getProperty(ConversationActivity.EXTRA_TO).asText();
+        String from = msg.getProperty(ConversationActivity.EXTRA_FROM).asText();
         
         int icon = R.drawable.ic_launcher;
         long when = System.currentTimeMillis();
@@ -147,16 +147,17 @@ public class GCMIntentService extends GCMBaseIntentService {
     }
     
     private void syncConversation(String message) {
+    	android.util.Log.d(TAG, "GCM::syncConversation + " + message);
         BaasioPayload payload = JsonUtils.parse(message, BaasioPayload.class);
         if (ObjectUtils.isEmpty(payload)) {
             return;
         }
 
-        String from = payload.getProperty(ConversationActivity.EXTRA_TO).asText();
+        String from = payload.getProperty(ConversationActivity.EXTRA_FROM).asText();
         
         Intent intent = new Intent(this, SyncNetworkService.class)
         	.setAction(SyncNetworkService.INTENT_ACTION_SYNC_CONVERSATION)
-        	.putExtra(ConversationActivity.EXTRA_FROM, from);
-        startService(intent);	
+        	.putExtra(SyncNetworkService.EXTRA_FROM, from);
+        startService(intent);
     }
 }

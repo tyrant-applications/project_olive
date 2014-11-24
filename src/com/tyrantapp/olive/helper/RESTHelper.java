@@ -72,8 +72,8 @@ public abstract class RESTHelper {
 	public abstract UserInfo getUserProfile();
 	public abstract UserInfo getRecipientProfile(String email);
 	public abstract int	updateUserProfile(UserInfo info);
-	public abstract int	getUnreadCount(String username);
 	public abstract	OliveMessage postOlive(String username, String contents);
 	public abstract OliveMessage[] getPendingOlives(String username);
+	public abstract boolean markToDispend(String username);
 	public abstract boolean markToRead(String username);
 }

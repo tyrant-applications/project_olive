@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <item name="oliveblue" type="color">#32b4e8</item>
     <item name="olivegreen" type="color">#81bc43</item>
     <item name="olivegreen_lite" type="color">#d9e6b1</item>
-    <item name="olivedark" type="color">#353534</item>
+    <item name="olivedark" type="color">#3c3c3b</item>
     <item name="olivedark_lite" type="color">#525151</item>
     
     <item name="transparent" type="color">#00000000</item>
     
     <item name="white" type="color">#ffffffff</item>
+    <item name="black" type="color">#ff000000</item>
     
     <item name="blue" type="color">#FF33B5E5</item>
     <item name="purple" type="color">#FFAA66CC</item>

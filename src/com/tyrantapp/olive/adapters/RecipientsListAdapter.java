@@ -25,6 +25,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout.LayoutParams;
 import android.widget.TextView;
@@ -57,23 +58,44 @@ public class RecipientsListAdapter extends CursorAdapter {
 
 	@Override
     public void bindView(View view, Context context, Cursor cursor) {
+		LinearLayout pltView = (LinearLayout) view.findViewById(R.id.recipient_plate);
 		RelativeLayout favView = (RelativeLayout) view.findViewById(R.id.recipient_favorite);
 		ImageView picView = (ImageView) view.findViewById(R.id.recipient_pic);
+		ImageView ovrView = (ImageView) view.findViewById(R.id.recipient_overlay);
     	TextView unreadView = (TextView) view.findViewById(R.id.recipient_unread);
         TextView nameView = (TextView) view.findViewById(R.id.recipient_name);
         
         if (nameView != null) {
         	nameView.setText(cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME)));
-        	unreadView.setText(String.valueOf(cursor.getInt(cursor.getColumnIndex(RecipientColumns.UNREAD))));
+        	
+        	int nUnreadCount = cursor.getInt(cursor.getColumnIndex(RecipientColumns.UNREAD));
+        	if (nUnreadCount > 0) {
+        		unreadView.setText(String.valueOf(nUnreadCount));
+        		unreadView.setVisibility(View.VISIBLE);
+        		pltView.setBackgroundColor(mContext.getResources().getColor(R.color.oliveblue));
+        	} else {
+        		unreadView.setVisibility(View.INVISIBLE);
+        		pltView.setBackgroundColor(mContext.getResources().getColor(R.color.white));
+        	}
         	
         	// favorite (starred)
         	final long recipientId = cursor.getLong(cursor.getColumnIndex(RecipientColumns._ID));
         	final boolean bStarred = cursor.getInt(cursor.getColumnIndex(RecipientColumns.STARRED)) > 0;
         	
 			if (bStarred) {
-				favView.setBackground(mContext.getResources().getDrawable(R.drawable.bg_badge_favorite));
+				ovrView.setBackground(mContext.getResources().getDrawable(R.drawable.bg_badge_favorite));
+				if (nUnreadCount > 0) {
+					nameView.setTextColor(mContext.getResources().getColor(R.color.white));					
+				} else {
+					nameView.setTextColor(mContext.getResources().getColor(R.color.oliveblue));
+				}				
 			} else {
-				favView.setBackground(null);
+				ovrView.setBackground(mContext.getResources().getDrawable(R.drawable.bg_badge_normal));
+				if (nUnreadCount > 0) {
+					nameView.setTextColor(mContext.getResources().getColor(R.color.white));					
+				} else {
+					nameView.setTextColor(mContext.getResources().getColor(R.color.black));
+				}
 			}
         	        	
         	final Cursor finalCursor = cursor;
