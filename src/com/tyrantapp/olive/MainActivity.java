@@ -39,6 +39,8 @@ import com.tyrantapp.olive.types.UserInfo;
 public class MainActivity extends BaseActivity {
 	// static variable
 	static private final String		TAG = "MainActivity";
+	
+	static public final String		EXTRA_USERNAME = "username";
 			
 	// View
 	private RecipientsListView		mRecipientsListView;
@@ -66,17 +68,19 @@ public class MainActivity extends BaseActivity {
 					null);
 			
 			String recipientName = null;
-			if (cursor != null) {
+			if (cursor != null && cursor.getCount() > 0) {
 				cursor.moveToFirst();
 				recipientName = cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME));
-			}
 			
-			if (id >= 0) {
-				Intent intent = new Intent(getApplicationContext(), ConversationActivity.class)
-					.putExtra(ConversationColumns.RECIPIENT_ID, id)
-					.putExtra(ConversationActivity.EXTRA_FROM, mUsername)
-					.putExtra(ConversationActivity.EXTRA_TO, recipientName);
-				startActivity(intent);
+				if (id >= 0) {
+					Intent intent = new Intent(getApplicationContext(), ConversationActivity.class)
+						.putExtra(ConversationColumns.RECIPIENT_ID, id)
+						.putExtra(ConversationActivity.EXTRA_FROM, mUsername)
+						.putExtra(ConversationActivity.EXTRA_TO, recipientName);
+					
+					android.util.Log.d(TAG , "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1 " + mUsername +" / " + recipientName);
+					startActivity(intent);
+				}
 			}
 		}
 	};
@@ -121,7 +125,9 @@ public class MainActivity extends BaseActivity {
 	    // Initialize
 		setContentView(R.layout.activity_main);
 		
-		mUsername = getIntent().getStringExtra("username");
+		mUsername = getIntent().getStringExtra(EXTRA_USERNAME);
+		getIntent().removeExtra(EXTRA_USERNAME);
+		
 		android.util.Log.d(TAG, "Your ID = " + mUsername);
 		mFooterFlipped = false;
 		

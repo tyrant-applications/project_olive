@@ -29,7 +29,7 @@ public class SplashActivity extends BaseActivity {
 			case SPLASH_TO_MAIN:
 				UserInfo info = mRESTHelper.getUserProfile();
 				finish();
-				mIntent = new Intent(getApplicationContext(), MainActivity.class).putExtra("username", info.mUsername);
+				mIntent = new Intent(getApplicationContext(), MainActivity.class).putExtra(MainActivity.EXTRA_USERNAME, info.mUsername);
 				startActivity(mIntent);
 				overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 				break;

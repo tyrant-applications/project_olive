@@ -71,7 +71,7 @@ public class BaasioHelper extends RESTHelper {
 				}
 			}
 		} else {
-			eRet = OLIVE_FAIL_INVALID_ID;
+			eRet = this.OLIVE_FAIL_INVALID_ID_PW;
 		}
 		
 		return eRet;
@@ -88,9 +88,11 @@ public class BaasioHelper extends RESTHelper {
 			
 			eRet = OLIVE_SUCCESS;
 		} catch (BaasioException e) {
-			if (e.getErrorCode() == 913) {
-				// 이미 가입된 사용자
-				eRet = OLIVE_FAIL_ALREADY_EXIST;
+			e.printStackTrace();
+			
+			if (e.getErrorCode() == 201) {
+				// ID/PW 잘못됨
+				eRet = OLIVE_FAIL_INVALID_ID_PW;
 			} else {
 				eRet = OLIVE_FAIL_UNKNOWN;
 			}

@@ -137,8 +137,10 @@ public class SignInActivity extends BaseActivity {
 				startActivity(intent);
 				overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 			} else 
-			if (eError == RESTHelper.OLIVE_FAIL_BAD_PASSWORD){
-				Toast.makeText(getApplicationContext(), "Failed to sign in.", Toast.LENGTH_SHORT).show();
+			if (eError == RESTHelper.OLIVE_FAIL_INVALID_ID_PW){
+				Toast.makeText(getApplicationContext(), R.string.toast_invalid_id_or_password, Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(getApplicationContext(), R.string.toast_failed_to_sign_in, Toast.LENGTH_SHORT).show();
 			}
 			
 			showProgress(false);

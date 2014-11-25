@@ -54,7 +54,7 @@ public class SignUpActivity extends BaseActivity {
 		// Set up the  form.
 		mUsernameView = (AutoCompleteTextView) findViewById(R.id.username);
 		mPasswordView = (EditText) findViewById(R.id.password);
-		mPasswordCheckView = (EditText) findViewById(R.id.password_check);
+		mPasswordCheckView = (EditText) findViewById(R.id.confirm_password);
 		mPasswordView
 		.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
@@ -135,11 +135,15 @@ public class SignUpActivity extends BaseActivity {
 			showProgress(true);			
 			int eError = mRESTHelper.signUp(username, password);
 			if (eError == RESTHelper.OLIVE_SUCCESS) {
-				Toast.makeText(getApplicationContext(), "Succeed to create new account.", Toast.LENGTH_SHORT);
+				Toast.makeText(getApplicationContext(), R.string.toast_succeed_to_create_account, Toast.LENGTH_SHORT);
 				showProgress(false);
 				finish();
+			} else
+			if (eError == RESTHelper.OLIVE_FAIL_INVALID_ID_PW) {
+				Toast.makeText(getApplicationContext(), R.string.toast_invalid_email_address, Toast.LENGTH_SHORT).show();
 			} else {
-				Toast.makeText(getApplicationContext(), "Failed to create new account. (" + eError + ")", Toast.LENGTH_SHORT).show();
+				String message = String.format(getResources().getString(R.string.toast_failed_to_create_account), eError);
+				Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
 			}
 			
 			showProgress(false);

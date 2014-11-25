@@ -21,9 +21,8 @@ public abstract class RESTHelper {
 	public static final int OLIVE_FAIL_ALREADY_EXIST		= -4;	
 	public static final int OLIVE_FAIL_BAD_NETWORK			= -5;
 	public static final int OLIVE_FAIL_TIMEOUT				= -6;
-	public static final int OLIVE_FAIL_INVALID_ID			= -7;
+	public static final int OLIVE_FAIL_INVALID_ID_PW		= -7;
 	public static final int OLIVE_FAIL_BAD_PASSWORD			= -8;
-	public static final int OLIVE_FAIL_INVALID_PASSWORD		= -9;
 	
 	public static final String OLIVE_RETURN_FAILED			= "__FAILED__";
 

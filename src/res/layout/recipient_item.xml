@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recipient_plate"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+   	android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin">
+
+    <RelativeLayout
+        android:id="@+id/recipient_favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="33dp">
+
+        <ImageView
+            android:id="@+id/recipient_pic"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:src="@drawable/ic_no_photo"/>
+        
+        <ImageView
+            android:id="@+id/recipient_overlay"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:background="@drawable/bg_badge_normal"/>
+        
+        <TextView
+            android:id="@+id/recipient_unread"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:gravity="center"
+            android:background="@drawable/bg_badge_unread"
+            android:textColor="#ffffff"
+            android:text="2"
+            android:textSize="10sp" />
+        
+    </RelativeLayout>
+
+    <TextView
+	    android:id="@+id/recipient_name"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_marginLeft="10dp"
+	    android:textSize="20sp"
+	    android:text="RECIPIENT NAME"
+	    android:textColor="@color/black" />
+
+</LinearLayout>

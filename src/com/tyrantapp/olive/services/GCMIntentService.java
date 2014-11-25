@@ -116,7 +116,8 @@ public class GCMIntentService extends GCMBaseIntentService {
 
         Intent notificationIntent = new Intent(context, ConversationActivity.class)
         		.putExtra(ConversationActivity.EXTRA_FROM, from)
-        		.putExtra(ConversationActivity.EXTRA_TO, to);
+        		.putExtra(ConversationActivity.EXTRA_TO, to)
+        		.putExtra("TEST", from);
         
         android.util.Log.d(TAG, "Receive by push [" + from + "] => [" + to + "]");
         

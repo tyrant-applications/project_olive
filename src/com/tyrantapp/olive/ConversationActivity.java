@@ -150,9 +150,16 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		
 		// Initialize
 		Intent intent = getIntent();
+		
 		if (intent != null) {
-			mUsername= intent.getStringExtra(EXTRA_FROM);
+			mUsername = intent.getStringExtra(EXTRA_FROM);
 			mRecipientName = intent.getStringExtra(EXTRA_TO);
+			
+			getIntent().removeExtra(EXTRA_FROM);
+			getIntent().removeExtra(EXTRA_TO);
+			getIntent().removeExtra("TEST");
+			
+			android.util.Log.d(TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> " + mRecipientName + " / " + mUsername + " / " + intent.getStringExtra("TEST"));
 			
 			mRecipientId = intent.getLongExtra(ConversationColumns.RECIPIENT_ID, -1);
 			if (mRecipientId < 0) {
@@ -169,6 +176,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 				} else {
 					Toast.makeText(this, R.string.toast_error_no_registered_recipient, Toast.LENGTH_SHORT).show();
 					finish();
+					return;
 				}
 			}
 		}		
@@ -183,6 +191,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		} else {
 			Toast.makeText(this,  "Invalid recipient id.", Toast.LENGTH_SHORT).show();
 			finish();
+			return;
 		}
 		
 		// Last Olive (interaction mode)
