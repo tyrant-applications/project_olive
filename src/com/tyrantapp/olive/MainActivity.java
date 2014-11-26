@@ -189,7 +189,7 @@ public class MainActivity extends BaseActivity {
 	}
 	
 	public void onSetting(View v) {		
-		Intent intent = new Intent(this, SettingsActivity.class);
+		Intent intent = new Intent(this, SettingActivity.class);
 		this.startActivity(intent);
 		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 	}
