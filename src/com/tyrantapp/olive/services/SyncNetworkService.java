@@ -1,6 +1,7 @@
 package com.tyrantapp.olive.services;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.kth.baasio.Baas;
 import com.kth.baasio.entity.BaasioBaseEntity;
@@ -11,7 +12,10 @@ import com.kth.baasio.query.BaasioQuery;
 import com.kth.baasio.query.BaasioQuery.ORDER_BY;
 import com.kth.baasio.response.BaasioResponse;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -52,9 +56,7 @@ public class SyncNetworkService extends Service {
 	public static final String EXTRA_MESSAGE						= "message";
 		
 	private	SyncNetworkService mService = null;
-	
-	private ServiceTask mServiceTask = null;
-	
+		
 	private final ISyncNetworkService.Stub mBinder = new ISyncNetworkService.Stub() {
 	};
 		
@@ -68,14 +70,12 @@ public class SyncNetworkService extends Service {
 		    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 	        StrictMode.setThreadPolicy(policy);
 		}
-		
-		mService = this;
+		;
 
 		super.onCreate();
 		
 		// run SyncConversation();		
-		mServiceTask = new ServiceTask(ServiceTask.SYNC_CONVERSATION_ALL);
-		mServiceTask.execute();
+		new ServiceTask(ServiceTask.SYNC_CONVERSATION_ALL).execute();
 	}
 	
 	@Override
@@ -98,36 +98,31 @@ public class SyncNetworkService extends Service {
 			String from = intent.getStringExtra(EXTRA_FROM);
 			//onSyncConversation(from);
 			//onSyncUnreadCount(from);
-			mServiceTask = new ServiceTask(ServiceTask.SYNC_CONVERSATION);
-			mServiceTask.execute(from);
+			new ServiceTask(ServiceTask.SYNC_CONVERSATION).execute(from);
 		} else 
 		if (intent != null && INTENT_ACTION_SYNC_RECIPIENT_INFO.equals(intent.getAction())) {
 			android.util.Log.d(TAG, "SYNC RECIPIENT INFO");
 			//onSyncRecipientInfo();
-			mServiceTask = new ServiceTask(ServiceTask.SYNC_RECIPIENT_INFO);
-			mServiceTask.execute();
+			new ServiceTask(ServiceTask.SYNC_RECIPIENT_INFO).execute();
 		} else
 		if (intent != null && INTENT_ACTION_SYNC_USER_INFO.equals(intent.getAction())) {
 			android.util.Log.d(TAG, "SYNC USER INFO");
 			//onSyncUserInfo();
-			mServiceTask = new ServiceTask(ServiceTask.SYNC_USER_INFO);
-			mServiceTask.execute();
+			new ServiceTask(ServiceTask.SYNC_USER_INFO).execute();
 		} else
 		if (intent != null && INTENT_ACTION_POST_OLIVE.equals(intent.getAction())) {
 			android.util.Log.d(TAG, "POST OLIVE");
 			String recipientName = intent.getStringExtra(EXTRA_RECIPIENTNAME);
 			String message = intent.getStringExtra(EXTRA_MESSAGE);
 			//onPostOlive(recipientName, message);
-			mServiceTask = new ServiceTask(ServiceTask.POST_OLIVE);
-			mServiceTask.execute(recipientName, message);
+			new ServiceTask(ServiceTask.POST_OLIVE).execute(recipientName, message);
 		} else
 		if (intent != null && INTENT_ACTION_MARK_TO_READ.equals(intent.getAction())) {
 			android.util.Log.d(TAG, "MARK TO READ");
 			String recipientName = intent.getStringExtra(EXTRA_RECIPIENTNAME);
 			//onMarkToRead(recipientName);
 			//onSyncUnreadCount(recipientName);
-			mServiceTask = new ServiceTask(ServiceTask.MARK_TO_READ);
-			mServiceTask.execute(recipientName);
+			new ServiceTask(ServiceTask.MARK_TO_READ).execute(recipientName);
 		}
 
 		return START_STICKY;
@@ -378,6 +373,11 @@ public class SyncNetworkService extends Service {
 
 		@Override
 		protected Boolean doInBackground(String... params) {
+			ActivityManager am = (ActivityManager) getApplicationContext().getSystemService(ACTIVITY_SERVICE);
+			List<RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+			ComponentName componentInfo = taskInfo.get(0).topActivity;
+			boolean bAutoMarkToRead = taskInfo.get(0).topActivity.getClassName().equals(ConversationActivity.class.getName());
+			  
 			switch (mFunctionId) {
 			case SYNC_CONVERSATION_ALL:
 				onSyncConversation(null);
@@ -385,6 +385,7 @@ public class SyncNetworkService extends Service {
 				break;
 			case SYNC_CONVERSATION:
 				onSyncConversation(params[0]);
+				if (bAutoMarkToRead) onMarkToRead(params[0]);
 				onSyncUnreadCount(params[0]);
 				break;
 			case SYNC_RECIPIENT_INFO:

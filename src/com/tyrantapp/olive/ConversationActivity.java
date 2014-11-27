@@ -141,7 +141,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		public void onClick(View view) {
 		}
 	};
-	
+		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

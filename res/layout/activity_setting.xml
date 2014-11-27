@@ -11,8 +11,8 @@
     tools:context="com.tyrantapp.olive.SettingActivity" >
     
     <LinearLayout
-        android:layout_width="match_parent"        
-        android:layout_height="match_parent"
+        android:layout_width="232dp"        
+        android:layout_height="wrap_content"
         android:orientation="vertical" >
         
         <LinearLayout
@@ -21,8 +21,9 @@
 	        android:orientation="horizontal" >
 	        
             <LinearLayout
-	            android:layout_width="wrap_content"        
+	            android:layout_width="match_parent"        
 		        android:layout_height="wrap_content"
+		        android:layout_weight="1"
 		        android:orientation="vertical" >
 		        
                 <ImageView
@@ -31,11 +32,15 @@
                     android:src="@drawable/ic_setting_myaccount" />
                 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/pref_nickname"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="30sp"
+                    android:layout_marginTop="4dp"
+                    android:textSize="32sp"
                     android:textColor="@color/white"
-                    android:text="LYRICAA"/>
+                    android:text="example@address.com"
+                    android:ellipsize="marquee"
+                    android:singleLine="true" />
 	            
 	        </LinearLayout>
 	        
@@ -44,6 +49,7 @@
                 android:layout_height="wrap_content" >
             
 	            <ImageView
+	                android:id="@+id/pref_photo"
 	                android:layout_width="70dp"
 	                android:layout_height="70dp"
 	                android:src="@drawable/ic_no_photo_login"/>
@@ -62,34 +68,41 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="38dp"
             android:background="@drawable/bg_setting_change_password" />
         
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:background="@drawable/bg_setting_change_phonenumber" />
         
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:background="@drawable/bg_setting_nickname" />
             
         <LinearLayout
             android:layout_width="match_parent"        
 	        android:layout_height="wrap_content"
+	        android:layout_marginTop="36dp"
 	        android:orientation="horizontal" >
             
             <ImageView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+		        android:layout_weight="1"
                 android:src="@drawable/ic_setting_notification" />
         
         	<ToggleButton
+        	    android:id="@+id/pref_notification_switch"
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
             	android:background="@drawable/bg_switch" 
             	android:textOff=""
-            	android:textOn="" />
+            	android:textOn="" 
+            	android:onClick="onSwitchNotification" />
         
         </LinearLayout>
         
@@ -99,16 +112,19 @@
 	        android:orientation="horizontal" >
             
             <ImageView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+		        android:layout_weight="1"
                 android:src="@drawable/ic_setting_passcode" />
         
         	<ToggleButton
+        	    android:id="@+id/pref_passcode_lock_switch"
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
             	android:background="@drawable/bg_switch" 
             	android:textOff=""
-            	android:textOn="" />
+            	android:textOn="" 
+            	android:onClick="onSwitchPasscodeLock"/>
         
         </LinearLayout>
         
@@ -118,16 +134,19 @@
 	        android:orientation="horizontal" >
             
             <ImageView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+		        android:layout_weight="1"
                 android:src="@drawable/ic_setting_locationservice" />
         
         	<ToggleButton
+        	    android:id="@+id/pref_location_service_switch"
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
             	android:background="@drawable/bg_switch" 
             	android:textOff=""
-            	android:textOn="" />
+            	android:textOn="" 
+            	android:onClick="onSwitchLocationService"/>
         
         </LinearLayout>
         

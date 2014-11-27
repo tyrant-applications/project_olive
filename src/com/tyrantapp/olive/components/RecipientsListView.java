@@ -65,8 +65,6 @@ public class RecipientsListView extends ListView {
 
 	@Override
 	public void setAdapter(ListAdapter adapter) {
-		super.setAdapter(adapter);
-		
 		mAdapter = adapter;
 		if (mAdapter != null) {
 			mAdapter.registerDataSetObserver(new DataSetObserver() {
@@ -90,6 +88,8 @@ public class RecipientsListView extends ListView {
 				showHeader();
 			}
 		}
+		
+		super.setAdapter(adapter);
 	}
 
 	public void showHeader() {

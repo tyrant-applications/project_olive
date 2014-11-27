@@ -30,7 +30,10 @@ package com.tyrantapp.olive.components;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import com.tyrantapp.olive.services.SyncNetworkService;
+
 import android.content.Context;
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.graphics.Rect;
 import android.util.AttributeSet;

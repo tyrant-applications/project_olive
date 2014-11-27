@@ -26,7 +26,9 @@ import com.kth.common.utils.LogUtils;
 import com.tyrantapp.olive.ConversationActivity;
 import com.tyrantapp.olive.MainActivity;
 import com.tyrantapp.olive.R;
+import com.tyrantapp.olive.SettingActivity;
 import com.tyrantapp.olive.configurations.BaasioConfig;
+import com.tyrantapp.olive.helper.PreferenceHelper;
 import com.tyrantapp.olive.helper.RESTHelper;
 import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
 import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
@@ -42,9 +44,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.media.RingtoneManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
 
 /**
  * {@link android.app.IntentService} responsible for handling GCM messages.
@@ -126,12 +130,19 @@ public class GCMIntentService extends GCMBaseIntentService {
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
-
-        Notification notification = new NotificationCompat.Builder(context).setWhen(when)
+        
+        Builder builder = new NotificationCompat.Builder(context).setWhen(when)
                 .setSmallIcon(icon).setContentTitle(context.getString(R.string.app_name))
                 .setContentText(from + " : " + alert).setContentIntent(intent).setTicker(from + " : " + alert)
-                .setAutoCancel(true).setVibrate(new long[]{200, 100, 200, 100}).getNotification();
+                .setAutoCancel(true);
         
+        if (PreferenceHelper.getBooleanPreferences(context, SettingActivity.OLIVE_PREF_NOTIFICATION, true)) {
+        	// Notification ON!
+        	builder.setVibrate(new long[]{200, 100, 200, 100});
+        	builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        }
+        
+        Notification notification = builder.getNotification();
         notificationManager.notify(0, notification);
     }
     

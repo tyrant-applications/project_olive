@@ -1,15 +1,43 @@
 package com.tyrantapp.olive;
 
+import com.tyrantapp.olive.helper.PreferenceHelper;
+import com.tyrantapp.olive.helper.RESTHelper;
+import com.tyrantapp.olive.types.UserInfo;
+
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class SettingActivity extends BaseActivity {
+	private final static String TAG = "SettingActivity";
+	
+	public final static String OLIVE_PREF_NOTIFICATION = "olive_pref_notification";
+	public final static String OLIVE_PREF_PASSCODE_LOCK = "olive_pref_passcode_lock";
+	public final static String OLIVE_PREF_LOCATION_SERVICE = "olive_pref_locationservice";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_setting);
+		
+		ToggleButton btnNotification = (ToggleButton) findViewById(R.id.pref_notification_switch);
+		ToggleButton btnPasscodeLock = (ToggleButton) findViewById(R.id.pref_passcode_lock_switch);
+		ToggleButton btnLocationService = (ToggleButton) findViewById(R.id.pref_location_service_switch);
+		
+		btnNotification.setChecked(PreferenceHelper.getBooleanPreferences(this, OLIVE_PREF_NOTIFICATION, true));
+		btnPasscodeLock.setChecked(PreferenceHelper.getBooleanPreferences(this, OLIVE_PREF_PASSCODE_LOCK, false));
+		btnLocationService.setChecked(PreferenceHelper.getBooleanPreferences(this, OLIVE_PREF_LOCATION_SERVICE, false));
+		
+		TextView tv = (TextView) findViewById(R.id.pref_nickname);
+		// Get Userinfo from DB
+		RESTHelper helper = RESTHelper.getInstance();
+		UserInfo info = helper.getUserProfile();
+		
+		tv.setText(info.mNickname);
+		tv.setSelected(true);
 	}
 
 	@Override
@@ -29,5 +57,20 @@ public class SettingActivity extends BaseActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	public void onSwitchNotification(View view) {
+		android.util.Log.d(TAG, "onSwitchNotification = " + ((ToggleButton)view).isChecked());
+		PreferenceHelper.saveBooleanPreferences(this, OLIVE_PREF_NOTIFICATION, ((ToggleButton)view).isChecked());
+	}
+	
+	public void onSwitchPasscodeLock(View view) {
+		android.util.Log.d(TAG, "onSwitchPasscodeLock = " + ((ToggleButton)view).isChecked());
+		PreferenceHelper.saveBooleanPreferences(this, OLIVE_PREF_PASSCODE_LOCK, ((ToggleButton)view).isChecked());
+	}
+	
+	public void onSwitchLocationService(View view) {
+		android.util.Log.d(TAG, "onSwitchLocationService = " + ((ToggleButton)view).isChecked());
+		PreferenceHelper.saveBooleanPreferences(this, OLIVE_PREF_LOCATION_SERVICE, ((ToggleButton)view).isChecked());
 	}
 }
