@@ -27,7 +27,7 @@
 	    
 	    <ViewFlipper
 	        android:id="@+id/footer_flipper"
-	        android:layout_width="wrap_content"
+	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:layout_centerInParent="true" >
 	
@@ -84,19 +84,33 @@
 	        </LinearLayout>
 	        
 	        <!-- Edit \view for add new recipient -->
-	        <RelativeLayout
+	        <LinearLayout
 	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content" >
+	            android:layout_height="wrap_content"
+	            android:orientation="horizontal" >
 	
 	            <EditText
 	                android:id="@+id/recipient_edit"
 	                android:layout_width="match_parent"
 	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:hint="@string/text_hint_add_recipient"
+	                android:textColor="@color/white"
+	                android:textColorHint="@color/gray"
 	                android:inputType="textPersonName"
 	                android:imeOptions="actionDone" >
+	            
 	                <requestFocus />
+	                
 	            </EditText>
-	        </RelativeLayout>
+	            
+	            <Button
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/btn_add"
+	                android:onClick="onAddRecipient" />
+	            
+	        </LinearLayout>
 	        
 	    </ViewFlipper>	    
 	    

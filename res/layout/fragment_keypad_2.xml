@@ -1,0 +1,35 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:orientation="horizontal"
+	    android:layout_weight="1">
+	    
+        <Button
+	        android:id="@+id/olive_1a"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_weight="1"
+	        android:background="@drawable/bg_keypad_button"
+	        android:textColor="@color/black"
+	        android:text="@string/btn_default_keypad"
+	        android:textAllCaps="false" />
+        
+        <Button
+	        android:id="@+id/olive_1b"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_weight="1"
+	        android:background="@drawable/bg_keypad_button"
+	        android:textColor="@color/black"
+	        android:text="@string/btn_default_keypad"
+	        android:textAllCaps="false" />
+        
+	</LinearLayout>
+	
+</LinearLayout>

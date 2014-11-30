@@ -12,6 +12,7 @@ import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
@@ -77,6 +78,13 @@ public class ConversationListAdapter extends CursorAdapter {
 		Button btnOlive = (Button) view.findViewById(R.id.olive_button);
         
 		if (btnOlive != null) {
+			boolean isRecv = cursor.getInt(cursor.getColumnIndex(ConversationColumns.IS_RECV)) > 0;
+			Resources res = context.getResources();
+			if (isRecv) {
+				btnOlive.setBackground(res.getDrawable(R.drawable.bg_olive_you));
+			} else {
+				btnOlive.setBackground(res.getDrawable(R.drawable.bg_olive_me));
+			}
 			btnOlive.setText(cursor.getString(cursor.getColumnIndex(ConversationColumns.CTX_DETAIL)));
         }
     }

@@ -76,12 +76,7 @@
         
     </LinearLayout>
     
-    <Button 
-        android:id="@+id/conversation_last_olive_expander"
-        android:layout_width="match_parent"
-        android:layout_height="16dp" />
-    	    
-	<ViewFlipper
+    <ViewFlipper
         android:id="@+id/input_method_flipper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
@@ -94,10 +89,37 @@
         android:layout_height="wrap_content" 
         android:orientation="vertical" >
         
-	    <android.support.v4.view.ViewPager
-		    android:id="@+id/olive_keypad_pager"
-		    android:layout_width="match_parent"
-		    android:layout_height="240dp" />
+        <RelativeLayout 
+            android:layout_width="match_parent"
+            android:layout_height="283dp" >
+        
+		    <android.support.v4.view.ViewPager
+			    android:id="@+id/olive_keypad_pager"
+			    android:layout_width="match_parent"
+			    android:layout_height="240dp"
+			    android:layout_marginTop="43dp" />
+		    
+		    <LinearLayout
+			    android:id="@+id/conversation_last_olive_expander"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content" 
+		        android:orientation="vertical" >
+		        
+		        <ImageButton 
+			        android:layout_width="match_parent"
+			        android:layout_height="43dp"
+			        android:src="@drawable/bg_btn_expand_currentplace" 
+			        android:background="@color/transparent"
+			        android:onClick="onExpand" />
+			    
+			    <ImageView 
+			        android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:background="@drawable/bg_btn_keypad_expand" />
+		    
+		    </LinearLayout>
+		        
+		</RelativeLayout>
 	    
 		<include layout="@layout/activity_conversation_footer"/>    
 	    

@@ -40,6 +40,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -65,7 +66,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	private ConversationListView		mConversationListView;
 	
 	private TextView					mLastOliveText;
-	private Button						mLastOliveExpander;
+	private View						mLastOliveExpander;
 	
 	private ViewFlipper					mInputMethodFlipper;
 	private View						mInputMethodKeypad;
@@ -139,6 +140,15 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	
 	private OnClickListener	mOnSendClickListener = new OnClickListener() {
 		public void onClick(View view) {
+			android.util.Log.d(TAG, "onSendText :: " + mRecipientName + " / " + mTextEditor.getText());
+			
+			Intent intent = new Intent(getApplicationContext(), SyncNetworkService.class)
+	        	.setAction(SyncNetworkService.INTENT_ACTION_POST_OLIVE)
+	        	.putExtra(SyncNetworkService.EXTRA_RECIPIENTNAME, mRecipientName)
+	        	.putExtra(SyncNetworkService.EXTRA_MESSAGE, String.valueOf(mTextEditor.getText()));
+	        startService(intent);
+	        
+	        changeNormalMode();
 		}
 	};
 		
@@ -196,7 +206,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		
 		// Last Olive (interaction mode)
 		mLastOliveText = (TextView) findViewById(R.id.conversation_last_olive_text);
-		mLastOliveExpander = (Button) findViewById(R.id.conversation_last_olive_expander);
+		mLastOliveExpander = (View) findViewById(R.id.conversation_last_olive_expander);
 		
 		// IME mode
 		mTypingMode = false;
@@ -207,7 +217,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		// Fragment for Olive Keyboard
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the activity.
-		mKeypadPagerAdapter = new KeypadPagerAdapter(getSupportFragmentManager(), this);
+		mKeypadPagerAdapter = new KeypadPagerAdapter(getSupportFragmentManager(), this, new int[] { KeypadFragment.TYPE_KEYPAD_12, KeypadFragment.TYPE_KEYPAD_2, KeypadFragment.TYPE_KEYPAD_12 });
 		
 		// Set up the ViewPager with the sections adapter.
 		mKeypadPager = (ViewPager) findViewById(R.id.olive_keypad_pager);
@@ -335,8 +345,8 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		KeypadFragment fragment = (KeypadFragment)KeypadFragment.getFragment(sectionNumber);
 		
 		switch (sectionNumber) {
-		case 0:
-			((Button)fragment.getOliveButton(0)).setText("Eat");
+		/*  // first resource
+		 * ((Button)fragment.getOliveButton(0)).setText("Eat");
 			((Button)fragment.getOliveButton(1)).setText("Can We Meet?");
 			((Button)fragment.getOliveButton(2)).setText("Yes");
 			((Button)fragment.getOliveButton(3)).setText("Where?");
@@ -348,6 +358,34 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 			((Button)fragment.getOliveButton(9)).setText("Wanna Do Something?");
 			((Button)fragment.getOliveButton(10)).setText("Busy");
 			((Button)fragment.getOliveButton(11)).setText("With?");
+		 */
+		case 0:
+			((Button)fragment.getOliveButton(0)).setText("(Food?)");
+			((Button)fragment.getOliveButton(1)).setText("(Yes)");
+			((Button)fragment.getOliveButton(2)).setText("Where?");
+			((Button)fragment.getOliveButton(4)).setText("(Coffee?)");
+			((Button)fragment.getOliveButton(5)).setText("(No)");
+			((Button)fragment.getOliveButton(6)).setText("When?");
+			((Button)fragment.getOliveButton(8)).setText("(Drink?)");
+			((Button)fragment.getOliveButton(9)).setText("(Maybe)");
+			((Button)fragment.getOliveButton(10)).setText("(Busy)");
+			break;
+		case 1:
+			((Button)fragment.getOliveButton(0)).setText("BEER NOW");
+			((Button)fragment.getOliveButton(1)).setText("BEER LATER");
+			break;
+		case 2:			
+			((Button)fragment.getOliveButton(0)).setText("Happy Hour");
+			((Button)fragment.getOliveButton(1)).setText("Uris");
+			((Button)fragment.getOliveButton(2)).setText("(Mel's)");
+			((Button)fragment.getOliveButton(3)).setText("In class");
+			((Button)fragment.getOliveButton(4)).setText("Rugby HH");
+			((Button)fragment.getOliveButton(5)).setText("Watson");
+			((Button)fragment.getOliveButton(6)).setText("(Pourhouse)");
+			((Button)fragment.getOliveButton(7)).setText("CBS Matters");
+			((Button)fragment.getOliveButton(8)).setText("Afterparty");
+			((Button)fragment.getOliveButton(9)).setText("Warren");
+			((Button)fragment.getOliveButton(10)).setText("(Parlour)");
 			break;
 		default:
 		}		
@@ -363,26 +401,11 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
         	.putExtra(SyncNetworkService.EXTRA_RECIPIENTNAME, mRecipientName)
         	.putExtra(SyncNetworkService.EXTRA_MESSAGE, String.valueOf(view.getText()));
         startService(intent);	
-
-//		ContentValues values = new ContentValues();
-//		OliveMessage msg = null; 
-//		
-//		if (mRecipientId >= 0) {
-//			// Send Message to Server
-//			msg = mRESTHelper.postOlive(mRecipientName, String.valueOf(view.getText()));
-//			if (msg != null) {
-//				values.put(ConversationColumns.RECIPIENT_ID, mRecipientId);
-//				values.put(ConversationColumns.CTX_DETAIL, msg.mContext);
-//				values.put(ConversationColumns.IS_RECV, false);
-//				values.put(ConversationColumns.IS_PENDING, false);
-//				values.put(ConversationColumns.IS_READ, false);
-//				values.put(ConversationColumns.MODIFIED, msg.mModified);
-//				
-//				getContentResolver().insert(ConversationColumns.CONTENT_URI, values);
-//			} else {
-//				Toast.makeText(this, R.string.toast_failed_post_olive, Toast.LENGTH_SHORT).show();
-//			}				
-//		}
+	}
+	
+	public void onExpand(View view) {
+		android.util.Log.d(TAG, "Not supported yet.");
+		Toast.makeText(this, R.string.error_not_supported_yet, Toast.LENGTH_SHORT).show();
 	}
 	
 	public void updateLastOlive(Cursor cursor) {

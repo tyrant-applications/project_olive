@@ -16,8 +16,9 @@
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:background="@drawable/bg_keypad_button"
-	        android:textColor="@color/white"
-	        android:text="1"/>
+	        android:textColor="@color/black"
+	        android:text="@string/btn_default_keypad"
+	        android:textAllCaps="false" />
         
         <Button
 	        android:id="@+id/olive_1b"
@@ -25,8 +26,9 @@
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:background="@drawable/bg_keypad_button"
-	        android:textColor="@color/white"
-	        android:text="2"/>
+	        android:textColor="@color/black"
+	        android:text="@string/btn_default_keypad"
+	        android:textAllCaps="false" />
         
         <Button
 	        android:id="@+id/olive_1c"
@@ -34,8 +36,9 @@
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:background="@drawable/bg_keypad_button"
-	        android:textColor="@color/white"
-	        android:text="3"/>
+	        android:textColor="@color/black"
+	        android:text="@string/btn_default_keypad"
+	        android:textAllCaps="false" />
         
         <Button
 	        android:id="@+id/olive_1d"
@@ -43,8 +46,9 @@
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:background="@drawable/bg_keypad_button"
-	        android:textColor="@color/white"
-	        android:text="4"/>
+	        android:textColor="@color/black"
+	        android:text="@string/btn_default_keypad"
+	        android:textAllCaps="false" />
         
 	</LinearLayout>
 	
@@ -60,8 +64,9 @@
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:background="@drawable/bg_keypad_button"
-	        android:textColor="@color/white"
-	        android:text="5"/>
+	        android:textColor="@color/black"
+	        android:text="@string/btn_default_keypad"
+	        android:textAllCaps="false" />
         
         <Button
 	        android:id="@+id/olive_2b"
@@ -69,8 +74,9 @@
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:background="@drawable/bg_keypad_button"
-	        android:textColor="@color/white"
-	        android:text="6"/>
+	        android:textColor="@color/black"
+	        android:text="@string/btn_default_keypad"
+	        android:textAllCaps="false" />
         
         <Button
 	        android:id="@+id/olive_2c"
@@ -78,8 +84,9 @@
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:background="@drawable/bg_keypad_button"
-	        android:textColor="@color/white"
-	        android:text="7"/>
+	        android:textColor="@color/black"
+	        android:text="@string/btn_default_keypad"
+	        android:textAllCaps="false" />
         
         
         <Button
@@ -88,8 +95,9 @@
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:background="@drawable/bg_keypad_button"
-	        android:textColor="@color/white"
-	        android:text="8"/>
+	        android:textColor="@color/black"
+	        android:text="@string/btn_default_keypad"
+	        android:textAllCaps="false" />
         
 	</LinearLayout>
 	
@@ -105,8 +113,9 @@
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:background="@drawable/bg_keypad_button"
-	        android:textColor="@color/white"
-	        android:text="9"/>
+	        android:textColor="@color/black"
+	        android:text="@string/btn_default_keypad"
+	        android:textAllCaps="false" />
         
         <Button
 	        android:id="@+id/olive_3b"
@@ -114,8 +123,9 @@
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:background="@drawable/bg_keypad_button"
-	        android:textColor="@color/white"
-	        android:text="10"/>
+	        android:textColor="@color/black"
+	        android:text="@string/btn_default_keypad"
+	        android:textAllCaps="false" />
         
         <Button
 	        android:id="@+id/olive_3c"
@@ -123,8 +133,9 @@
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:background="@drawable/bg_keypad_button"
-	        android:textColor="@color/white"
-	        android:text="11"/>
+	        android:textColor="@color/black"
+	        android:text="@string/btn_default_keypad"
+	        android:textAllCaps="false" />
                 
         <Button
 	        android:id="@+id/olive_3d"
@@ -132,8 +143,9 @@
 	        android:layout_height="match_parent"
 	        android:layout_weight="1"
 	        android:background="@drawable/bg_keypad_button"
-	        android:textColor="@color/white"
-	        android:text="12"/>
+	        android:textColor="@color/black"
+	        android:text="@string/btn_default_keypad"
+	        android:textAllCaps="false" />
         
 	</LinearLayout>
     

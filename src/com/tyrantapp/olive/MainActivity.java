@@ -89,29 +89,7 @@ public class MainActivity extends BaseActivity {
 		@Override
 		public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 			if (actionId == EditorInfo.IME_ACTION_DONE) {
-				String pszTag = v.getText().toString();
-				
-				if (!pszTag.isEmpty()) {
-					UserInfo info =  mRESTHelper.getRecipientProfile(pszTag);
-					
-					if (info != null) {
-						ContentValues values = new ContentValues();
-						values.put(RecipientColumns.USERNAME, pszTag);
-						values.put(RecipientColumns.NICKNAME, pszTag);
-						values.put(RecipientColumns.UNREAD, false);
-						
-						getContentResolver().insert(RecipientColumns.CONTENT_URI, values);	
-						android.util.Log.d("Olive", "Insert recipient!");
-						Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_succeed_add_recipient), Toast.LENGTH_SHORT).show();
-					} else {
-						android.util.Log.d("Olive", "Failed Insert recipient!");
-						Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_failed_add_recipient), Toast.LENGTH_SHORT).show();
-					}
-				} else {
-					android.util.Log.d("Olive", "Failed Insert recipient!");
-				}
-
-				flipFooter(false);
+				onAddRecipient(null);
 			}
 			return false;
 		}
@@ -186,6 +164,32 @@ public class MainActivity extends BaseActivity {
 	
 	public void onAdding(View v) {		
 		flipFooter(true);
+	}
+	
+	public void onAddRecipient(View v) {
+		String pszTag = mRecipientEdit.getText().toString();
+		
+		if (!pszTag.isEmpty()) {
+			UserInfo info =  mRESTHelper.getRecipientProfile(pszTag);
+			
+			if (info != null) {
+				ContentValues values = new ContentValues();
+				values.put(RecipientColumns.USERNAME, pszTag);
+				values.put(RecipientColumns.NICKNAME, pszTag);
+				values.put(RecipientColumns.UNREAD, false);
+				
+				getContentResolver().insert(RecipientColumns.CONTENT_URI, values);	
+				android.util.Log.d("Olive", "Insert recipient!");
+				Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_succeed_add_recipient), Toast.LENGTH_SHORT).show();
+			} else {
+				android.util.Log.d("Olive", "Failed Insert recipient!");
+				Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_failed_add_recipient), Toast.LENGTH_SHORT).show();
+			}
+		} else {
+			android.util.Log.d("Olive", "Failed Insert recipient!");
+		}
+
+		flipFooter(false);
 	}
 	
 	public void onSetting(View v) {		

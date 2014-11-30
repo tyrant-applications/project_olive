@@ -11,12 +11,14 @@
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
 	    android:layout_weight="1"
-	    android:hint="Up to 30 characters"/>
+	    android:hint="Up to 30 characters"
+	    android:textColor="@color/black"
+	    android:textColorHint="@color/graylite"/>
     
     <Button 
         android:id="@+id/olive_extend_send_button"
 	    android:layout_width="100dp"
 	    android:layout_height="match_parent"
-	    android:text="SEND"/>
+	    android:text="SEND" />
         
 </LinearLayout>

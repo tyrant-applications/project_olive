@@ -29,18 +29,25 @@ public class KeypadFragment extends Fragment {
 	 * fragment.
 	 */
 	private static final String 				ARG_SECTION_NUMBER = "section_number";
+	private static final String 				ARG_SECTION_TYPE = "section_type";
+	
+	public static final int						TYPE_KEYPAD_12 = 0;
+	public static final int						TYPE_KEYPAD_2  = 1;
+	
 	
 	private static HashMap<Integer, Fragment>	mFragmentsMap = new HashMap<Integer, Fragment>();
 	private static OnOliveKeypadListener		mOliveKeypadListener;
+		
 	
 	// member variables.
 	private int				mSectionNumber;
+	private int				mSectionType;
 	private Button[]		mOliveButtons = new Button[12];
 			
 	/**
 	 * Returns a new instance of this fragment for the given section number.
 	 */
-	public static KeypadFragment getInstance(int sectionNumber) {
+	public static KeypadFragment getInstance(int sectionNumber, int type) {
 		KeypadFragment fragment = null;
 		
 		if (mFragmentsMap.containsKey(sectionNumber)) {
@@ -49,7 +56,8 @@ public class KeypadFragment extends Fragment {
 			fragment = new KeypadFragment();
 			Bundle args = new Bundle();
 			args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-			fragment.setArguments(args);
+			args.putInt(ARG_SECTION_TYPE, type);
+			fragment.setArguments(args);			
 			
 			mFragmentsMap.put(sectionNumber, fragment);
 		}
@@ -70,26 +78,37 @@ public class KeypadFragment extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_keypad, container, false);
+		View rootView = null;
 		
 		mSectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
+		mSectionType = getArguments().getInt(ARG_SECTION_TYPE);
 		
-		mOliveButtons[0]  = (Button)rootView.findViewById(R.id.olive_1a);
-		mOliveButtons[1]  = (Button)rootView.findViewById(R.id.olive_1b);
-		mOliveButtons[2]  = (Button)rootView.findViewById(R.id.olive_1c);
-		mOliveButtons[3]  = (Button)rootView.findViewById(R.id.olive_1d);
-		mOliveButtons[4]  = (Button)rootView.findViewById(R.id.olive_2a);
-		mOliveButtons[5]  = (Button)rootView.findViewById(R.id.olive_2b);
-		mOliveButtons[6]  = (Button)rootView.findViewById(R.id.olive_2c);
-		mOliveButtons[7]  = (Button)rootView.findViewById(R.id.olive_2d);
-		mOliveButtons[8]  = (Button)rootView.findViewById(R.id.olive_3a);
-		mOliveButtons[9]  = (Button)rootView.findViewById(R.id.olive_3b);
-		mOliveButtons[10] = (Button)rootView.findViewById(R.id.olive_3c);
-		mOliveButtons[11] = (Button)rootView.findViewById(R.id.olive_3d);
+		if (mSectionType == TYPE_KEYPAD_2) {
+			rootView = inflater.inflate(R.layout.fragment_keypad_2, container, false);
+			
+			mOliveButtons[0]  = (Button)rootView.findViewById(R.id.olive_1a);
+			mOliveButtons[1]  = (Button)rootView.findViewById(R.id.olive_1b);
+		} else {
+			rootView = inflater.inflate(R.layout.fragment_keypad_12, container, false);
+			
+			mOliveButtons[0]  = (Button)rootView.findViewById(R.id.olive_1a);
+			mOliveButtons[1]  = (Button)rootView.findViewById(R.id.olive_1b);
+			mOliveButtons[2]  = (Button)rootView.findViewById(R.id.olive_1c);
+			mOliveButtons[3]  = (Button)rootView.findViewById(R.id.olive_1d);
+			mOliveButtons[4]  = (Button)rootView.findViewById(R.id.olive_2a);
+			mOliveButtons[5]  = (Button)rootView.findViewById(R.id.olive_2b);
+			mOliveButtons[6]  = (Button)rootView.findViewById(R.id.olive_2c);
+			mOliveButtons[7]  = (Button)rootView.findViewById(R.id.olive_2d);
+			mOliveButtons[8]  = (Button)rootView.findViewById(R.id.olive_3a);
+			mOliveButtons[9]  = (Button)rootView.findViewById(R.id.olive_3b);
+			mOliveButtons[10] = (Button)rootView.findViewById(R.id.olive_3c);
+			mOliveButtons[11] = (Button)rootView.findViewById(R.id.olive_3d);
+		}
+			
 					
 		if (mOliveKeypadListener != null) {
 			for (int idx = 0; idx < 12; idx++) {
-				mOliveButtons[idx].setOnClickListener(new OnKeypadClickListener(mOliveKeypadListener, mSectionNumber, idx));
+				if (mOliveButtons[idx] != null) mOliveButtons[idx].setOnClickListener(new OnKeypadClickListener(mOliveKeypadListener, mSectionNumber, idx));
 			}
 			
 			mOliveKeypadListener.onKeypadCreate(mSectionNumber);

@@ -19,6 +19,7 @@
     <uses-permission android:name="com.kth.baasio.startup.permission.C2D_MESSAGE" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -53,13 +54,11 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:label="@string/title_activity_main"
-            android:windowSoftInputMode="adjustPan" >
+            android:label="@string/title_activity_main" >
         </activity>
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:windowSoftInputMode="adjustPan" >
+            android:label="@string/title_activity_settings" >
         </activity>
 
         <provider
@@ -71,11 +70,15 @@
         <activity
             android:name=".ConversationActivity"
             android:label="@string/title_activity_conversation"
+            android:windowSoftInputMode="adjustResize" >
+            <!-- 
             android:parentActivityName=".MainActivity"
-            android:windowSoftInputMode="adjustPan" >
+             -->
+            
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tyrantapp.olive.MainActivity" />
+            
         </activity>
 
         <service

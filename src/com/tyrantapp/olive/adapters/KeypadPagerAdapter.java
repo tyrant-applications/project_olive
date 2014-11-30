@@ -9,12 +9,15 @@ import com.tyrantapp.olive.interfaces.OnOliveKeypadListener;
 
 public class KeypadPagerAdapter extends FragmentPagerAdapter {
 	private OnOliveKeypadListener mKeypadListener;
+	private int[] mPageTypes = new int[] { KeypadFragment.TYPE_KEYPAD_12, };
 	
-	public KeypadPagerAdapter(FragmentManager fm, OnOliveKeypadListener listener) {
+	public KeypadPagerAdapter(FragmentManager fm, OnOliveKeypadListener listener, int[] types) {
 		super(fm);
 
 		mKeypadListener = listener;
 		KeypadFragment.setOnOliveKeypadListener(mKeypadListener);
+		
+		mPageTypes = types;
 	}
 
 	@Override
@@ -23,11 +26,11 @@ public class KeypadPagerAdapter extends FragmentPagerAdapter {
 		// Return a PlaceholderFragment (defined as a static inner class
 		// below)
 		
-		return KeypadFragment.getInstance(position);
+		return KeypadFragment.getInstance(position, mPageTypes[position]);
 	}
 
 	@Override
 	public int getCount() {
-		return 1;
+		return mPageTypes.length;
 	}
 }
