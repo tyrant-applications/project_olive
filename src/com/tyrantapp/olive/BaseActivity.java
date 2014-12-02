@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-import com.tyrantapp.olive.helper.BaasioHelper;
 import com.tyrantapp.olive.helper.RESTHelper;
 import com.tyrantapp.olive.services.ISyncNetworkService;
 import com.tyrantapp.olive.services.SyncNetworkService;

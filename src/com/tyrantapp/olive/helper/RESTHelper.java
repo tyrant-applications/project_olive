@@ -24,6 +24,9 @@ public abstract class RESTHelper {
 	public static final int OLIVE_FAIL_INVALID_ID_PW		= -7;
 	public static final int OLIVE_FAIL_BAD_PASSWORD			= -8;
 	
+	public static final String OLIVE_PUSH_PROPERTY_FROM		= "from";
+	public static final String OLIVE_PUSH_PROPERTY_TO		= "to";
+	
 	public static final String OLIVE_RETURN_FAILED			= "__FAILED__";
 
     private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";

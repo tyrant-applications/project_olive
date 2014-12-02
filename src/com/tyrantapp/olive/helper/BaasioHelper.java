@@ -1,16 +1,8 @@
 package com.tyrantapp.olive.helper;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.os.IBinder;
-import android.os.RemoteException;
-import android.os.StrictMode;
-import android.text.style.SuperscriptSpan;
-import android.util.Log;
 
 import com.kth.baasio.Baas;
 import com.kth.baasio.entity.BaasioBaseEntity;
@@ -23,10 +15,6 @@ import com.kth.baasio.exception.BaasioException;
 import com.kth.baasio.query.BaasioQuery;
 import com.kth.baasio.query.BaasioQuery.ORDER_BY;
 import com.kth.baasio.response.BaasioResponse;
-import com.tyrantapp.olive.ConversationActivity;
-import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
-import com.tyrantapp.olive.services.ISyncNetworkService;
-import com.tyrantapp.olive.services.SyncNetworkService;
 import com.tyrantapp.olive.types.OliveMessage;
 import com.tyrantapp.olive.types.UserInfo;
 
@@ -239,8 +227,8 @@ public class BaasioHelper extends RESTHelper {
 				
 				BaasioPayload payload = new BaasioPayload();
 				payload.setAlert(msg.mContext);      // 전송할 메시지
-				payload.setProperty(ConversationActivity.EXTRA_FROM, msg.mFrom);
-				payload.setProperty(ConversationActivity.EXTRA_TO, msg.mTo);
+				payload.setProperty(OLIVE_PUSH_PROPERTY_FROM, msg.mFrom);
+				payload.setProperty(OLIVE_PUSH_PROPERTY_TO, msg.mTo);
 				payload.setSound("homerun.caf");    // iOS APNS의 sound
 				payload.setBadge(1);                // iOS APNS badge 갯수
 				
@@ -249,7 +237,7 @@ public class BaasioHelper extends RESTHelper {
 				message.setTarget(BaasioMessage.TARGET_TYPE_USER);  // 회원 개별 발송
 				message.setTo(recipient.getUuid().toString());
 				
-				BaasioPush.sendPush(message);				
+				BaasioPush.sendPush(message);
 			} catch (BaasioException e) {
 				e.printStackTrace();
 				msg.mIsPending = true;
@@ -262,7 +250,7 @@ public class BaasioHelper extends RESTHelper {
 		return msg;		
 	}
 	
-	public OliveMessage[] getPendingOlives(String username) {
+	public OliveMessage[] getPendingOlives(String recipientName) {
 		OliveMessage[] arrRet = null;
 		
 		if (isSignedIn()) {
@@ -270,11 +258,11 @@ public class BaasioHelper extends RESTHelper {
 			
 			BaasioQuery mQuery = new BaasioQuery();
 	        mQuery.setType(COLLECTION);
-	        mQuery.setWheres(PROPERTY_FROM + "='" + username + "' AND " + PROPERTY_TO + "='" + info.mUsername + "' AND " + PROPERTY_PENDING + "=true" );
+	        mQuery.setWheres(PROPERTY_FROM + "='" + recipientName + "' AND " + PROPERTY_TO + "='" + info.mUsername + "' AND " + PROPERTY_PENDING + "=true" );
 	        mQuery.setOrderBy(BaasioBaseEntity.PROPERTY_MODIFIED, ORDER_BY.DESCENDING);
 	        mQuery.setLimit(999);
 	        
-	        android.util.Log.d(TAG, "FROM " + username + " / TO = " + info.mUsername);
+	        android.util.Log.d(TAG, "getPendingOlives FROM " + recipientName);
 	    	
 	        try {
 				BaasioResponse reponse = mQuery.query();

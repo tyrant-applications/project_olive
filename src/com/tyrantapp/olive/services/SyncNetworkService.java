@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.tyrantapp.olive.ConversationActivity;
 import com.tyrantapp.olive.R;
+import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.helper.RESTHelper;
 import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
 import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
@@ -51,11 +52,12 @@ public class SyncNetworkService extends Service {
 	public static final String INTENT_ACTION_MARK_TO_READ			= INTENT_ACTION + ".mark_to_read";
 	
 	
-	public static final String EXTRA_FROM							= "from";
 	public static final String EXTRA_RECIPIENTNAME					= "recipient_name";
 	public static final String EXTRA_MESSAGE						= "message";
 		
 	private	SyncNetworkService mService = null;
+	
+	private String mNotificationUser;
 		
 	private final ISyncNetworkService.Stub mBinder = new ISyncNetworkService.Stub() {
 	};
@@ -88,17 +90,17 @@ public class SyncNetworkService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (intent != null && intent.getAction() != null)
-			android.util.Log.d(TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ onStartCommand + " + intent.getAction().toString());
+			android.util.Log.d(TAG, "onStartCommand(" + intent.getAction().toString() + ")");
 		else
-			android.util.Log.d(TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ onStartCommand + ");
+			android.util.Log.d(TAG, "onStartCommand()");
 		
 		if (intent != null && INTENT_ACTION_SYNC_CONVERSATION.equals(intent.getAction())) {
 			// sync unread count acquired by sync conversation
 			android.util.Log.d(TAG, "SYNC CONVERSATION");
-			String from = intent.getStringExtra(EXTRA_FROM);
-			//onSyncConversation(from);
-			//onSyncUnreadCount(from);
-			new ServiceTask(ServiceTask.SYNC_CONVERSATION).execute(from);
+			String recipientName = intent.getStringExtra(EXTRA_RECIPIENTNAME);
+			//onSyncConversation(recipientName);
+			//onSyncUnreadCount(recipientName);
+			new ServiceTask(ServiceTask.SYNC_CONVERSATION).execute(recipientName);
 		} else 
 		if (intent != null && INTENT_ACTION_SYNC_RECIPIENT_INFO.equals(intent.getAction())) {
 			android.util.Log.d(TAG, "SYNC RECIPIENT INFO");
@@ -199,6 +201,12 @@ public class SyncNetworkService extends Service {
 								ConversationColumns.CONTENT_URI, 
 								values);
 						
+
+						// Notification
+						if (!username.equals(ConversationActivity.getCurrentRecipientName())) {
+							OliveHelper.generateNotification(getApplicationContext(), lRecipientId, msg.mContext);
+							mNotificationUser = username;
+						}
 					}
 				}
 				
@@ -355,6 +363,12 @@ public class SyncNetworkService extends Service {
 		android.util.Log.d(TAG, "onMarkToRead = " +  lRecipientId + " / " + nCount + " recpCursor = " + recpCursor.toString());
 		
 		helper.markToRead(recipientName);
+		
+		android.util.Log.d(TAG, "recipientName = " +  recipientName + " / mNotificationUser = " + mNotificationUser);
+		if (recipientName.equals(mNotificationUser)) {
+			new Exception().printStackTrace();
+			OliveHelper.removeNotification(getApplicationContext());
+		}
 	}
 	
 	public class ServiceTask extends AsyncTask<String, Void, Boolean> {
@@ -373,10 +387,8 @@ public class SyncNetworkService extends Service {
 
 		@Override
 		protected Boolean doInBackground(String... params) {
-			ActivityManager am = (ActivityManager) getApplicationContext().getSystemService(ACTIVITY_SERVICE);
-			List<RunningTaskInfo> taskInfo = am.getRunningTasks(1);
-			ComponentName componentInfo = taskInfo.get(0).topActivity;
-			boolean bAutoMarkToRead = taskInfo.get(0).topActivity.getClassName().equals(ConversationActivity.class.getName());
+			String foregroundActivity = OliveHelper.getForegroundActivity(getApplicationContext());
+			boolean isTopConversation = foregroundActivity.equals(ConversationActivity.class.getName());
 			  
 			switch (mFunctionId) {
 			case SYNC_CONVERSATION_ALL:
@@ -385,7 +397,8 @@ public class SyncNetworkService extends Service {
 				break;
 			case SYNC_CONVERSATION:
 				onSyncConversation(params[0]);
-				if (bAutoMarkToRead) onMarkToRead(params[0]);
+				if (isTopConversation && params[0] != null && params[0].equals(ConversationActivity.getCurrentRecipientName()))
+						onMarkToRead(params[0]);
 				onSyncUnreadCount(params[0]);
 				break;
 			case SYNC_RECIPIENT_INFO:

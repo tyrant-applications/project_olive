@@ -27,26 +27,18 @@ import com.tyrantapp.olive.ConversationActivity;
 import com.tyrantapp.olive.MainActivity;
 import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.SettingActivity;
+import com.tyrantapp.olive.SplashActivity;
 import com.tyrantapp.olive.configurations.BaasioConfig;
+import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.helper.PreferenceHelper;
 import com.tyrantapp.olive.helper.RESTHelper;
-import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
-import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
-import com.tyrantapp.olive.types.OliveMessage;
-import com.tyrantapp.olive.types.UserInfo;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.database.Cursor;
 import android.media.RingtoneManager;
-import android.os.IBinder;
-import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 
@@ -56,6 +48,8 @@ import android.support.v4.app.NotificationCompat.Builder;
 public class GCMIntentService extends GCMBaseIntentService {
 
     private static final String TAG = LogUtils.makeLogTag("GCM");
+    
+    public static final int NOTIFICATION_ID = 10000;
 
     public GCMIntentService() {
         super(BaasioConfig.GCM_SENDER_ID);
@@ -89,7 +83,7 @@ public class GCMIntentService extends GCMBaseIntentService {
     protected void onMessage(Context context, Intent intent) {
         String announcement = intent.getStringExtra("message");
         if (announcement != null) {
-            generateNotification(context, announcement);
+            //generateNotification(context, announcement);
 
             syncConversation(announcement);            
             return;
@@ -110,25 +104,24 @@ public class GCMIntentService extends GCMBaseIntentService {
             alert = msg.getAlert().replace("\\r\\n", "\n");
         }
 
-        String to = msg.getProperty(ConversationActivity.EXTRA_TO).asText();
-        String from = msg.getProperty(ConversationActivity.EXTRA_FROM).asText();
+        String to = msg.getProperty(RESTHelper.OLIVE_PUSH_PROPERTY_TO).asText();
+        String from = msg.getProperty(RESTHelper.OLIVE_PUSH_PROPERTY_FROM).asText();
         
         int icon = R.drawable.ic_launcher;
         long when = System.currentTimeMillis();
         NotificationManager notificationManager = (NotificationManager)context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent notificationIntent = new Intent(context, ConversationActivity.class)
-        		.putExtra(ConversationActivity.EXTRA_FROM, from)
-        		.putExtra(ConversationActivity.EXTRA_TO, to)
-        		.putExtra("TEST", from);
+        Intent notificationIntent = new Intent(context, SplashActivity.class);
+                
+        // set intent so it does not start a new activity
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.putExtra(ConversationActivity.EXTRA_RECIPIENTNAME, from);
         
         android.util.Log.d(TAG, "Receive by push [" + from + "] => [" + to + "]");
         
+        android.util.Log.d(TAG, "GCMIntentService.intent = " + notificationIntent.getExtras().toString());
         
-        // set intent so it does not start a new activity
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
         
         Builder builder = new NotificationCompat.Builder(context).setWhen(when)
@@ -136,14 +129,15 @@ public class GCMIntentService extends GCMBaseIntentService {
                 .setContentText(from + " : " + alert).setContentIntent(intent).setTicker(from + " : " + alert)
                 .setAutoCancel(true);
         
-        if (PreferenceHelper.getBooleanPreferences(context, SettingActivity.OLIVE_PREF_NOTIFICATION, true)) {
+        if (PreferenceHelper.getBooleanPreferences(context, SettingActivity.OLIVE_PREF_NOTIFICATION, true) &&
+            !OliveHelper.getForegroundPackage(context).equals(MainActivity.class.getPackage().getName().toString())) {
         	// Notification ON!
-        	builder.setVibrate(new long[]{200, 100, 200, 100});
+        	//builder.setVibrate(new long[]{200, 100, 200, 100});
         	builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         }
         
         Notification notification = builder.getNotification();
-        notificationManager.notify(0, notification);
+	    notificationManager.notify(GCMIntentService.NOTIFICATION_ID, notification);
     }
     
     @Override
@@ -159,17 +153,17 @@ public class GCMIntentService extends GCMBaseIntentService {
     }
     
     private void syncConversation(String message) {
-    	android.util.Log.d(TAG, "GCM::syncConversation + " + message);
-        BaasioPayload payload = JsonUtils.parse(message, BaasioPayload.class);
+    	BaasioPayload payload = JsonUtils.parse(message, BaasioPayload.class);
         if (ObjectUtils.isEmpty(payload)) {
             return;
         }
 
-        String from = payload.getProperty(ConversationActivity.EXTRA_FROM).asText();
+        String recipientName = payload.getProperty(RESTHelper.OLIVE_PUSH_PROPERTY_FROM).asText();
+        android.util.Log.d(TAG, "GCM::syncConversation with " + recipientName);
         
         Intent intent = new Intent(this, SyncNetworkService.class)
         	.setAction(SyncNetworkService.INTENT_ACTION_SYNC_CONVERSATION)
-        	.putExtra(SyncNetworkService.EXTRA_FROM, from);
+        	.putExtra(SyncNetworkService.EXTRA_RECIPIENTNAME, recipientName);
         startService(intent);
     }
 }

@@ -1,9 +1,8 @@
 package com.tyrantapp.olive;
 
+import java.util.Set;
+
 import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.R.id;
-import com.tyrantapp.olive.R.layout;
-import com.tyrantapp.olive.R.menu;
 import com.tyrantapp.olive.adapters.ConversationListAdapter;
 import com.tyrantapp.olive.adapters.KeypadPagerAdapter;
 import com.tyrantapp.olive.components.ConversationListView;
@@ -12,13 +11,8 @@ import com.tyrantapp.olive.interfaces.OnOliveKeypadListener;
 import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
 import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
 import com.tyrantapp.olive.services.SyncNetworkService;
-import com.tyrantapp.olive.types.OliveMessage;
-import com.tyrantapp.olive.types.UserInfo;
-import com.tyrantapp.olive.BaseActivity.OnConnectServiceListener;
 
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -27,9 +21,6 @@ import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,7 +31,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -54,12 +44,11 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	final static private int			RESULT_RECORD_VOICE	= 4;
 	final static private int			RESULT_GET_LOCATION	= 5;
 	
-	final static public String			EXTRA_FROM	= "from";
-	final static public String			EXTRA_TO	= "to";
+	final static public String			EXTRA_RECIPIENTNAME	= "recipient";
+	final static public String			EXTRA_RECIPIENT_ID	= "recipient_id";
 	
 	
 	private long						mRecipientId;
-	private String						mUsername;
 	private String						mRecipientName;
 	
 	private ConversationListAdapter		mConversationAdapter;
@@ -159,25 +148,21 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		setContentView(R.layout.activity_conversation);
 		
 		// Initialize
-		Intent intent = getIntent();
+		mRecipientId = getIntent().getLongExtra(EXTRA_RECIPIENT_ID, -1);
+		mRecipientName = getIntent().getStringExtra(EXTRA_RECIPIENTNAME);
 		
-		if (intent != null) {
-			mUsername = intent.getStringExtra(EXTRA_FROM);
-			mRecipientName = intent.getStringExtra(EXTRA_TO);
+		if (mRecipientName != null) {
+			getIntent().removeExtra(ConversationActivity.EXTRA_RECIPIENTNAME);
+			android.util.Log.d(TAG, "remove result = " + getIntent().getStringExtra(EXTRA_RECIPIENTNAME));
 			
-			getIntent().removeExtra(EXTRA_FROM);
-			getIntent().removeExtra(EXTRA_TO);
-			getIntent().removeExtra("TEST");
+			android.util.Log.d(TAG, "Message from " + mRecipientName + " (" + mRecipientId + ")");
 			
-			android.util.Log.d(TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> " + mRecipientName + " / " + mUsername + " / " + intent.getStringExtra("TEST"));
-			
-			mRecipientId = intent.getLongExtra(ConversationColumns.RECIPIENT_ID, -1);
-			if (mRecipientId < 0) {
+			if (mRecipientName != null) {
 				Cursor cursor = getContentResolver().query(
 						RecipientColumns.CONTENT_URI, 
 						new String[] { RecipientColumns._ID, },
 						RecipientColumns.USERNAME + "=?",
-						new String[] { mUsername, },
+						new String[] { mRecipientName, },
 						null);
 				
 				if (cursor != null && cursor.getCount() > 0) {
@@ -252,13 +237,10 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 			updateLastOlive(cursor);
 		
 		}
-		
-		android.util.Log.d(TAG, "onCreate Finished");
 	}
 
 	@Override
 	public void onStart() {
-		android.util.Log.d(TAG, "onStart Begin");
 		super.onStart();
 
         Intent intent = new Intent(this, SyncNetworkService.class)
@@ -266,7 +248,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
         	.putExtra(SyncNetworkService.EXTRA_RECIPIENTNAME, mRecipientName);
         startService(intent);
         
-        android.util.Log.d(TAG, "onStart Finished");
+        sCurrentRecipientName = mRecipientName;        
 	}
 	
 	@Override
@@ -286,6 +268,13 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	@Override
 	protected void onPause() {
 		super.onPause();
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		
+		sCurrentRecipientName = "";		
 	}
 
 	@Override
@@ -455,5 +444,12 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
 		}
+	}
+	
+	
+	/// static
+	private static String sCurrentRecipientName;
+	public static String getCurrentRecipientName() {
+		return sCurrentRecipientName;
 	}
 }

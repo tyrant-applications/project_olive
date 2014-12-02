@@ -8,11 +8,9 @@ import com.kth.baasio.exception.BaasioException;
 import com.kth.common.utils.LogUtils;
 import com.tyrantapp.olive.configurations.BaasioConfig;
 import com.tyrantapp.olive.helper.BaasioHelper;
-import com.tyrantapp.olive.helper.RESTHelper;
 
 import android.app.Application;
 import android.os.AsyncTask;
-import android.os.StrictMode;
 
 public class OliveApplication extends Application {
     private static final String TAG = LogUtils.makeLogTag(OliveApplication.class);

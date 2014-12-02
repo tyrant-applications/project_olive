@@ -1,20 +1,13 @@
 package com.tyrantapp.olive;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.RemoteException;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -29,8 +22,6 @@ import android.widget.TextView.OnEditorActionListener;
 import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.adapters.RecipientsListAdapter;
 import com.tyrantapp.olive.components.RecipientsListView;
-import com.tyrantapp.olive.providers.OliveContentProvider;
-import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
 import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
 import com.tyrantapp.olive.services.SyncNetworkService;
 import com.tyrantapp.olive.types.UserInfo;
@@ -40,8 +31,6 @@ public class MainActivity extends BaseActivity {
 	// static variable
 	static private final String		TAG = "MainActivity";
 	
-	static public final String		EXTRA_USERNAME = "username";
-			
 	// View
 	private RecipientsListView		mRecipientsListView;
 	private RecipientsListAdapter 	mRecipientsAdapter;
@@ -50,7 +39,8 @@ public class MainActivity extends BaseActivity {
 	
 
 	// for common
-	private String					mUsername;	
+	private UserInfo				mUserInfo;
+	private String					mRecipientName;
 	private boolean 				mFooterFlipped;
 
 	
@@ -74,11 +64,8 @@ public class MainActivity extends BaseActivity {
 			
 				if (id >= 0) {
 					Intent intent = new Intent(getApplicationContext(), ConversationActivity.class)
-						.putExtra(ConversationColumns.RECIPIENT_ID, id)
-						.putExtra(ConversationActivity.EXTRA_FROM, mUsername)
-						.putExtra(ConversationActivity.EXTRA_TO, recipientName);
+						.putExtra(ConversationActivity.EXTRA_RECIPIENTNAME, recipientName);
 					
-					android.util.Log.d(TAG , "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1 " + mUsername +" / " + recipientName);
 					startActivity(intent);
 				}
 			}
@@ -95,7 +82,6 @@ public class MainActivity extends BaseActivity {
 		}
 	};
 	
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -103,10 +89,6 @@ public class MainActivity extends BaseActivity {
 	    // Initialize
 		setContentView(R.layout.activity_main);
 		
-		mUsername = getIntent().getStringExtra(EXTRA_USERNAME);
-		getIntent().removeExtra(EXTRA_USERNAME);
-		
-		android.util.Log.d(TAG, "Your ID = " + mUsername);
 		mFooterFlipped = false;
 		
 		mRecipientsListView = (RecipientsListView)findViewById(R.id.recipients_list_view);
@@ -122,15 +104,29 @@ public class MainActivity extends BaseActivity {
 		
 		// register event
 		mRecipientEdit.setOnEditorActionListener(mOnEditorActionListener);
+		
+		// Access to conversation activity directly
+		mRecipientName = getIntent().getStringExtra(ConversationActivity.EXTRA_RECIPIENTNAME);
+        if (mRecipientName != null) {
+        	getIntent().removeExtra(ConversationActivity.EXTRA_RECIPIENTNAME);
+        	
+			Intent newIntent = new Intent(getApplicationContext(), ConversationActivity.class)
+				.putExtra(ConversationActivity.EXTRA_RECIPIENTNAME, mRecipientName);		
+			startActivity(newIntent);
+        }
 	}
+	
+	
 	
 	@Override
 	public void onStart() {
 		super.onStart();
+		
+		mUserInfo = mRESTHelper.getUserProfile();
 
         Intent intent = new Intent(this, SyncNetworkService.class)
         	.setAction(SyncNetworkService.INTENT_ACTION_SYNC_RECIPIENT_INFO);
-        startService(intent);	
+        startService(intent);
 	}
 	
 	@Override
@@ -194,7 +190,7 @@ public class MainActivity extends BaseActivity {
 	
 	public void onSetting(View v) {		
 		Intent intent = new Intent(this, SettingActivity.class);
-		this.startActivity(intent);
+		startActivity(intent);
 		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 	}
 
