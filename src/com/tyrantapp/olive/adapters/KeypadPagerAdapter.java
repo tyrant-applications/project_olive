@@ -26,7 +26,7 @@ public class KeypadPagerAdapter extends FragmentPagerAdapter {
 		// Return a PlaceholderFragment (defined as a static inner class
 		// below)
 		
-		return KeypadFragment.getInstance(position, mPageTypes[position]);
+		return KeypadFragment.newInstance(position, mPageTypes[position]);
 	}
 
 	@Override

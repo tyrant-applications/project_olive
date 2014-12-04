@@ -98,32 +98,25 @@ public class SyncNetworkService extends Service {
 			// sync unread count acquired by sync conversation
 			android.util.Log.d(TAG, "SYNC CONVERSATION");
 			String recipientName = intent.getStringExtra(EXTRA_RECIPIENTNAME);
-			//onSyncConversation(recipientName);
-			//onSyncUnreadCount(recipientName);
 			new ServiceTask(ServiceTask.SYNC_CONVERSATION).execute(recipientName);
 		} else 
 		if (intent != null && INTENT_ACTION_SYNC_RECIPIENT_INFO.equals(intent.getAction())) {
 			android.util.Log.d(TAG, "SYNC RECIPIENT INFO");
-			//onSyncRecipientInfo();
 			new ServiceTask(ServiceTask.SYNC_RECIPIENT_INFO).execute();
 		} else
 		if (intent != null && INTENT_ACTION_SYNC_USER_INFO.equals(intent.getAction())) {
 			android.util.Log.d(TAG, "SYNC USER INFO");
-			//onSyncUserInfo();
 			new ServiceTask(ServiceTask.SYNC_USER_INFO).execute();
 		} else
 		if (intent != null && INTENT_ACTION_POST_OLIVE.equals(intent.getAction())) {
 			android.util.Log.d(TAG, "POST OLIVE");
 			String recipientName = intent.getStringExtra(EXTRA_RECIPIENTNAME);
 			String message = intent.getStringExtra(EXTRA_MESSAGE);
-			//onPostOlive(recipientName, message);
 			new ServiceTask(ServiceTask.POST_OLIVE).execute(recipientName, message);
 		} else
 		if (intent != null && INTENT_ACTION_MARK_TO_READ.equals(intent.getAction())) {
 			android.util.Log.d(TAG, "MARK TO READ");
 			String recipientName = intent.getStringExtra(EXTRA_RECIPIENTNAME);
-			//onMarkToRead(recipientName);
-			//onSyncUnreadCount(recipientName);
 			new ServiceTask(ServiceTask.MARK_TO_READ).execute(recipientName);
 		}
 
@@ -195,7 +188,7 @@ public class SyncNetworkService extends Service {
 						values.put(ConversationColumns.IS_RECV, true);
 						values.put(ConversationColumns.IS_PENDING, false);
 						values.put(ConversationColumns.IS_READ, false);
-						values.put(ConversationColumns.MODIFIED, msg.mModified);
+						values.put(ConversationColumns.CREATED, msg.mCreated);
 						
 						getContentResolver().insert(
 								ConversationColumns.CONTENT_URI, 
@@ -316,7 +309,7 @@ public class SyncNetworkService extends Service {
 			values.put(ConversationColumns.IS_RECV, false);
 			values.put(ConversationColumns.IS_PENDING, true);
 			values.put(ConversationColumns.IS_READ, false);
-			values.put(ConversationColumns.MODIFIED, System.currentTimeMillis());
+			values.put(ConversationColumns.CREATED, System.currentTimeMillis());
 		
 			uri = getContentResolver().insert(ConversationColumns.CONTENT_URI, values);
 		}
@@ -324,7 +317,7 @@ public class SyncNetworkService extends Service {
 		OliveMessage msg = helper.postOlive(recipientName, message);
 		if (msg != null) {
 			values.put(ConversationColumns.IS_PENDING, false);
-			values.put(ConversationColumns.MODIFIED, msg.mModified);
+			values.put(ConversationColumns.CREATED, msg.mCreated);
 			
 			getContentResolver().update(uri, values, null, null);
 		} else {

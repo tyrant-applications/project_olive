@@ -43,11 +43,23 @@
 
     <TextView
 	    android:id="@+id/recipient_name"
-	    android:layout_width="wrap_content"
+	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
+	    android:layout_weight="1"
 	    android:layout_marginLeft="10dp"
+	    android:layout_marginRight="10dp"
 	    android:textSize="20sp"
+	    android:singleLine="true"
+	    android:ellipsize="marquee"
 	    android:text="RECIPIENT NAME"
+	    android:textColor="@color/black" />
+    
+    <TextView
+	    android:id="@+id/recipient_last_recv"
+	    android:layout_width="92dp"
+	    android:layout_height="wrap_content"
+	    android:textSize="13sp"
+	    android:text="+ 20 mins"
 	    android:textColor="@color/black" />
 
 </LinearLayout>

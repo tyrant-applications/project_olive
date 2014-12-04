@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.CursorAdapter;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -64,9 +65,30 @@ public class RecipientsListAdapter extends CursorAdapter {
 		ImageView ovrView = (ImageView) view.findViewById(R.id.recipient_overlay);
     	TextView unreadView = (TextView) view.findViewById(R.id.recipient_unread);
         TextView nameView = (TextView) view.findViewById(R.id.recipient_name);
+        TextView timeView = (TextView) view.findViewById(R.id.recipient_last_recv);
         
         if (nameView != null) {
         	nameView.setText(cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME)));
+        	
+        	long lLastReceived = -1;
+        	Cursor convCursor = context.getContentResolver().query(
+        			ConversationColumns.CONTENT_URI, 
+        			new String[] { ConversationColumns.CREATED, },
+        			ConversationColumns.RECIPIENT_ID + "=?",
+        			new String[] { String.valueOf(cursor.getLong(cursor.getColumnIndex(RecipientColumns._ID))), },
+        			ConversationColumns.CREATED + " DESC Limit 1");
+        	if (convCursor != null && convCursor.getCount() > 0) {
+        		convCursor.moveToFirst();
+        		lLastReceived = convCursor.getLong(0);
+        	}
+        	
+        	if (lLastReceived >= 0) {
+        		timeView.setVisibility(View.VISIBLE);
+        		String prettyTime = DateUtils.getRelativeTimeSpanString(lLastReceived).toString();
+        		timeView.setText(prettyTime);
+        	} else {
+        		timeView.setVisibility(View.INVISIBLE);
+        	}
         	
         	int nUnreadCount = cursor.getInt(cursor.getColumnIndex(RecipientColumns.UNREAD));
         	if (nUnreadCount > 0) {
@@ -97,6 +119,7 @@ public class RecipientsListAdapter extends CursorAdapter {
 					nameView.setTextColor(mContext.getResources().getColor(R.color.black));
 				}
 			}
+			nameView.setSelected(true);
         	        	
         	final Cursor finalCursor = cursor;
         	favView.setOnClickListener(new OnClickListener() {

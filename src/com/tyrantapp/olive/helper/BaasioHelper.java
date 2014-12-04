@@ -33,6 +33,7 @@ public class BaasioHelper extends RESTHelper {
 	private static final String		PROPERTY_CONTEXT 	= "context";
 	private static final String		PROPERTY_PENDING	= "pending";
 	private static final String		PROPERTY_UNREAD 	= "unread";
+	private static final String		PROPERTY_CREATED	= "created";
 
 	public static void initialize(Context context) {
 		RESTHelper.setContext(context);
@@ -190,7 +191,7 @@ public class BaasioHelper extends RESTHelper {
 //		
 //		return nRet;
 //	}
-//	
+		
 	public	OliveMessage postOlive(String username, String contents) {
 		OliveMessage msg = null;
 		
@@ -204,7 +205,7 @@ public class BaasioHelper extends RESTHelper {
 			msg.mAuthor = -1;
 			msg.mCategory = -1;
 			msg.mContext = contents;
-			msg.mModified = System.currentTimeMillis();
+			msg.mCreated = System.currentTimeMillis();
 			
 			BaasioEntity entity = new BaasioEntity(COLLECTION);
 			entity.setProperty(PROPERTY_FROM, msg.mFrom);
@@ -214,7 +215,7 @@ public class BaasioHelper extends RESTHelper {
 			entity.setProperty(PROPERTY_UNREAD, true);
 			
 			try {
-				msg.mModified = entity.save().getModified();
+				msg.mCreated = entity.save().getCreated();
 				msg.mIsPending = false;
 				
 				// Push!
@@ -284,7 +285,7 @@ public class BaasioHelper extends RESTHelper {
 					arrRet[nIndex].mContext = entity.getProperty(PROPERTY_CONTEXT).asText();
 					arrRet[nIndex].mIsRead = entity.getProperty(PROPERTY_UNREAD).asBoolean();
 					arrRet[nIndex].mIsPending = false;
-					arrRet[nIndex].mModified = entity.getModified();
+					arrRet[nIndex].mCreated = entity.getCreated();
 					nIndex++;
 				}
 			} catch (BaasioException e) {

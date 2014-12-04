@@ -48,24 +48,14 @@ public class KeypadFragment extends Fragment {
 	/**
 	 * Returns a new instance of this fragment for the given section number.
 	 */
-	public static KeypadFragment getInstance(int sectionNumber, int type) {
-		KeypadFragment fragment = null;
+	public static KeypadFragment newInstance(int sectionNumber, int type) {
+		KeypadFragment fragment = new KeypadFragment();
+		Bundle args = new Bundle();
+		args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+		args.putInt(ARG_SECTION_TYPE, type);
+		fragment.setArguments(args);			
 		
-		android.util.Log.d(TAG, "KeypadFragment::getInstance : " + sectionNumber + " / " + type);		
-		if (mFragmentsMap.containsKey(sectionNumber)) {
-			android.util.Log.d(TAG, "KeypadFragment::getInstance - Alread exists");
-			fragment = (KeypadFragment) mFragmentsMap.get(sectionNumber);
-		} else {
-			android.util.Log.d(TAG, "KeypadFragment::getInstance - create new one");
-			fragment = new KeypadFragment();
-			Bundle args = new Bundle();
-			args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-			args.putInt(ARG_SECTION_TYPE, type);
-			fragment.setArguments(args);			
-			
-			mFragmentsMap.put(sectionNumber, fragment);
-		}
-		
+		mFragmentsMap.put(sectionNumber, fragment);		
 		return fragment;
 	}		
 
@@ -86,8 +76,6 @@ public class KeypadFragment extends Fragment {
 		
 		mSectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
 		mSectionType = getArguments().getInt(ARG_SECTION_TYPE);
-		
-		android.util.Log.d(TAG, "KeypadFragment::onCreateView : " + mSectionNumber + " / " + mSectionType);
 		
 		if (mSectionType == TYPE_KEYPAD_2) {
 			rootView = inflater.inflate(R.layout.fragment_keypad_2, container, false);

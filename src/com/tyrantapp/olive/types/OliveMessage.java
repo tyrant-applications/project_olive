@@ -14,7 +14,7 @@ public class OliveMessage  implements Parcelable {
 	public int		mCategory;
 	public String	mContext;
 
-	public long		mModified;	
+	public long		mCreated;	
 
     public static final Parcelable.Creator<OliveMessage> CREATOR = new Parcelable.Creator<OliveMessage>() {
         public OliveMessage createFromParcel(Parcel in) {
@@ -29,7 +29,7 @@ public class OliveMessage  implements Parcelable {
         	oRet.mCategory = in.readInt();
         	oRet.mContext = in.readString();
         	
-        	oRet.mModified = in.readLong();
+        	oRet.mCreated = in.readLong();
             
         	return oRet;
         }
@@ -54,6 +54,6 @@ public class OliveMessage  implements Parcelable {
         dest.writeInt(mCategory);
         dest.writeString(mContext);
         
-        dest.writeLong(mModified);
+        dest.writeLong(mCreated);
     }
 }

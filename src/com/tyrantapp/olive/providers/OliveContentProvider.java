@@ -66,10 +66,10 @@ public class OliveContentProvider extends ContentProvider {
         public static final String 		IS_RECV			= "is_receive";
         public static final String 		IS_PENDING		= "is_pending";
         public static final String		IS_READ			= "is_read";
-        public static final String 		MODIFIED		= "modified";
+        public static final String 		CREATED			= "created";
         
-        public static final String[] 	PROJECTIONS = new String[] { _ID, RECIPIENT_ID, CTX_AUTHOR, CTX_CATEGORY, CTX_DETAIL, IS_RECV, IS_PENDING, IS_READ, MODIFIED };
-        public static final String 		ORDERBY = MODIFIED;
+        public static final String[] 	PROJECTIONS = new String[] { _ID, RECIPIENT_ID, CTX_AUTHOR, CTX_CATEGORY, CTX_DETAIL, IS_RECV, IS_PENDING, IS_READ, CREATED };
+        public static final String 		ORDERBY = CREATED;
     }
 
     static {
@@ -104,7 +104,7 @@ public class OliveContentProvider extends ContentProvider {
         mapConversationsProjection.put(ConversationColumns.IS_RECV, ConversationColumns.IS_RECV);
         mapConversationsProjection.put(ConversationColumns.IS_PENDING, ConversationColumns.IS_PENDING);
         mapConversationsProjection.put(ConversationColumns.IS_READ, ConversationColumns.IS_READ);
-        mapConversationsProjection.put(ConversationColumns.MODIFIED, ConversationColumns.MODIFIED);        
+        mapConversationsProjection.put(ConversationColumns.CREATED, ConversationColumns.CREATED);        
     }
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -135,7 +135,7 @@ public class OliveContentProvider extends ContentProvider {
             		ConversationColumns.IS_RECV + " BOOLEAN," + 
             		ConversationColumns.IS_PENDING + " BOOLEAN," +
             		ConversationColumns.IS_READ + " BOOLEAN," +
-            		ConversationColumns.MODIFIED + " DATE" + 
+            		ConversationColumns.CREATED + " DATE" + 
             		");");
         }
  
