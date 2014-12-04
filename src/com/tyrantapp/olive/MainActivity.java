@@ -22,6 +22,7 @@ import android.widget.TextView.OnEditorActionListener;
 import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.adapters.RecipientsListAdapter;
 import com.tyrantapp.olive.components.RecipientsListView;
+import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
 import com.tyrantapp.olive.services.SyncNetworkService;
 import com.tyrantapp.olive.types.UserInfo;
@@ -51,24 +52,9 @@ public class MainActivity extends BaseActivity {
 			// Find current item's recipient ID and start conversation activity
 			android.util.Log.d(TAG, "id = " + id);
 			
-			Cursor cursor = getContentResolver().query(
-					RecipientColumns.CONTENT_URI, 
-					new String[] { RecipientColumns.USERNAME, },
-					RecipientColumns._ID + "=?", new String[] { String.valueOf(id), },
-					null);
-			
-			String recipientName = null;
-			if (cursor != null && cursor.getCount() > 0) {
-				cursor.moveToFirst();
-				recipientName = cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME));
-			
-				if (id >= 0) {
-					Intent intent = new Intent(getApplicationContext(), ConversationActivity.class)
-						.putExtra(ConversationActivity.EXTRA_RECIPIENTNAME, recipientName);
-					
-					startActivity(intent);
-				}
-			}
+			Intent intent = new Intent(getApplicationContext(), ConversationActivity.class)
+				.putExtra(ConversationActivity.EXTRA_RECIPIENT_ID, id);
+			startActivity(intent);
 		}
 	};
 	
@@ -106,18 +92,24 @@ public class MainActivity extends BaseActivity {
 		mRecipientEdit.setOnEditorActionListener(mOnEditorActionListener);
 		
 		// Access to conversation activity directly
-		mRecipientName = getIntent().getStringExtra(ConversationActivity.EXTRA_RECIPIENTNAME);
-        if (mRecipientName != null) {
-        	getIntent().removeExtra(ConversationActivity.EXTRA_RECIPIENTNAME);
-        	
-			Intent newIntent = new Intent(getApplicationContext(), ConversationActivity.class)
-				.putExtra(ConversationActivity.EXTRA_RECIPIENTNAME, mRecipientName);		
+		PassToConversationActivity(getIntent());
+	}
+	
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		PassToConversationActivity(intent);
+	}
+	
+	private void PassToConversationActivity(Intent intent) {
+		// Access to conversation activity directly
+		long recipientId = intent.getLongExtra(ConversationActivity.EXTRA_RECIPIENT_ID, -1);
+		if (recipientId >= 0) {
+			Intent newIntent = new Intent(getApplicationContext(), ConversationActivity.class).putExtra(ConversationActivity.EXTRA_RECIPIENT_ID, recipientId);
 			startActivity(newIntent);
         }
 	}
-	
-	
-	
+
 	@Override
 	public void onStart() {
 		super.onStart();

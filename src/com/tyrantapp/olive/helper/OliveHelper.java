@@ -49,20 +49,19 @@ public class OliveHelper {
         long when = System.currentTimeMillis();
         NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent notificationIntent = new Intent(context, ConversationActivity.class);
+        Intent notificationIntent = new Intent(context, MainActivity.class);
         
         String recipientName = getRecipientName(context, lRecipientId);
                 
         // set intent so it does not start a new activity
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(ConversationActivity.EXTRA_RECIPIENT_ID, lRecipientId);
-        notificationIntent.putExtra(ConversationActivity.EXTRA_RECIPIENTNAME, recipientName);
         
         android.util.Log.d(TAG, "Receive by push from " + recipientName + " (" + lRecipientId + ")");
         
         android.util.Log.d(TAG, "GCMIntentService.intent = " + notificationIntent.getExtras().toString());
         
-        PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+        PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         
         Builder builder = new NotificationCompat.Builder(context).setWhen(when)
                 .setSmallIcon(icon).setContentTitle(context.getString(R.string.app_name))

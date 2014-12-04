@@ -102,7 +102,7 @@ public class BaasioHelper extends RESTHelper {
 	public boolean isSignedIn() {
 		String token = Baas.io().getAccessToken();
 		boolean bRet = token != null;
-		android.util.Log.d(TAG, "Logged in = " + bRet);
+		android.util.Log.d(TAG, "Logged in = " + bRet + " / " + token);
 		return bRet;
 	}
 	
@@ -221,7 +221,7 @@ public class BaasioHelper extends RESTHelper {
 				BaasioQuery mQuery = new BaasioQuery();
 		        mQuery.setType(BaasioUser.ENTITY_TYPE + "/" + username);
 		        mQuery.setOrderBy(BaasioBaseEntity.PROPERTY_MODIFIED, ORDER_BY.DESCENDING);
-		    	
+		        
 		        BaasioResponse reponse = mQuery.query();
 				BaasioUser recipient = BaasioBaseEntity.toType(reponse.getFirstEntity(), BaasioUser.class);
 				
@@ -238,9 +238,14 @@ public class BaasioHelper extends RESTHelper {
 				message.setTo(recipient.getUuid().toString());
 				
 				BaasioPush.sendPush(message);
+
+				android.util.Log.d(TAG, "Pushed to " + msg.mTo + " from " + msg.mFrom);
 			} catch (BaasioException e) {
 				e.printStackTrace();
 				msg.mIsPending = true;
+				
+				//BaasioUser.signOut(getContext());
+			} finally {
 			}
 			
 		} else {

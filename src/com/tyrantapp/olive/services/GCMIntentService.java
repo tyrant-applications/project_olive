@@ -116,7 +116,7 @@ public class GCMIntentService extends GCMBaseIntentService {
                 
         // set intent so it does not start a new activity
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        notificationIntent.putExtra(ConversationActivity.EXTRA_RECIPIENTNAME, from);
+        //notificationIntent.putExtra(ConversationActivity.EXTRA_RECIPIENT_ID, OliveHelper.getRecipientId(context, recipientName));
         
         android.util.Log.d(TAG, "Receive by push [" + from + "] => [" + to + "]");
         

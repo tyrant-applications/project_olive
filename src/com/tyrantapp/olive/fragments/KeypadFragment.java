@@ -24,6 +24,7 @@ import android.widget.Button;
  */
 @SuppressLint("UseSparseArrays")
 public class KeypadFragment extends Fragment {
+	private static final String					TAG = "KeypadFragment";
 	/**
 	 * The fragment argument representing the section number for this
 	 * fragment.
@@ -50,9 +51,12 @@ public class KeypadFragment extends Fragment {
 	public static KeypadFragment getInstance(int sectionNumber, int type) {
 		KeypadFragment fragment = null;
 		
+		android.util.Log.d(TAG, "KeypadFragment::getInstance : " + sectionNumber + " / " + type);		
 		if (mFragmentsMap.containsKey(sectionNumber)) {
+			android.util.Log.d(TAG, "KeypadFragment::getInstance - Alread exists");
 			fragment = (KeypadFragment) mFragmentsMap.get(sectionNumber);
 		} else {
+			android.util.Log.d(TAG, "KeypadFragment::getInstance - create new one");
 			fragment = new KeypadFragment();
 			Bundle args = new Bundle();
 			args.putInt(ARG_SECTION_NUMBER, sectionNumber);
@@ -82,6 +86,8 @@ public class KeypadFragment extends Fragment {
 		
 		mSectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
 		mSectionType = getArguments().getInt(ARG_SECTION_TYPE);
+		
+		android.util.Log.d(TAG, "KeypadFragment::onCreateView : " + mSectionNumber + " / " + mSectionType);
 		
 		if (mSectionType == TYPE_KEYPAD_2) {
 			rootView = inflater.inflate(R.layout.fragment_keypad_2, container, false);

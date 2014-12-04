@@ -7,6 +7,7 @@ import com.tyrantapp.olive.adapters.ConversationListAdapter;
 import com.tyrantapp.olive.adapters.KeypadPagerAdapter;
 import com.tyrantapp.olive.components.ConversationListView;
 import com.tyrantapp.olive.fragments.KeypadFragment;
+import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.interfaces.OnOliveKeypadListener;
 import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
 import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
@@ -44,7 +45,6 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	final static private int			RESULT_RECORD_VOICE	= 4;
 	final static private int			RESULT_GET_LOCATION	= 5;
 	
-	final static public String			EXTRA_RECIPIENTNAME	= "recipient";
 	final static public String			EXTRA_RECIPIENT_ID	= "recipient_id";
 	
 	
@@ -140,7 +140,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	        changeNormalMode();
 		}
 	};
-		
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -149,45 +149,25 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		
 		// Initialize
 		mRecipientId = getIntent().getLongExtra(EXTRA_RECIPIENT_ID, -1);
-		mRecipientName = getIntent().getStringExtra(EXTRA_RECIPIENTNAME);
 		
-		if (mRecipientName != null) {
-			getIntent().removeExtra(ConversationActivity.EXTRA_RECIPIENTNAME);
-			android.util.Log.d(TAG, "remove result = " + getIntent().getStringExtra(EXTRA_RECIPIENTNAME));
+		if (mRecipientId >= 0) {
+			mRecipientName = OliveHelper.getRecipientName(this, mRecipientId);
 			
 			android.util.Log.d(TAG, "Message from " + mRecipientName + " (" + mRecipientId + ")");
 			
-			if (mRecipientName != null) {
-				Cursor cursor = getContentResolver().query(
-						RecipientColumns.CONTENT_URI, 
-						new String[] { RecipientColumns._ID, },
-						RecipientColumns.USERNAME + "=?",
-						new String[] { mRecipientName, },
-						null);
-				
-				if (cursor != null && cursor.getCount() > 0) {
-					cursor.moveToFirst();
-					mRecipientId = cursor.getLong(cursor.getColumnIndex(RecipientColumns._ID));
-				} else {
-					Toast.makeText(this, R.string.toast_error_no_registered_recipient, Toast.LENGTH_SHORT).show();
-					finish();
-					return;
-				}
+			if (mRecipientName == null) {
+				Toast.makeText(this, R.string.toast_error_no_registered_recipient, Toast.LENGTH_SHORT).show();
+				finish();
+				return;
 			}
 		}		
 		
-		if (mRecipientId >= 0) {
-			mConversationAdapter = new ConversationListAdapter(this, mRecipientId);
-			mConversationListView = (ConversationListView) findViewById(R.id.conversations_list_view);
-			mConversationListView.setAdapter(mConversationAdapter);
+		mConversationAdapter = new ConversationListAdapter(this, mRecipientId);
+		mConversationListView = (ConversationListView) findViewById(R.id.conversations_list_view);
+		mConversationListView.setAdapter(mConversationAdapter);
 			
-			mConversationListView.setOnItemClickListener(mOnConversationClickListener);
-			mConversationAdapter.registerDataSetObserver(mConversationObserver);
-		} else {
-			Toast.makeText(this,  "Invalid recipient id.", Toast.LENGTH_SHORT).show();
-			finish();
-			return;
-		}
+		mConversationListView.setOnItemClickListener(mOnConversationClickListener);
+		mConversationAdapter.registerDataSetObserver(mConversationObserver);
 		
 		// Last Olive (interaction mode)
 		mLastOliveText = (TextView) findViewById(R.id.conversation_last_olive_text);
