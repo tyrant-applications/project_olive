@@ -4,6 +4,7 @@ import com.tyrantapp.olive.helper.PreferenceHelper;
 import com.tyrantapp.olive.helper.RESTHelper;
 import com.tyrantapp.olive.types.UserInfo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +17,7 @@ public class SettingActivity extends BaseActivity {
 	
 	public final static String OLIVE_PREF_NOTIFICATION = "olive_pref_notification";
 	public final static String OLIVE_PREF_PASSCODE_LOCK = "olive_pref_passcode_lock";
+	public final static String OLIVE_PREF_PASSCODE_KEY = "olive_pref_passcode_key";
 	public final static String OLIVE_PREF_LOCATION_SERVICE = "olive_pref_locationservice";
 
 	@Override
@@ -38,8 +40,10 @@ public class SettingActivity extends BaseActivity {
 		
 		tv.setText(info.mNickname);
 		tv.setSelected(true);
+		
+		setEnablePasscode(true);
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

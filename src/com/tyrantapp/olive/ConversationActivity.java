@@ -217,12 +217,14 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 			updateLastOlive(cursor);
 		
 		}
+		
+		setEnablePasscode(true);
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-
+		
         Intent intent = new Intent(this, SyncNetworkService.class)
         	.setAction(SyncNetworkService.INTENT_ACTION_MARK_TO_READ)
         	.putExtra(SyncNetworkService.EXTRA_RECIPIENTNAME, mRecipientName);

@@ -36,22 +36,17 @@
             android:name=".SplashActivity"
             android:label="@string/title_activity_splash"
             android:windowSoftInputMode="adjustResize" >
-            
             <intent-filter>
-                
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
-                
             </intent-filter>
-            
         </activity>
-        
         <activity
             android:name=".SignInActivity"
             android:label="@string/title_activity_signin"
             android:windowSoftInputMode="adjustPan" >
         </activity>
-        
         <activity
             android:name=".SignUpActivity"
             android:label="@string/title_activity_signup"
@@ -59,23 +54,25 @@
         </activity>
         
         <activity
+            android:name=".PasscodeActivity"
+            android:label="@string/title_activity_passcode" >
+        </activity>
+        
+        <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main" >
         </activity>
-        
         <activity
             android:name=".ConversationActivity"
             android:label="@string/title_activity_conversation"
             android:windowSoftInputMode="adjustResize" >
-            <!-- 
-            android:parentActivityName=".MainActivity"
-            -->
-             
+
+<!--             android:parentActivityName=".MainActivity" -->
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.tyrantapp.olive.MainActivity" />            
+                android:value="com.tyrantapp.olive.MainActivity" />
         </activity>
-        
         <activity
             android:name=".SettingActivity"
             android:label="@string/title_activity_setting"
@@ -84,13 +81,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="BaseActivity" />
         </activity>
-        
-         <provider
+
+        <provider
             android:name=".providers.OliveContentProvider"
             android:authorities="com.tyrantapp.olive"
             android:enabled="true"
             android:exported="true" />
-        
+
         <service
             android:name=".services.SyncNetworkService"
             android:enabled="true"

@@ -16,13 +16,24 @@ import com.tyrantapp.olive.services.SyncNetworkService;
 public abstract class BaseActivity extends FragmentActivity {
 	private static final String TAG = "BaseActivity";
 	
-	private OnConnectServiceListener mConnectServiceListener = null;
+	private OnConnectServiceListener	mConnectServiceListener = null;
+	private boolean						mActivatePasscode = false;
 	
-	protected RESTHelper mRESTHelper = RESTHelper.getInstance();
+	protected RESTHelper				mRESTHelper = RESTHelper.getInstance();
 	
 	@Override
 	protected void onStart() {
 		super.onStart();
+		
+		if (mActivatePasscode) {
+			if (!PasscodeActivity.verifyAuthenticateKey(getApplicationContext(), getIntent().getStringExtra(PasscodeActivity.AUTHENTICATE_KEY))) {
+	        	Intent intent = new Intent(this, PasscodeActivity.class);
+	        	startActivityForPasscode(intent);
+	        } else {
+	        	setResult(PasscodeActivity.RESULT_SUCCESS);
+	        }			
+		}
+    	
 		startServiceBind();		
 	}
 
@@ -30,6 +41,25 @@ public abstract class BaseActivity extends FragmentActivity {
 	protected void onStop() {
 		stopServiceBind();
 		super.onStop();
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		super.onActivityResult(requestCode, resultCode, intent);
+		new Exception().printStackTrace();
+		android.util.Log.d(TAG, "onActivityResult");
+		if (requestCode == PasscodeActivity.REQUEST_CODE) {
+			if (resultCode == PasscodeActivity.RESULT_SUCCESS) getIntent().putExtra(PasscodeActivity.AUTHENTICATE_KEY, PasscodeActivity.requestAuthenticateKey());
+		}
+	}
+	
+	public void startActivityForPasscode(Intent intent) {
+		intent.putExtra(PasscodeActivity.AUTHENTICATE_KEY, PasscodeActivity.requestAuthenticateKey());
+		startActivityForResult(intent, PasscodeActivity.REQUEST_CODE);
+	}
+
+	protected void setEnablePasscode(boolean enable) {
+		mActivatePasscode = enable;
 	}
 	
 	protected void setOnConnectServiceListener(OnConnectServiceListener listener) {

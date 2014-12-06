@@ -31,10 +31,11 @@
     <string name="toast_error_no_registered_recipient">This message from stranger.</string>
     <string name="error_not_supported_yet">Not support yet.</string>
     <string name="title_activity_setting">SettingActivity</string>
-    
     <string name="btn_default_keypad">Make your own button!</string>
     <string name="btn_add">Add</string>
-    
     <string name="text_hint_add_recipient">Type an e-mail address for add.</string>
+    
+    <string name="title_activity_passcode">PasscodeActivity</string>
+    <string name="prompt_passcode">Passcode</string>
 
 </resources>

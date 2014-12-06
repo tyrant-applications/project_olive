@@ -19,7 +19,6 @@ import android.widget.ViewFlipper;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextView.OnEditorActionListener;
 
-import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.adapters.RecipientsListAdapter;
 import com.tyrantapp.olive.components.RecipientsListView;
 import com.tyrantapp.olive.helper.OliveHelper;
@@ -54,7 +53,7 @@ public class MainActivity extends BaseActivity {
 			
 			Intent intent = new Intent(getApplicationContext(), ConversationActivity.class)
 				.putExtra(ConversationActivity.EXTRA_RECIPIENT_ID, id);
-			startActivity(intent);
+			startActivityForPasscode(intent);
 		}
 	};
 	
@@ -93,6 +92,8 @@ public class MainActivity extends BaseActivity {
 		
 		// Access to conversation activity directly
 		PassToConversationActivity(getIntent());
+		
+		setEnablePasscode(true);
 	}
 	
 	@Override
@@ -106,7 +107,7 @@ public class MainActivity extends BaseActivity {
 		long recipientId = intent.getLongExtra(ConversationActivity.EXTRA_RECIPIENT_ID, -1);
 		if (recipientId >= 0) {
 			Intent newIntent = new Intent(getApplicationContext(), ConversationActivity.class).putExtra(ConversationActivity.EXTRA_RECIPIENT_ID, recipientId);
-			startActivity(newIntent);
+			startActivityForPasscode(newIntent);
         }
 	}
 
@@ -116,9 +117,10 @@ public class MainActivity extends BaseActivity {
 		
 		mUserInfo = mRESTHelper.getUserProfile();
 
+		android.util.Log.d(TAG, "onStart");
         Intent intent = new Intent(this, SyncNetworkService.class)
         	.setAction(SyncNetworkService.INTENT_ACTION_SYNC_RECIPIENT_INFO);
-        startService(intent);
+        startService(intent);	
 	}
 	
 	@Override
@@ -126,7 +128,7 @@ public class MainActivity extends BaseActivity {
 		super.onPause();
 		flipFooter(false);
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -182,7 +184,7 @@ public class MainActivity extends BaseActivity {
 	
 	public void onSetting(View v) {		
 		Intent intent = new Intent(this, SettingActivity.class);
-		startActivity(intent);
+		startActivityForPasscode(intent);
 		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 	}
 

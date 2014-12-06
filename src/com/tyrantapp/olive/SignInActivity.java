@@ -134,7 +134,7 @@ public class SignInActivity extends BaseActivity {
 				
 				finish();					
 				Intent intent = new Intent(getApplicationContext(), MainActivity.class).putExtra("username", info.mUsername);
-				startActivity(intent);
+				startActivityForPasscode(intent);
 				overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 			} else 
 			if (eError == RESTHelper.OLIVE_FAIL_INVALID_ID_PW){
