@@ -6,9 +6,6 @@ import com.tyrantapp.olive.ConversationActivity;
 import com.tyrantapp.olive.MainActivity;
 import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.SettingActivity;
-import com.tyrantapp.olive.SplashActivity;
-import com.tyrantapp.olive.adapters.ConversationListAdapter;
-import com.tyrantapp.olive.components.ConversationListView;
 import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
 import com.tyrantapp.olive.services.GCMIntentService;
 
@@ -24,7 +21,6 @@ import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
-import android.widget.Toast;
 
 
 public class OliveHelper {

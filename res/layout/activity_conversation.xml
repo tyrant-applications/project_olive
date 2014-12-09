@@ -50,14 +50,15 @@
 	    </FrameLayout>
 
     </LinearLayout>
-    
-        
-    <com.tyrantapp.olive.components.ConversationListView 
+    <!-- 
+    <org.lucasr.twowayview.widget.TwoWayView
+    -->
+    <com.tyrantapp.olive.components.ConversationRecyclerView
         android:id="@+id/conversations_list_view"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        />
-    
+        android:layout_height="90dp"
+        android:drawSelectorOnTop="false" />
+        
     <LinearLayout
         android:id="@+id/conversation_last_olive"
         android:layout_width="match_parent"

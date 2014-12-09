@@ -86,16 +86,20 @@ public class PasscodeActivity extends BaseActivity {
 	/*
 	 * Authentification Code 
 	 * */
+	private static final int AUTHENTICATE_TIMEOUT = 500;
+	private static String sAuthenticateKey = null;
 	
 	public static String requestAuthenticateKey() {
-		return String.valueOf((System.currentTimeMillis() + 500) * 256);
+		sAuthenticateKey = String.valueOf(System.currentTimeMillis() + AUTHENTICATE_TIMEOUT);
+		return sAuthenticateKey;
 	}
 	
 	public static boolean verifyAuthenticateKey(Context context, String key) {
 		boolean bRet = false;
 		if (PreferenceHelper.getBooleanPreferences(context, SettingActivity.OLIVE_PREF_PASSCODE_LOCK, false)) {
 			try {
-				if (System.currentTimeMillis() < Long.valueOf(key) / 256) {
+				//if (System.currentTimeMillis() < Long.valueOf(key)) {
+				if (key != null && key.equals(sAuthenticateKey)) {
 					bRet = true;
 				}
 			} catch (NumberFormatException e) {
@@ -103,6 +107,7 @@ public class PasscodeActivity extends BaseActivity {
 		} else {
 			bRet = true;
 		}
+		sAuthenticateKey = null;
 		return bRet;
 	}
 }

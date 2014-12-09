@@ -30,7 +30,7 @@ public abstract class BaseActivity extends FragmentActivity {
 	        	Intent intent = new Intent(this, PasscodeActivity.class);
 	        	startActivityForPasscode(intent);
 	        } else {
-	        	setResult(PasscodeActivity.RESULT_SUCCESS);
+	        	ignorePasscodeOnce();
 	        }			
 		}
     	
@@ -53,7 +53,11 @@ public abstract class BaseActivity extends FragmentActivity {
 		}
 	}
 	
-	public void startActivityForPasscode(Intent intent) {
+	protected void ignorePasscodeOnce() {
+    	setResult(PasscodeActivity.RESULT_SUCCESS);
+	}
+	
+	protected void startActivityForPasscode(Intent intent) {
 		intent.putExtra(PasscodeActivity.AUTHENTICATE_KEY, PasscodeActivity.requestAuthenticateKey());
 		startActivityForResult(intent, PasscodeActivity.REQUEST_CODE);
 	}

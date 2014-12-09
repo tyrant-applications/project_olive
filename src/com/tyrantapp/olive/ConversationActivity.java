@@ -3,9 +3,10 @@ package com.tyrantapp.olive;
 import java.util.Set;
 
 import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.adapters.ConversationListAdapter;
+import com.tyrantapp.olive.adapters.ConversationRecyclerAdapter;
 import com.tyrantapp.olive.adapters.KeypadPagerAdapter;
-import com.tyrantapp.olive.components.ConversationListView;
+import com.tyrantapp.olive.components.ConversationRecyclerView;
+import com.tyrantapp.olive.components.ConversationRecyclerView.RecyclerItemClickListener;
 import com.tyrantapp.olive.fragments.KeypadFragment;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.interfaces.OnOliveKeypadListener;
@@ -14,6 +15,9 @@ import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
 import com.tyrantapp.olive.services.SyncNetworkService;
 
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -28,8 +32,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -51,8 +53,8 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	private long						mRecipientId;
 	private String						mRecipientName;
 	
-	private ConversationListAdapter		mConversationAdapter;
-	private ConversationListView		mConversationListView;
+	private ConversationRecyclerView	mConversationView;
+	private ConversationRecyclerAdapter	mConversationAdapter;
 	
 	private TextView					mLastOliveText;
 	private View						mLastOliveExpander;
@@ -74,25 +76,28 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	private EditText					mTextEditor;
 	private Button						mTextSender;
 	
-	private DataSetObserver	mConversationObserver = new DataSetObserver() {
+	//private DataSetObserver	mConversationObserver = new DataSetObserver() {
+	private AdapterDataObserver	mConversationObserver = new AdapterDataObserver() {
 		@Override
 		public void onChanged() {
 			Cursor cursor = (Cursor) mConversationAdapter.getCursor();
 			cursor.moveToLast();
 			
 			updateLastOlive(cursor);
+			mConversationView.smoothScrollToPosition(cursor.getCount() - 1);
 			
 			super.onChanged();
+			
+			android.util.Log.d(TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!!!!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`");			
 		}
 	};
 	
-	private OnItemClickListener	mOnConversationClickListener = new OnItemClickListener() {
+	private RecyclerItemClickListener.OnItemClickListener mOnConversationClickListener = new RecyclerItemClickListener.OnItemClickListener() {
 		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-			Cursor cursor = (Cursor) mConversationAdapter.getItem(position);
-			
-			updateLastOlive(cursor);
-		}		
+		public void onItemClick(View view, int position) {
+			updateLastOlive(mConversationAdapter.getItem(position));
+			android.util.Log.d(TAG, "Item Count = " +mConversationAdapter.getItemCount());
+		}			
 	};
 	
 	private OnClickListener	mOnTextClickListener = new OnClickListener() {
@@ -162,12 +167,13 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 			}
 		}		
 		
-		mConversationAdapter = new ConversationListAdapter(this, mRecipientId);
-		mConversationListView = (ConversationListView) findViewById(R.id.conversations_list_view);
-		mConversationListView.setAdapter(mConversationAdapter);
+		mConversationAdapter = new ConversationRecyclerAdapter(this, mRecipientId);
+		mConversationView = (ConversationRecyclerView) findViewById(R.id.conversations_list_view);
+		mConversationView.setAdapter(mConversationAdapter);
 			
-		mConversationListView.setOnItemClickListener(mOnConversationClickListener);
-		mConversationAdapter.registerDataSetObserver(mConversationObserver);
+		mConversationView.setOnItemClickListener(mOnConversationClickListener);
+		mConversationAdapter.registerAdapterDataObserver(mConversationObserver);
+		//mConversationAdapter.registerDataSetObserver(mConversationObserver);
 		
 		// Last Olive (interaction mode)
 		mLastOliveText = (TextView) findViewById(R.id.conversation_last_olive_text);
@@ -295,10 +301,14 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	         cursor.close();
 	                      
 	         // String picturePath contains the path of selected Image
+	         
+	         ignorePasscodeOnce();
 	     } else
     	 if (requestCode == RESULT_TAKE_PICTURE && resultCode == RESULT_OK) {  
              Bitmap bmpPicture = (Bitmap) data.getExtras().get("data"); 
              //imageView.setImageBitmap(bmpPicture);
+             
+             ignorePasscodeOnce();
          }
 	}
 

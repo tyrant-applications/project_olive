@@ -1,34 +1,23 @@
 package com.tyrantapp.olive.adapters;
 
-import java.util.ArrayList;
-
 import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.components.ConversationItem;
-import com.tyrantapp.olive.components.ConversationListView;
-import com.tyrantapp.olive.components.RecipientItem;
 import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
 import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
 
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.ContentObserver;
 import android.database.Cursor;
-import android.database.DataSetObserver;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TableLayout.LayoutParams;
 import android.widget.TextView;
 
 public class RecipientsListAdapter extends CursorAdapter {
