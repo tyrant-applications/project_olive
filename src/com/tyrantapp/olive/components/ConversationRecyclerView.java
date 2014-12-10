@@ -19,7 +19,7 @@ public class ConversationRecyclerView extends RecyclerView {
 	
 	private Context		mContext;
 	
-	private AdapterDataObserver	mConversationObserver = new AdapterDataObserver() {
+	private AdapterDataObserver	mObserver = new AdapterDataObserver() {
 		@Override
 		public void onChanged() {
 			super.onChanged();
@@ -38,6 +38,10 @@ public class ConversationRecyclerView extends RecyclerView {
 		initializeView(context);
 	}
 	
+	public void finalize() {
+		getAdapter().unregisterAdapterDataObserver(mObserver);
+	}
+	
 	public void initializeView(Context context) {
 		LinearLayoutManager layoutManager = new LinearLayoutManager(context);
 		layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -52,6 +56,13 @@ public class ConversationRecyclerView extends RecyclerView {
 		);
 	}
 	
+	@Override
+	public void setAdapter(Adapter adapter) {
+		super.setAdapter(adapter);
+
+		adapter.registerAdapterDataObserver(mObserver);
+	}
+
 	public static class RecyclerItemClickListener implements
 			RecyclerView.OnItemTouchListener {
 		private OnItemClickListener mListener;
