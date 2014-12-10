@@ -255,7 +255,7 @@ implements Filterable, CursorFilter.CursorFilterClient {
 	 * @see ContentObserver#onChange(boolean)
 	 */
 	protected void onContentChanged() {
-
+		getCursor().requery();
 	}
 
 	private class ChangeObserver extends ContentObserver {
@@ -271,7 +271,6 @@ implements Filterable, CursorFilter.CursorFilterClient {
 		@Override
 		public void onChange(boolean selfChange) {
 			onContentChanged();
-			getCursor().requery();
 		}
 	}
 

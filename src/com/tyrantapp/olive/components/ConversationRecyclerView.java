@@ -19,6 +19,17 @@ public class ConversationRecyclerView extends RecyclerView {
 	
 	private Context		mContext;
 	
+	private AdapterDataObserver	mConversationObserver = new AdapterDataObserver() {
+		@Override
+		public void onChanged() {
+			super.onChanged();
+			
+			Cursor cursor = ((ConversationRecyclerAdapter)getAdapter()).getCursor();			
+			cursor.moveToLast();
+			smoothScrollToPosition(cursor.getCount() - 1);
+		}
+	};
+	
 	public ConversationRecyclerView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		

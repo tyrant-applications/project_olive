@@ -80,15 +80,12 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	private AdapterDataObserver	mConversationObserver = new AdapterDataObserver() {
 		@Override
 		public void onChanged() {
+			super.onChanged();
+			
 			Cursor cursor = (Cursor) mConversationAdapter.getCursor();
 			cursor.moveToLast();
 			
 			updateLastOlive(cursor);
-			mConversationView.smoothScrollToPosition(cursor.getCount() - 1);
-			
-			super.onChanged();
-			
-			android.util.Log.d(TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!!!!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`");			
 		}
 	};
 	
