@@ -24,9 +24,10 @@ public class ConversationRecyclerView extends RecyclerView {
 		public void onChanged() {
 			super.onChanged();
 			
-			Cursor cursor = ((ConversationRecyclerAdapter)getAdapter()).getCursor();			
-			cursor.moveToLast();
-			smoothScrollToPosition(cursor.getCount() - 1);
+			Cursor cursor = ((ConversationRecyclerAdapter)getAdapter()).getCursor();
+            if (cursor.getCount() > 0) {
+                smoothScrollToPosition(cursor.getCount() - 1);
+            }
 		}
 	};
 	
@@ -64,7 +65,7 @@ public class ConversationRecyclerView extends RecyclerView {
 	}
 
 	public static class RecyclerItemClickListener implements
-			RecyclerView.OnItemTouchListener {
+			android.support.v7.widget.RecyclerView.OnItemTouchListener {
 		private OnItemClickListener mListener;
 
 		public interface OnItemClickListener {
