@@ -17,7 +17,7 @@ public abstract class BaseActivity extends FragmentActivity {
 	private static final String TAG = "BaseActivity";
 	
 	private OnConnectServiceListener	mConnectServiceListener = null;
-	private boolean						mActivatePasscode = false;
+	private boolean					mActivatePasscode = false;
 	
 	protected RESTHelper				mRESTHelper = RESTHelper.getInstance();
 	
@@ -42,6 +42,12 @@ public abstract class BaseActivity extends FragmentActivity {
 		stopServiceBind();
 		super.onStop();
 	}
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+    }
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -60,6 +66,7 @@ public abstract class BaseActivity extends FragmentActivity {
 	protected void startActivityForPasscode(Intent intent) {
 		intent.putExtra(PasscodeActivity.AUTHENTICATE_KEY, PasscodeActivity.requestAuthenticateKey());
 		startActivityForResult(intent, PasscodeActivity.REQUEST_CODE);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 	}
 
 	protected void setEnablePasscode(boolean enable) {

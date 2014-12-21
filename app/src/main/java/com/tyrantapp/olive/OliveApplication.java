@@ -8,6 +8,7 @@ import com.kth.baasio.exception.BaasioException;
 import com.kth.common.utils.LogUtils;
 import com.tyrantapp.olive.configurations.BaasioConfig;
 import com.tyrantapp.olive.helper.BaasioHelper;
+import com.tyrantapp.olive.helper.NetworkHelper;
 
 import android.app.Application;
 import android.os.AsyncTask;
@@ -21,6 +22,7 @@ public class OliveApplication extends Application {
     public void onCreate() {
         super.onCreate();
         		
+        //NetworkHelper.initialize(getApplicationContext());
         BaasioHelper.initialize(getApplicationContext());
 
         Baas.io().init(this, BaasioConfig.BAASIO_URL, BaasioConfig.BAASIO_ID,

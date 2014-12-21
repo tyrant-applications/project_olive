@@ -24,98 +24,60 @@
 	    android:paddingRight="@dimen/activity_horizontal_margin"
 	    android:paddingTop="@dimen/activity_vertical_margin"
 	    android:background="@color/olivedark">
-	    
-	    <ViewFlipper
-	        android:id="@+id/footer_flipper"
-	        android:layout_width="match_parent"
-	        android:layout_height="53dp"
-	        android:layout_centerInParent="true" >
-	
-	        <LinearLayout
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:orientation="horizontal"
-	            android:layout_centerInParent="true">
-	            
-	            <RelativeLayout
-	                android:layout_width="match_parent"
-	                android:layout_height="wrap_content"
-	                android:layout_weight="1"
-	                android:gravity="center" >
-	                
-		            <Button
-		                android:id="@+id/group_vote_button"
-		                android:layout_width="38dp"
-		                android:layout_height="38dp"
-		                android:background="@drawable/bg_vote"
-		                android:onClick="onVoting" />
-		                
-	            </RelativeLayout>
-	                
-	            <RelativeLayout
-	                android:layout_width="match_parent"
-	                android:layout_height="wrap_content"
-	                android:layout_weight="1"
-	                android:gravity="center" >
-	                
-		            <Button
-		                android:id="@+id/recipient_add_button"
-		                android:layout_width="38dp"
-		                android:layout_height="38dp"
-		                android:background="@drawable/bg_add_recipient"
-		                android:onClick="onAdding" />
-		                
-	            </RelativeLayout>
-	            
-	            <RelativeLayout
-	                android:layout_width="match_parent"
-	                android:layout_height="wrap_content"
-	                android:layout_weight="1"
-	                android:gravity="center" >
-	                
-		            <Button
-				        android:id="@+id/setting_button"
-				        android:layout_width="38dp"
-				        android:layout_height="38dp"
-				        android:background="@drawable/bg_settings"
-				        android:onClick="onSetting" />
-		                
-	            </RelativeLayout>
-			            
-	        </LinearLayout>
-	        
-	        <!-- Edit \view for add new recipient -->
-	        <LinearLayout
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:orientation="horizontal"
-	            android:layout_centerInParent="true" >
-	
-	            <EditText
-	                android:id="@+id/recipient_edit"
-	                android:layout_width="match_parent"
-	                android:layout_height="wrap_content"
-	                android:layout_weight="1"
-	                android:hint="@string/text_hint_add_recipient"
-	                android:textColor="@color/white"
-	                android:textColorHint="@color/gray"
-	                android:inputType="textPersonName"
-	                android:imeOptions="actionDone" >
-	            
-	                <requestFocus />
-	                
-	            </EditText>
-	            
-	            <Button
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:text="@string/btn_add"
-	                android:onClick="onAddRecipient" />
-	            
-	        </LinearLayout>
-	        
-	    </ViewFlipper>	    
-	    
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_centerInParent="true">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center" >
+
+                <Button
+                    android:id="@+id/group_vote_button"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_vote"
+                    android:onClick="onVoting" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center" >
+
+                <Button
+                    android:id="@+id/recipient_add_button"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_add_recipient"
+                    android:onClick="onAdding" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center" >
+
+                <Button
+                    android:id="@+id/setting_button"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_settings"
+                    android:onClick="onSetting" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
 	</RelativeLayout>
 
 </LinearLayout>

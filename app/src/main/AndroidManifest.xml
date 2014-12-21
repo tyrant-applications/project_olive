@@ -24,6 +24,19 @@
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    <android:uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
+    <android:uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <android:uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
+
     <application
         android:name=".OliveApplication"
         android:allowBackup="true"
@@ -52,12 +65,10 @@
             android:label="@string/title_activity_signup"
             android:windowSoftInputMode="adjustPan" >
         </activity>
-        
         <activity
             android:name=".PasscodeActivity"
             android:label="@string/title_activity_passcode" >
         </activity>
-        
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main" >
@@ -67,7 +78,7 @@
             android:label="@string/title_activity_conversation"
             android:windowSoftInputMode="adjustResize" >
 
-<!--             android:parentActivityName=".MainActivity" -->
+            <!-- android:parentActivityName=".MainActivity" -->
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -124,11 +135,10 @@
         -->
         <service android:name=".services.GCMIntentService" />
 
+        <activity
+            android:name=".AddRecipientActivity"
+            android:label="@string/title_activity_add_recipient" >
+        </activity>
     </application>
-
-    <!-- To auto-complete the email text field in the login form with the user's emails -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.READ_PROFILE" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
 </manifest>

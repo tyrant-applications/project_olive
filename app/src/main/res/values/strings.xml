@@ -34,8 +34,11 @@
     <string name="btn_default_keypad">Make your own button!</string>
     <string name="btn_add">Add</string>
     <string name="text_hint_add_recipient">Type an e-mail address for add.</string>
-    
     <string name="title_activity_passcode">PasscodeActivity</string>
     <string name="prompt_passcode">Passcode</string>
+    <string name="title_activity_add_recipient">Add Recipient</string>
+    <string name="edittext_hint_phonenumber">Phone Number</string>
+    <string name="edittext_hint_searchid">Search ID</string>
+    <string name="error_not_found">Not found.</string>
 
 </resources>

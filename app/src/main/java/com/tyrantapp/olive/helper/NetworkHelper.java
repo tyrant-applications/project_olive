@@ -1,7 +1,5 @@
 package com.tyrantapp.olive.helper;
 
-import java.util.List;
-
 import android.content.Context;
 
 import com.kth.baasio.Baas;
@@ -18,12 +16,46 @@ import com.kth.baasio.response.BaasioResponse;
 import com.tyrantapp.olive.types.OliveMessage;
 import com.tyrantapp.olive.types.UserInfo;
 
-import org.codehaus.jackson.JsonNode;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class BaasioHelper extends RESTHelper {
-	private static final String TAG	= "BaasioHelper";
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
-	private static final String		COLLECTION 			= "conversation";
+public class NetworkHelper extends RESTHelper {
+	private static final String TAG	= "NetworkHelper";
+
+    private static final String SERVER_URL = "http://ec2-54-64-210-165.ap-northeast-1.compute.amazonaws.com";
+    private static final String SERVER_PORT = "8080";
+    private static final String SERVER_PATH_SIGNUP = "/user/signup";
+    private static final String SERVER_PATH_SIGNIN = "/user/signin";
+    private static final String SERVER_PATH_LEAVE = "/user/leave";
+
+    private static final String SERVER_URL_SIGNUP = SERVER_URL + ":" + SERVER_PORT + SERVER_PATH_SIGNUP;
+    private static final String SERVER_URL_SIGNIN = SERVER_URL + ":" + SERVER_PORT + SERVER_PATH_SIGNIN;
+    private static final String SERVER_URL_LEAVE = SERVER_URL + ":" + SERVER_PORT + SERVER_PATH_LEAVE;
+
+    private static final String		COLLECTION 			= "conversation";
 	
 	private static final String		PROPERTY_USERNAME 	= BaasioUser.PROPERTY_USERNAME;
 	private static final String		PROPERTY_NICKNAME 	= BaasioUser.PROPERTY_NAME;
@@ -39,28 +71,30 @@ public class BaasioHelper extends RESTHelper {
 
 	public static void initialize(Context context) {
 		RESTHelper.setContext(context);
-		setInstance(new BaasioHelper());
+		setInstance(new NetworkHelper());
 	}
 	
 	public int signUp(String username, String password) {
-		int eRet = OLIVE_SUCCESS;
+		int eRet = OLIVE_FAIL_UNKNOWN;
 		
 		if (isEmailAddress(username)) {
-			BaasioUser user = null;
-			try {
-				user = BaasioUser.signUp(username/*username*/, username/*name*/, username/*email*/, password);
-	
-				android.util.Log.d(TAG, "Success to sign up [" + user.getUsername() + "]");
-				
-				eRet = OLIVE_SUCCESS;
-			} catch (BaasioException e) {
-				if (e.getErrorCode() == 913) {
-					// 이미 가입된 사용자
-					eRet = OLIVE_FAIL_ALREADY_EXIST;
-				} else {
-					eRet = OLIVE_FAIL_UNKNOWN;
-				}
-			}
+            RestClient restClient = new RestClient(SERVER_URL_SIGNUP);
+            restClient.AddParam("username", username);
+            restClient.AddParam("password", password);
+
+            try {
+                restClient.Execute(RestClient.POST);
+                if (restClient.getResponseCode() == 200) {
+                    HashMap<String, String> mapRecv = JSONParser(restClient.getResponse());
+                    if (mapRecv.get("message").equals("Success") && mapRecv.get("sucess").equals("true")) {
+                        android.util.Log.d(TAG, "Response = " + restClient.getErrorMessage() + " / " + restClient.getResponseCode() + " / " + mapRecv.get("data"));
+                        eRet = OLIVE_SUCCESS;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                android.util.Log.d(TAG, "Error!" + restClient.getErrorMessage() + " / " + restClient.getResponseCode());
+            }
 		} else {
 			eRet = this.OLIVE_FAIL_INVALID_ID_PW;
 		}
@@ -106,6 +140,7 @@ public class BaasioHelper extends RESTHelper {
 		String token = Baas.io().getAccessToken();
 		boolean bRet = token != null;
 		android.util.Log.d(TAG, "Logged in = " + bRet + " / " + token);
+
 		return bRet;
 	}
 	
@@ -129,11 +164,7 @@ public class BaasioHelper extends RESTHelper {
 		UserInfo oRet = null;		
 		
 		BaasioQuery mQuery = new BaasioQuery();
-        if (email != null) {
-            mQuery.setType(BaasioUser.ENTITY_TYPE + "/" + email);
-        } else {
-            //mQuery.setType(BaasioUser.ENTITY_TYPE + "/" + email);
-        }
+        mQuery.setType(BaasioUser.ENTITY_TYPE + "/" + email);
         mQuery.setOrderBy(BaasioBaseEntity.PROPERTY_MODIFIED, ORDER_BY.DESCENDING);
     	
         try {
@@ -144,11 +175,6 @@ public class BaasioHelper extends RESTHelper {
 			oRet = new UserInfo();
 			oRet.mUsername = user.getUsername();
 			oRet.mNickname = user.getName();
-
-            JsonNode node = user.getProperty(PROPERTY_PHONE);
-            if (node != null) {
-                oRet.mPhoneNumber = node.asText();
-            }
 		} catch (BaasioException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
