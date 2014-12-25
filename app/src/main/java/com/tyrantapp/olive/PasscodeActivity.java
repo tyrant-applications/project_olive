@@ -3,15 +3,11 @@ package com.tyrantapp.olive;
 import com.tyrantapp.olive.helper.PreferenceHelper;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnKeyListener;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.TextView;
 
 public class PasscodeActivity extends BaseActivity {
@@ -20,41 +16,21 @@ public class PasscodeActivity extends BaseActivity {
 	public final static String	AUTHENTICATE_KEY	= "authenticate_key";
 	public final static int		REQUEST_CODE		= 1000;
 	public final static int		RESULT_SUCCESS		= 1001;
-	
-	private EditText mPasscodeView;
-	private String mPasscodeKey;
+
+    private Handler mHandler = new Handler();
+
+    private boolean mRegister = false;
+    private boolean mRetry = false;
+
+    private String mPasscode = "";
+    private String mPasscodeKey = "";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_passcode);
-		
-		// Set up the sign in form.
-		mPasscodeView = (EditText) findViewById(R.id.passcode);
-		mPasscodeView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-			@Override
-			public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-				if (id == R.id.passcode || id == EditorInfo.IME_NULL) {
-					return true;
-				}
-				return false;
-			}
-		});
-		
-		mPasscodeView.setOnKeyListener(new OnKeyListener() {
-		
-			@Override
-			public boolean onKey(View view, int id, KeyEvent event) {
-				TextView tv = (TextView)view;
-				if (tv.getText().toString().equals(mPasscodeKey)) {
-					setResult(RESULT_SUCCESS);				
-					finish();
-				}
-				return false;
-			}
-			
-		});
-		
+
+        mRegister = !PreferenceHelper.getBooleanPreferences(this, SettingActivity.OLIVE_PREF_PASSCODE_LOCK, false);
 		mPasscodeKey = PreferenceHelper.getStringPreferences(this, SettingActivity.OLIVE_PREF_PASSCODE_KEY, "0000");
 	}
 
@@ -80,8 +56,120 @@ public class PasscodeActivity extends BaseActivity {
 	@Override
 	public void onBackPressed() {
 		// Block Back button
-		//super.onBackPressed();
+        if (mRegister) {
+            super.onBackPressed();
+        }
 	}
+
+    public void onKeyDown(View view) {
+        TextView v = (TextView)view;
+        updateWildPasscode(mPasscode + v.getText().toString());
+
+        if (mPasscode.length() >= 4) {
+
+            if (mRegister) {
+                if (!mRetry) {
+                    mPasscodeKey = mPasscode;
+                    changeMessage(1);
+                    clearWildPasscode();
+                } else {
+                    if (mPasscode.equals(mPasscodeKey)) {
+                        PreferenceHelper.saveStringPreferences(this, SettingActivity.OLIVE_PREF_PASSCODE_KEY, mPasscode);
+                        PreferenceHelper.saveBooleanPreferences(this, SettingActivity.OLIVE_PREF_PASSCODE_LOCK, true);
+                        setResult(RESULT_SUCCESS);
+                        finish();
+                    } else {
+                        changeMessage(2);
+                        clearWildPasscode();
+                    }
+                }
+            } else {
+                if (mPasscode.equals(mPasscodeKey)) {
+                    setResult(RESULT_SUCCESS);
+                    finish();
+                } else {
+                    changeMessage(2);
+                    clearWildPasscode();
+                }
+            }
+        }
+    }
+
+    public void onKeyDelete(View view) {
+        if (mPasscode.length() > 0) {
+            updateWildPasscode(mPasscode.substring(0, mPasscode.length() - 1));
+        }
+    }
+
+    private void changeMessage(int mode) {
+        switch (mode) {
+            case 0: // Try
+                findViewById(R.id.passcode_message_try).setVisibility(View.VISIBLE);
+                findViewById(R.id.passcode_message_retry).setVisibility(View.GONE);
+                findViewById(R.id.passcode_message_error).setVisibility(View.GONE);
+                mRetry = false;
+                break;
+            case 1: // Retry
+                findViewById(R.id.passcode_message_try).setVisibility(View.GONE);
+                findViewById(R.id.passcode_message_retry).setVisibility(View.VISIBLE);
+                findViewById(R.id.passcode_message_error).setVisibility(View.GONE);
+                mRetry = true;
+                break;
+            case 2: // Error
+                findViewById(R.id.passcode_message_try).setVisibility(View.GONE);
+                findViewById(R.id.passcode_message_retry).setVisibility(View.GONE);
+                findViewById(R.id.passcode_message_error).setVisibility(View.VISIBLE);
+                mRetry = false;
+                break;
+        }
+    }
+
+    private void clearWildPasscode() {
+        mHandler.postDelayed(new Runnable() {
+            public void run() {
+                updateWildPasscode("");
+            }
+        }, 500);
+    }
+
+    private void updateWildPasscode(String passcode) {
+        mPasscode = passcode;
+
+        switch (passcode.length()) {
+            case 4:
+                findViewById(R.id.passcode_wild_1st).setVisibility(View.VISIBLE);
+                findViewById(R.id.passcode_wild_2nd).setVisibility(View.VISIBLE);
+                findViewById(R.id.passcode_wild_3rd).setVisibility(View.VISIBLE);
+                findViewById(R.id.passcode_wild_4th).setVisibility(View.VISIBLE);
+                break;
+            case 3:
+                findViewById(R.id.passcode_wild_1st).setVisibility(View.VISIBLE);
+                findViewById(R.id.passcode_wild_2nd).setVisibility(View.VISIBLE);
+                findViewById(R.id.passcode_wild_3rd).setVisibility(View.VISIBLE);
+                findViewById(R.id.passcode_wild_4th).setVisibility(View.INVISIBLE);
+                break;
+            case 2:
+                findViewById(R.id.passcode_wild_1st).setVisibility(View.VISIBLE);
+                findViewById(R.id.passcode_wild_2nd).setVisibility(View.VISIBLE);
+                findViewById(R.id.passcode_wild_3rd).setVisibility(View.INVISIBLE);
+                findViewById(R.id.passcode_wild_4th).setVisibility(View.INVISIBLE);
+                break;
+            case 1:
+                findViewById(R.id.passcode_wild_1st).setVisibility(View.VISIBLE);
+                findViewById(R.id.passcode_wild_2nd).setVisibility(View.INVISIBLE);
+                findViewById(R.id.passcode_wild_3rd).setVisibility(View.INVISIBLE);
+                findViewById(R.id.passcode_wild_4th).setVisibility(View.INVISIBLE);
+                break;
+            case 0:
+                findViewById(R.id.passcode_wild_1st).setVisibility(View.INVISIBLE);
+                findViewById(R.id.passcode_wild_2nd).setVisibility(View.INVISIBLE);
+                findViewById(R.id.passcode_wild_3rd).setVisibility(View.INVISIBLE);
+                findViewById(R.id.passcode_wild_4th).setVisibility(View.INVISIBLE);
+                break;
+        }
+        android.util.Log.d(TAG, "mPasscode = " + passcode);
+    }
+
 	
 	/*
 	 * Authentification Code 

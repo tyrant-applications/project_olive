@@ -29,6 +29,7 @@
     <string name="toast_failed_post_olive">Failed to post olive message.</string>
     <string name="toast_error_invalid_email">Check email address please.</string>
     <string name="toast_error_no_registered_recipient">This message from stranger.</string>
+    <string name="toast_error_already_registered">Already registered e-mail.</string>
     <string name="error_not_supported_yet">Not support yet.</string>
     <string name="title_activity_setting">SettingActivity</string>
     <string name="btn_default_keypad">Make your own button!</string>

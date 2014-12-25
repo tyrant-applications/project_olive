@@ -2,6 +2,7 @@ package com.tyrantapp.olive;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,6 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tyrantapp.olive.helper.RESTHelper;
 import com.tyrantapp.olive.providers.OliveContentProvider;
 import com.tyrantapp.olive.types.UserInfo;
 
@@ -63,15 +65,28 @@ public class AddRecipientActivity extends BaseActivity {
 
     public void onAddRecipient(View view) {
         if (mFoundInfo != null) {
-            ContentValues values = new ContentValues();
-            values.put(OliveContentProvider.RecipientColumns.USERNAME, mFoundInfo.mUsername);
-            values.put(OliveContentProvider.RecipientColumns.NICKNAME, mFoundInfo.mNickname);
-            values.put(OliveContentProvider.RecipientColumns.PHONENUMBER, mFoundInfo.mPhoneNumber);
-            values.put(OliveContentProvider.RecipientColumns.UNREAD, false);
+            Cursor cursor = getContentResolver().query(
+                    OliveContentProvider.RecipientColumns.CONTENT_URI,
+                    new String[] {OliveContentProvider.RecipientColumns._ID, },
+                    OliveContentProvider.RecipientColumns.USERNAME + "=?",
+                    new String[] { mFoundInfo.mUsername, },
+                    null
+                    );
 
-            getContentResolver().insert(OliveContentProvider.RecipientColumns.CONTENT_URI, values);
-            android.util.Log.d("Olive", "Insert recipient!");
-            Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_succeed_add_recipient), Toast.LENGTH_SHORT).show();
+            if (cursor.getCount() > 0) {
+                android.util.Log.d("Olive", "Not insert recipient!");
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_error_already_registered), Toast.LENGTH_SHORT).show();
+            } else {
+                ContentValues values = new ContentValues();
+                values.put(OliveContentProvider.RecipientColumns.USERNAME, mFoundInfo.mUsername);
+                values.put(OliveContentProvider.RecipientColumns.NICKNAME, mFoundInfo.mNickname);
+                values.put(OliveContentProvider.RecipientColumns.PHONENUMBER, mFoundInfo.mPhoneNumber);
+                values.put(OliveContentProvider.RecipientColumns.UNREAD, false);
+
+                getContentResolver().insert(OliveContentProvider.RecipientColumns.CONTENT_URI, values);
+                android.util.Log.d("Olive", "Insert recipient!");
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_succeed_add_recipient), Toast.LENGTH_SHORT).show();
+            }
         } else {
             android.util.Log.d("Olive", "Failed Insert recipient!");
             Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_failed_add_recipient), Toast.LENGTH_SHORT).show();

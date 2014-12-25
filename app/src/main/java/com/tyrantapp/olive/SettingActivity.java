@@ -70,11 +70,22 @@ public class SettingActivity extends BaseActivity {
 	
 	public void onSwitchPasscodeLock(View view) {
 		android.util.Log.d(TAG, "onSwitchPasscodeLock = " + ((ToggleButton)view).isChecked());
-		PreferenceHelper.saveBooleanPreferences(this, OLIVE_PREF_PASSCODE_LOCK, ((ToggleButton)view).isChecked());
+        if (((ToggleButton)view).isChecked())
+		    startActivityForPasscode(new Intent(this, PasscodeActivity.class));
+        else
+            PreferenceHelper.saveBooleanPreferences(this, SettingActivity.OLIVE_PREF_PASSCODE_LOCK, false);
 	}
 	
 	public void onSwitchLocationService(View view) {
 		android.util.Log.d(TAG, "onSwitchLocationService = " + ((ToggleButton)view).isChecked());
 		PreferenceHelper.saveBooleanPreferences(this, OLIVE_PREF_LOCATION_SERVICE, ((ToggleButton)view).isChecked());
 	}
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        ToggleButton btnPasscodeLock = (ToggleButton) findViewById(R.id.pref_passcode_lock_switch);
+        btnPasscodeLock.setChecked(PreferenceHelper.getBooleanPreferences(this, OLIVE_PREF_PASSCODE_LOCK, false));
+    }
 }

@@ -21,34 +21,231 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" 
             android:gravity="center" >
-            
-            <ImageView
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:src="@drawable/ic_login"/>
-            
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="33dp"
-                android:src="@drawable/ic_no_photo_login"/>
+                android:src="@drawable/ic_passcode_title"/>
 
-            <EditText
-                android:id="@+id/passcode"
-                android:layout_width="200dp"
-                android:layout_height="31dp"
-                android:layout_marginTop="57dp"
-                android:hint="@string/prompt_passcode"
-                android:imeActionId="@+id/passcode"
-                android:imeOptions="actionDone"
-                android:inputType="textPassword"
-                android:gravity="center_horizontal"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:textSize="15sp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white"
-                android:background="@drawable/bg_edit_box"/>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="53dp"
+                android:layout_marginTop="13dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:id="@+id/passcode_message_try"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_passcode_try"/>
+
+                <ImageView
+                    android:id="@+id/passcode_message_retry"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_passcode_retry"
+                    android:visibility="gone"/>
+
+                <ImageView
+                    android:id="@+id/passcode_message_error"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_passcode_error"
+                    android:visibility="gone"/>
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="167dp"
+                android:layout_height="45dp"
+                android:layout_marginTop="6dp"
+                android:paddingLeft="19dp"
+                android:paddingRight="19dp"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_passcode_frame" >
+
+                <ImageView
+                    android:id="@+id/passcode_wild_1st"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_passcode_wild"
+                    android:scaleType="center"
+                    android:visibility="invisible"/>
+
+                <ImageView
+                    android:id="@+id/passcode_wild_2nd"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_passcode_wild"
+                    android:scaleType="center"
+                    android:visibility="invisible"/>
+
+                <ImageView
+                    android:id="@+id/passcode_wild_3rd"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_passcode_wild"
+                    android:scaleType="center"
+                    android:visibility="invisible"/>
+
+                <ImageView
+                    android:id="@+id/passcode_wild_4th"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_passcode_wild"
+                    android:scaleType="center"
+                    android:visibility="invisible"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="270dp"
+                android:layout_height="327dp"
+                android:layout_marginTop="36dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_passcode_plate">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" >
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_keypad_button"
+                        android:text="1"
+                        android:textColor="@color/black"
+                        android:onClick="onKeyDown"/>
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_keypad_button"
+                        android:text="2"
+                        android:textColor="@color/black"
+                        android:onClick="onKeyDown"/>
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_keypad_button"
+                        android:text="3"
+                        android:textColor="@color/black"
+                        android:onClick="onKeyDown"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" >
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_keypad_button"
+                        android:text="4"
+                        android:textColor="@color/black"
+                        android:onClick="onKeyDown"/>
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_keypad_button"
+                        android:text="5"
+                        android:textColor="@color/black"
+                        android:onClick="onKeyDown"/>
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_keypad_button"
+                        android:text="6"
+                        android:textColor="@color/black"
+                        android:onClick="onKeyDown"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" >
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_keypad_button"
+                        android:text="7"
+                        android:textColor="@color/black"
+                        android:onClick="onKeyDown"/>
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_keypad_button"
+                        android:text="8"
+                        android:textColor="@color/black"
+                        android:onClick="onKeyDown"/>
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_keypad_button"
+                        android:text="9"
+                        android:textColor="@color/black"
+                        android:onClick="onKeyDown"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" >
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_keypad_button" />
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_keypad_button"
+                        android:text="0"
+                        android:textColor="@color/black"
+                        android:onClick="onKeyDown"/>
+
+                    <ImageButton
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_keypad_button"
+                        android:src="@drawable/bg_passcode_del"
+                        android:onClick="onKeyDelete"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
             
         </LinearLayout>
     </ScrollView>
