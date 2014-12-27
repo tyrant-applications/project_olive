@@ -7,6 +7,8 @@
     <string name="prompt_username">e-Mail</string>
     <string name="prompt_password">Password</string>
     <string name="prompt_confirm_password">Confirm Password</string>
+    <string name="prompt_current_password">Current Password</string>
+    <string name="prompt_new_password">New Password</string>
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_up">Create an account</string>
     <string name="action_sign_in_short">Sign in</string>

@@ -132,7 +132,8 @@ public class BaasioHelper extends RESTHelper {
         if (email != null) {
             mQuery.setType(BaasioUser.ENTITY_TYPE + "/" + email);
         } else {
-            //mQuery.setType(BaasioUser.ENTITY_TYPE + "/" + email);
+            mQuery.setType(BaasioUser.ENTITY_TYPE);
+            mQuery.setWheres(PROPERTY_PHONE + " contains \'" + phonenumber + "\'");
         }
         mQuery.setOrderBy(BaasioBaseEntity.PROPERTY_MODIFIED, ORDER_BY.DESCENDING);
     	

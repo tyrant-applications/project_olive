@@ -33,7 +33,7 @@ public class SettingActivity extends BaseActivity {
 		btnPasscodeLock.setChecked(PreferenceHelper.getBooleanPreferences(this, OLIVE_PREF_PASSCODE_LOCK, false));
 		btnLocationService.setChecked(PreferenceHelper.getBooleanPreferences(this, OLIVE_PREF_LOCATION_SERVICE, false));
 		
-		TextView tv = (TextView) findViewById(R.id.pref_nickname);
+		TextView tv = (TextView) findViewById(R.id.pref_email);
 		// Get Userinfo from DB
 		RESTHelper helper = RESTHelper.getInstance();
 		UserInfo info = helper.getUserProfile();
@@ -62,7 +62,15 @@ public class SettingActivity extends BaseActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
+    public void onChangePassword(View view) {
+        startActivityForPasscode(new Intent(this, ChangePasswordActivity.class));
+    }
+
+    public void onLogout(View view) {
+
+    }
+
 	public void onSwitchNotification(View view) {
 		android.util.Log.d(TAG, "onSwitchNotification = " + ((ToggleButton)view).isChecked());
 		PreferenceHelper.saveBooleanPreferences(this, OLIVE_PREF_NOTIFICATION, ((ToggleButton)view).isChecked());
@@ -80,6 +88,10 @@ public class SettingActivity extends BaseActivity {
 		android.util.Log.d(TAG, "onSwitchLocationService = " + ((ToggleButton)view).isChecked());
 		PreferenceHelper.saveBooleanPreferences(this, OLIVE_PREF_LOCATION_SERVICE, ((ToggleButton)view).isChecked());
 	}
+
+    public void onBack(View view) {
+        finish();
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {

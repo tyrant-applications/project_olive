@@ -41,5 +41,6 @@
     <string name="edittext_hint_phonenumber">Phone Number</string>
     <string name="edittext_hint_searchid">Search ID</string>
     <string name="error_not_found">Not found.</string>
+    <string name="title_activity_change_password">ChangePasswordActivity</string>
 
 </resources>
