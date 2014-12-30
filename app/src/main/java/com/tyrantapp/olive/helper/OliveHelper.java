@@ -107,7 +107,6 @@ public class OliveHelper {
 				cursor.moveToFirst();
 				lRecipientId = cursor.getLong(cursor.getColumnIndex(RecipientColumns._ID));
 			}
-            cursor.close();
 		}		
 		
 		return lRecipientId;
@@ -128,7 +127,6 @@ public class OliveHelper {
 				cursor.moveToFirst();
 				pszRecipientName = cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME));
 			}
-            cursor.close();
 		}		
 		
 		return pszRecipientName;

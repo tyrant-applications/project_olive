@@ -155,7 +155,6 @@ public class SyncNetworkService extends Service {
 					cursor.moveToNext();
 				}
 			}
-            cursor.close();
 		} else {
 			// Selected recipients
 			listRecipients.add(recipientName);
@@ -208,7 +207,6 @@ public class SyncNetworkService extends Service {
 						}
 					}
 				}
-                cursor.close();
 
 				helper.markToDispend(username);
 			}
@@ -236,7 +234,6 @@ public class SyncNetworkService extends Service {
 					cursor.moveToNext();
 				}
 			}
-            cursor.close();
 		} else {
 			// Selected recipients
 			listRecipients.add(recipientName);
@@ -283,8 +280,6 @@ public class SyncNetworkService extends Service {
 					RecipientColumns.USERNAME + "=?",
 					new String[] { username, });
 
-            recpCursor.close();
-            countCursor.close();
 		}
 	}
 
@@ -341,7 +336,6 @@ public class SyncNetworkService extends Service {
 			Toast.makeText(this, R.string.toast_failed_post_olive, Toast.LENGTH_SHORT).show();
 		}
 
-        cursor.close();
 	}
 	
 	private void onMarkToRead(String recipientName) {
@@ -382,7 +376,6 @@ public class SyncNetworkService extends Service {
 			OliveHelper.removeNotification(getApplicationContext());
 		}
 
-        recpCursor.close();
 	}
 	
 	public class ServiceTask extends AsyncTask<String, Void, Boolean> {

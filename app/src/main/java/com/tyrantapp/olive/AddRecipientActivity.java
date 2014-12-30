@@ -216,7 +216,6 @@ public class AddRecipientActivity extends BaseActivity {
                         android.util.Log.d("Olive", "Insert recipient!");
                         Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_succeed_add_recipient), Toast.LENGTH_SHORT).show();
                     }
-                    cursor.close();
                 }
             }
         } else {
