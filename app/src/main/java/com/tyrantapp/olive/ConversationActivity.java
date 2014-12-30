@@ -86,6 +86,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 			cursor.moveToLast();
 			
 			updateLastOlive(cursor);
+            cursor.close();
 		}
 	};
 	
@@ -218,6 +219,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 			Cursor cursor = mConversationAdapter.getCursor();
 			if (cursor != null) cursor.moveToLast();
 			updateLastOlive(cursor);
+            cursor.close();
 		
 		}
 		
@@ -292,7 +294,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	         Cursor cursor = getContentResolver().query(selectedImage,
 	                 filePathColumn, null, null, null);
 	         cursor.moveToFirst();
-	 
+
 	         int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
 	         String picturePath = cursor.getString(columnIndex);
 	         cursor.close();

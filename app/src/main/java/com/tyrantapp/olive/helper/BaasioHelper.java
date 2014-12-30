@@ -45,7 +45,7 @@ public class BaasioHelper extends RESTHelper {
 	public int signUp(String username, String password) {
 		int eRet = OLIVE_SUCCESS;
 		
-		if (isEmailAddress(username)) {
+		if (OliveHelper.isEmailAddress(getContext(), username)) {
 			BaasioUser user = null;
 			try {
 				user = BaasioUser.signUp(username/*username*/, username/*name*/, username/*email*/, password);
@@ -118,7 +118,7 @@ public class BaasioHelper extends RESTHelper {
 			oRet = new UserInfo();
 			oRet.mUsername = user.getUsername();			
 			oRet.mNickname = user.getName();
-			oRet.mPhoneNumber = user.getMiddlename();
+			oRet.mPhoneNumber = user.getProperty(PROPERTY_PHONE).asText();
 			oRet.mModified = user.getModified();
 		}
 		
@@ -133,22 +133,26 @@ public class BaasioHelper extends RESTHelper {
             mQuery.setType(BaasioUser.ENTITY_TYPE + "/" + email);
         } else {
             mQuery.setType(BaasioUser.ENTITY_TYPE);
-            mQuery.setWheres(PROPERTY_PHONE + " contains \'" + phonenumber + "\'");
+            mQuery.setWheres(PROPERTY_PHONE + " contains \'" + phonenumber.replace("+","").replace("-","") + "\'");
         }
         mQuery.setOrderBy(BaasioBaseEntity.PROPERTY_MODIFIED, ORDER_BY.DESCENDING);
+
+        android.util.Log.d("BaasioHelper", "Email : " + email + " / Phone : " + phonenumber);
     	
         try {
 			BaasioResponse reponse = mQuery.query();
 			BaasioBaseEntity entity = reponse.getFirstEntity();
 			BaasioUser user = BaasioBaseEntity.toType(entity, BaasioUser.class);
-			
-			oRet = new UserInfo();
-			oRet.mUsername = user.getUsername();
-			oRet.mNickname = user.getName();
 
-            JsonNode node = user.getProperty(PROPERTY_PHONE);
-            if (node != null) {
-                oRet.mPhoneNumber = node.asText();
+            if (user != null) {
+                oRet = new UserInfo();
+                oRet.mUsername = user.getUsername();
+                oRet.mNickname = user.getName();
+
+                JsonNode node = user.getProperty(PROPERTY_PHONE);
+                if (node != null) {
+                    oRet.mPhoneNumber = node.asText();
+                }
             }
 		} catch (BaasioException e) {
 			// TODO Auto-generated catch block

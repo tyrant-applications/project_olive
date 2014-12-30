@@ -52,7 +52,7 @@ public abstract class BaseActivity extends FragmentActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		super.onActivityResult(requestCode, resultCode, intent);
-		new Exception().printStackTrace();
+		//new Exception().printStackTrace();
 		android.util.Log.d(TAG, "onActivityResult");
 		if (requestCode == PasscodeActivity.REQUEST_CODE) {
 			if (resultCode == PasscodeActivity.RESULT_SUCCESS) getIntent().putExtra(PasscodeActivity.AUTHENTICATE_KEY, PasscodeActivity.requestAuthenticateKey());

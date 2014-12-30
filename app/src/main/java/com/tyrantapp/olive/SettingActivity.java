@@ -6,11 +6,14 @@ import com.tyrantapp.olive.types.UserInfo;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import java.util.Locale;
 
 public class SettingActivity extends BaseActivity {
 	private final static String TAG = "SettingActivity";
@@ -33,13 +36,17 @@ public class SettingActivity extends BaseActivity {
 		btnPasscodeLock.setChecked(PreferenceHelper.getBooleanPreferences(this, OLIVE_PREF_PASSCODE_LOCK, false));
 		btnLocationService.setChecked(PreferenceHelper.getBooleanPreferences(this, OLIVE_PREF_LOCATION_SERVICE, false));
 		
-		TextView tv = (TextView) findViewById(R.id.pref_email);
+		TextView ev = (TextView) findViewById(R.id.pref_email);
+        TextView pv = (TextView) findViewById(R.id.pref_phonenumber);
+
 		// Get Userinfo from DB
 		RESTHelper helper = RESTHelper.getInstance();
 		UserInfo info = helper.getUserProfile();
 		
-		tv.setText(info.mNickname);
-		tv.setSelected(true);
+		ev.setText(info.mNickname);
+		ev.setSelected(true);
+
+        pv.setText(PhoneNumberUtils.formatNumber(info.mPhoneNumber, Locale.getDefault().getCountry()));
 		
 		setEnablePasscode(true);
 	}

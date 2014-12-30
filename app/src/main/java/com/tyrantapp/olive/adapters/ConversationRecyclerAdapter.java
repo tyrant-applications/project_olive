@@ -50,6 +50,7 @@ public class ConversationRecyclerAdapter extends CursorRecyclerAdapter<Conversat
 			mRecipientName = "Not Found";
 			mNickName = "Unknown User";
 		}
+        cursor.close();
     }
 
     @Override

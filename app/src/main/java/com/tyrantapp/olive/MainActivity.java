@@ -48,6 +48,10 @@ public class MainActivity extends BaseActivity {
 
 		mRecipientsListView.setOnItemClickListener(mOnItemClickListener);
 
+        // Update User info
+        Intent intent = new Intent(this, SyncNetworkService.class).setAction(SyncNetworkService.INTENT_ACTION_SYNC_USER_INFO);
+        startService(intent);
+
 		// Access to conversation activity directly
 		PassToConversationActivity(getIntent());
 		

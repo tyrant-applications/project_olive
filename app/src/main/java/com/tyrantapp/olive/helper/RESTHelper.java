@@ -52,8 +52,6 @@ public abstract class RESTHelper {
 	
 	public static final String OLIVE_RETURN_FAILED			= "__FAILED__";
 
-    private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-
 	private static Context sContext = null;
 	private static RESTHelper sInstance = null;
 	
@@ -75,19 +73,6 @@ public abstract class RESTHelper {
 		android.util.Log.d(TAG, "setContext = " + context);
 		sContext = context;
 	}
-	
-	protected static boolean isEmailAddress(String email) {
-		Pattern pattern = Pattern.compile(EMAIL_PATTERN);
-		if (!pattern.matcher(email).matches()) {
-			Toast.makeText(
-					getContext(), 
-					getContext().getResources().getString(R.string.toast_error_invalid_email), 
-					Toast.LENGTH_SHORT).show();
-			return false;
-		}
-		return true;
-	}
-
 
     public static class RestClient {
         private final static String TAG = "RestClient";

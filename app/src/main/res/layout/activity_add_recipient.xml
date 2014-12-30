@@ -28,19 +28,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp">
 
-                <EditText
-                    android:id="@+id/edit_phonenumber"
-                    android:layout_width="257dp"
-                    android:layout_height="45dp"
-                    android:paddingLeft="10dp"
-                    android:hint="@string/edittext_hint_phonenumber"
-                    android:background="@drawable/bg_frame_edittext"/>
-
                 <Button
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/ic_btn_search"
-                    android:onClick="onSearchPhoneNumber"/>
+                    android:background="@drawable/bg_frame_edittext"
+                    android:text="Get from contacts"
+                    android:onClick="onSearchFriends"/>
 
             </LinearLayout>
 
@@ -51,18 +44,18 @@
                 android:layout_marginTop="4dp">
 
                 <EditText
-                    android:id="@+id/edit_searchId"
+                    android:id="@+id/edit_search_friend"
                     android:layout_width="257dp"
                     android:layout_height="45dp"
                     android:paddingLeft="10dp"
-                    android:hint="@string/edittext_hint_searchid"
+                    android:hint="@string/edittext_hint_search_friend"
                     android:background="@drawable/bg_frame_edittext"/>
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/ic_btn_search"
-                    android:onClick="onSearchID"/>
+                    android:onClick="onSearchFriend"/>
 
             </LinearLayout>
 
@@ -81,6 +74,18 @@
                         android:id="@+id/found_listview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
+
+                    <TextView
+                        android:id="@+id/found_error"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:textAlignment="center"
+                        android:gravity="center"
+                        android:text="No Results Found."
+                        android:textColor="@color/black"
+                        android:textSize="20dp"
+                        android:background="@color/white"
+                        android:visibility="gone"/>
 
                 </FrameLayout>
 

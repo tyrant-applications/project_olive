@@ -70,6 +70,7 @@ public class RecipientsListAdapter extends CursorAdapter {
         		convCursor.moveToFirst();
         		lLastReceived = convCursor.getLong(0);
         	}
+            convCursor.close();
         	
         	if (lLastReceived >= 0) {
         		timeView.setVisibility(View.VISIBLE);

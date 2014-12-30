@@ -2,6 +2,7 @@ package com.tyrantapp.olive.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import com.kth.baasio.Baas;
 import com.kth.baasio.entity.BaasioBaseEntity;
@@ -12,11 +13,14 @@ import com.kth.baasio.query.BaasioQuery;
 import com.kth.baasio.query.BaasioQuery.ORDER_BY;
 import com.kth.baasio.response.BaasioResponse;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -24,6 +28,8 @@ import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.StrictMode;
+import android.telephony.PhoneNumberUtils;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -72,11 +78,10 @@ public class SyncNetworkService extends Service {
 		    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 	        StrictMode.setThreadPolicy(policy);
 		}
-		;
 
 		super.onCreate();
-		
-		// run SyncConversation();		
+
+        // run SyncConversation();
 		new ServiceTask(ServiceTask.SYNC_CONVERSATION_ALL).execute();
 	}
 	
@@ -150,6 +155,7 @@ public class SyncNetworkService extends Service {
 					cursor.moveToNext();
 				}
 			}
+            cursor.close();
 		} else {
 			// Selected recipients
 			listRecipients.add(recipientName);
@@ -202,7 +208,8 @@ public class SyncNetworkService extends Service {
 						}
 					}
 				}
-				
+                cursor.close();
+
 				helper.markToDispend(username);
 			}
 		}
@@ -229,6 +236,7 @@ public class SyncNetworkService extends Service {
 					cursor.moveToNext();
 				}
 			}
+            cursor.close();
 		} else {
 			// Selected recipients
 			listRecipients.add(recipientName);
@@ -274,6 +282,9 @@ public class SyncNetworkService extends Service {
 					values,
 					RecipientColumns.USERNAME + "=?",
 					new String[] { username, });
+
+            recpCursor.close();
+            countCursor.close();
 		}
 	}
 
@@ -282,8 +293,14 @@ public class SyncNetworkService extends Service {
 	}
 		
 	private void onSyncUserInfo() {
-		
-	}
+        // Sync phone number
+        TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+
+        RESTHelper helper = RESTHelper.getInstance();
+        UserInfo info = helper.getUserProfile();
+        info.mPhoneNumber = telephonyManager.getLine1Number();
+        helper.updateUserProfile(info);
+    }
 	
 	private void onPostOlive(String recipientName, String message) {
 		RESTHelper helper = RESTHelper.getInstance();
@@ -323,6 +340,8 @@ public class SyncNetworkService extends Service {
 		} else {
 			Toast.makeText(this, R.string.toast_failed_post_olive, Toast.LENGTH_SHORT).show();
 		}
+
+        cursor.close();
 	}
 	
 	private void onMarkToRead(String recipientName) {
@@ -362,6 +381,8 @@ public class SyncNetworkService extends Service {
 			new Exception().printStackTrace();
 			OliveHelper.removeNotification(getApplicationContext());
 		}
+
+        recpCursor.close();
 	}
 	
 	public class ServiceTask extends AsyncTask<String, Void, Boolean> {

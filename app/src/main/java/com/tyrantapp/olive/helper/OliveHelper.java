@@ -1,6 +1,7 @@
 package com.tyrantapp.olive.helper;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.tyrantapp.olive.ConversationActivity;
 import com.tyrantapp.olive.MainActivity;
@@ -21,12 +22,15 @@ import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
+import android.widget.Toast;
 
 
 public class OliveHelper {
 	private final static String TAG = "OliveHelper";
-	
-	public static String getForegroundActivity(Context context) {
+
+    private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
+    public static String getForegroundActivity(Context context) {
 		ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		List<RunningTaskInfo> taskInfo = am.getRunningTasks(1);
 		ComponentName componentInfo = taskInfo.get(0).topActivity;
@@ -79,8 +83,16 @@ public class OliveHelper {
 		NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.cancel(GCMIntentService.NOTIFICATION_ID);
 	}
-	
-	public static long getRecipientId(Context context, String recipientName) {
+
+    public static boolean isEmailAddress(Context context, String email) {
+        Pattern pattern = Pattern.compile(EMAIL_PATTERN);
+        if (!pattern.matcher(email).matches()) {
+            return false;
+        }
+        return true;
+    }
+
+    public static long getRecipientId(Context context, String recipientName) {
 		long lRecipientId = -1;
 		
 		if (recipientName != null) {
@@ -95,6 +107,7 @@ public class OliveHelper {
 				cursor.moveToFirst();
 				lRecipientId = cursor.getLong(cursor.getColumnIndex(RecipientColumns._ID));
 			}
+            cursor.close();
 		}		
 		
 		return lRecipientId;
@@ -115,6 +128,7 @@ public class OliveHelper {
 				cursor.moveToFirst();
 				pszRecipientName = cursor.getString(cursor.getColumnIndex(RecipientColumns.USERNAME));
 			}
+            cursor.close();
 		}		
 		
 		return pszRecipientName;

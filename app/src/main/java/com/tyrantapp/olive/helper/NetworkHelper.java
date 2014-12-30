@@ -77,7 +77,7 @@ public class NetworkHelper extends RESTHelper {
 	public int signUp(String username, String password) {
 		int eRet = OLIVE_FAIL_UNKNOWN;
 		
-		if (isEmailAddress(username)) {
+		if (OliveHelper.isEmailAddress(getContext(), username)) {
             RestClient restClient = new RestClient(SERVER_URL_SIGNUP);
             restClient.AddParam("username", username);
             restClient.AddParam("password", password);
