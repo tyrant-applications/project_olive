@@ -116,9 +116,12 @@ public class BaasioHelper extends RESTHelper {
 		
 		if (user != null) {
 			oRet = new UserInfo();
-			oRet.mUsername = user.getUsername();			
+			oRet.mUsername = user.getUsername();
 			oRet.mNickname = user.getName();
-			oRet.mPhoneNumber = user.getProperty(PROPERTY_PHONE).asText();
+            JsonNode node = user.getProperty(PROPERTY_PHONE);
+            if (node != null) {
+                oRet.mPhoneNumber = node.asText();
+            }
 			oRet.mModified = user.getModified();
 		}
 		
