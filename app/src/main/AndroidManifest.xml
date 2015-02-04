@@ -12,10 +12,11 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- GCM -->
+    <!--
     <permission
         android:name="com.kth.baasio.startup.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
-
+    -->
     <uses-permission android:name="com.kth.baasio.startup.permission.C2D_MESSAGE" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -23,19 +24,16 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
-    <android:uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="18" />
-    <android:uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <android:uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="18" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- android:maxSdkVersion="18" -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- android:maxSdkVersion="18" -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:name=".OliveApplication"
@@ -111,13 +109,13 @@
         </activity>
 
         <provider
-            android:name=".providers.OliveContentProvider"
+            android:name=".provider.OliveContentProvider"
             android:authorities="com.tyrantapp.olive"
             android:enabled="true"
             android:exported="true" />
 
         <service
-            android:name=".services.SyncNetworkService"
+            android:name=".service.SyncNetworkService"
             android:enabled="true"
             android:exported="true" >
         </service>
@@ -130,7 +128,7 @@
           so only GCM services can send data messages for the app.
         -->
         <receiver
-            android:name=".receivers.GCMRedirectedBroadcastReceiver"
+            android:name=".receiver.GCMRedirectedBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
 
@@ -143,6 +141,14 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".receiver.BootCompleteBroadcastReceiver"
+            android:enabled="true"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
         <!--
           Application-specific subclass of GCMBaseIntentService that will
           handle received messages.
@@ -150,7 +156,7 @@
           By default, it must be named .GCMIntentService, unless the
           application uses a custom BroadcastReceiver that redefines its name.
         -->
-        <service android:name=".services.GCMIntentService" />
+        <service android:name=".service.GCMIntentService" />
 
     </application>
 

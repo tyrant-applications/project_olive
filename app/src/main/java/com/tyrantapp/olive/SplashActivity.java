@@ -1,7 +1,8 @@
 package com.tyrantapp.olive;
 
-import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.services.SyncNetworkService;
+import com.tyrantapp.olive.configuration.Constants;
+import com.tyrantapp.olive.helper.DatabaseHelper;
+import com.tyrantapp.olive.service.SyncNetworkService;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,10 +10,10 @@ import android.os.Handler;
 import android.os.Message;
 
 public class SplashActivity extends BaseActivity {
-	final static private String TAG = "SplashActivity";
+	private final static String TAG = "SplashActivity";
 	
-	final private int LONG_SHOWING_TIME = 2000;
-	final private int SHORT_SHOWING_TIME = 500;
+	private final static int LONG_SHOWING_TIME = 2000;
+    private final static int SHORT_SHOWING_TIME = 500;
 	
 	class FinishHandler extends Handler {
 		static final public int SPLASH_TO_MAIN 		= 0;
@@ -20,13 +21,18 @@ public class SplashActivity extends BaseActivity {
 		static final public int SPLASH_TO_LOGIN		= 2;
 		
 		private Intent mIntent = null;
+        private long mRoomId = -1;
 		
 		public void handleMessage(Message msg) {			
 			switch(msg.what) {
 			case SPLASH_TO_MAIN:
 				finish();
 				mIntent = new Intent(getApplicationContext(), MainActivity.class);
-				startActivity(mIntent);
+                if (mRoomId < 0)
+                    startActivity(mIntent);
+                else
+                    startActivity(mIntent.putExtra(Constants.Intent.EXTRA_ROOM_ID, mRoomId));
+
 				overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 				break;
 				
@@ -38,7 +44,11 @@ public class SplashActivity extends BaseActivity {
 				break;
 			}
 		}
-	};
+
+        public void setRoomId(long idRoom) {
+            mRoomId = idRoom;
+        }
+	}
 	
 	private FinishHandler mFinishHandler = new FinishHandler();
 
@@ -47,18 +57,40 @@ public class SplashActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_splash);
-		
-		Intent intent = new Intent(this, SyncNetworkService.class);
-		startService(intent);
 	}
 	
 	@Override
 	protected void onStart() {
 		super.onStart();
 		
-		if (mRESTHelper.isSignedIn()) {
-            mFinishHandler.removeMessages(FinishHandler.SPLASH_TO_LOGIN);
-            mFinishHandler.sendEmptyMessageDelayed(FinishHandler.SPLASH_TO_MAIN, SHORT_SHOWING_TIME);
+		if (mRESTApiManager.isAutoSignIn()) {
+            if (mRESTApiManager.verifyDevice()) {
+
+                // check intent
+                Intent intent = getIntent();
+                long idRoom = -1;
+                if (intent != null) {
+                    idRoom = intent.getLongExtra(Constants.Intent.EXTRA_ROOM_ID, -1);
+                }
+
+                if (idRoom >= 0) {
+                    mFinishHandler.setRoomId(idRoom);
+                    mFinishHandler.removeMessages(FinishHandler.SPLASH_TO_LOGIN);
+                    mFinishHandler.sendEmptyMessage(FinishHandler.SPLASH_TO_MAIN);
+                } else {
+                    mFinishHandler.removeMessages(FinishHandler.SPLASH_TO_LOGIN);
+                    mFinishHandler.sendEmptyMessageDelayed(FinishHandler.SPLASH_TO_MAIN, SHORT_SHOWING_TIME);
+                }
+
+                // 1. sync all (room -> conversation -> friends -> user)
+                Intent syncIntent = null;
+                syncIntent = new Intent(this, SyncNetworkService.class).setAction(SyncNetworkService.INTENT_ACTION_SYNC_ALL);
+                startService(syncIntent);
+            } else {
+                // Notification reason and logout
+                DatabaseHelper.UserHelper.removeUserProfile(this);
+                mFinishHandler.sendEmptyMessageDelayed(FinishHandler.SPLASH_TO_LOGIN, LONG_SHOWING_TIME);
+            }
         } else {
         	mFinishHandler.sendEmptyMessageDelayed(FinishHandler.SPLASH_TO_LOGIN, LONG_SHOWING_TIME);
         }

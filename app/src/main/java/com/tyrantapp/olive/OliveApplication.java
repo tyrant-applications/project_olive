@@ -6,12 +6,12 @@ import com.kth.baasio.callback.BaasioDeviceCallback;
 import com.kth.baasio.entity.push.BaasioDevice;
 import com.kth.baasio.exception.BaasioException;
 import com.kth.common.utils.LogUtils;
-import com.tyrantapp.olive.configurations.BaasioConfig;
-import com.tyrantapp.olive.helper.BaasioHelper;
-import com.tyrantapp.olive.helper.NetworkHelper;
+import com.tyrantapp.olive.configuration.BaasioConfig;
+import com.tyrantapp.olive.network.AWSQueryManager;
 
 import android.app.Application;
 import android.os.AsyncTask;
+import android.os.StrictMode;
 
 public class OliveApplication extends Application {
     private static final String TAG = LogUtils.makeLogTag(OliveApplication.class);
@@ -21,9 +21,16 @@ public class OliveApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        if(android.os.Build.VERSION.SDK_INT > 9) {
+            android.util.Log.d(TAG, "Network Strict Mode On!");
+
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
         		
-        //NetworkHelper.initialize(getApplicationContext());
-        BaasioHelper.initialize(getApplicationContext());
+        AWSQueryManager.initialize(getApplicationContext());
+        //BaasioHelper.initialize(getApplicationContext());
 
         Baas.io().init(this, BaasioConfig.BAASIO_URL, BaasioConfig.BAASIO_ID,
                 BaasioConfig.APPLICATION_ID);

@@ -1,28 +1,27 @@
 package com.tyrantapp.olive;
 
-import java.util.Set;
-
-import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.adapters.ConversationRecyclerAdapter;
-import com.tyrantapp.olive.adapters.KeypadPagerAdapter;
-import com.tyrantapp.olive.components.ConversationRecyclerView;
-import com.tyrantapp.olive.components.ConversationRecyclerView.RecyclerItemClickListener;
-import com.tyrantapp.olive.fragments.KeypadFragment;
+import com.tyrantapp.olive.adapter.ConversationRecyclerAdapter;
+import com.tyrantapp.olive.adapter.KeypadPagerAdapter;
+import com.tyrantapp.olive.component.ConversationRecyclerView;
+import com.tyrantapp.olive.component.ConversationRecyclerView.RecyclerItemClickListener;
+import com.tyrantapp.olive.configuration.Constants;
+import com.tyrantapp.olive.fragment.KeypadFragment;
+import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
-import com.tyrantapp.olive.interfaces.OnOliveKeypadListener;
-import com.tyrantapp.olive.providers.OliveContentProvider.ConversationColumns;
-import com.tyrantapp.olive.providers.OliveContentProvider.RecipientColumns;
-import com.tyrantapp.olive.services.SyncNetworkService;
+import com.tyrantapp.olive.listener.OnOliveKeypadListener;
+import com.tyrantapp.olive.network.AWSQueryManager;
+import com.tyrantapp.olive.provider.OliveContentProvider.ConversationColumns;
+import com.tyrantapp.olive.service.SyncNetworkService;
+import com.tyrantapp.olive.type.ChatSpaceInfo;
+import com.tyrantapp.olive.type.ConversationMessage;
+import com.tyrantapp.olive.type.UserProfile;
+import com.tyrantapp.olive.util.SharedVariables;
 
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.AdapterDataObserver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -46,13 +45,11 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	final static private int			RESULT_RECORD_VIDEO	= 3;
 	final static private int			RESULT_RECORD_VOICE	= 4;
 	final static private int			RESULT_GET_LOCATION	= 5;
-	
-	final static public String			EXTRA_RECIPIENT_ID	= "recipient_id";
-	
-	
-	private long						mRecipientId;
-	private String						mRecipientName;
-	
+
+    private UserProfile                 mUserProfile;
+    private long                        mSpaceId;
+    public  ChatSpaceInfo               mSpaceInfo;
+
 	private ConversationRecyclerView	mConversationView;
 	private ConversationRecyclerAdapter	mConversationAdapter;
 	
@@ -93,7 +90,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		@Override
 		public void onItemClick(View view, int position) {
 			updateLastOlive(mConversationAdapter.getItem(position));
-			android.util.Log.d(TAG, "Item Count = " +mConversationAdapter.getItemCount());
+			android.util.Log.d(TAG, "Item Count = " + mConversationAdapter.getItemCount());
 		}			
 	};
 	
@@ -131,12 +128,24 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	
 	private OnClickListener	mOnSendClickListener = new OnClickListener() {
 		public void onClick(View view) {
-			android.util.Log.d(TAG, "onSendText :: " + mRecipientName + " / " + mTextEditor.getText());
+            // send text
+			android.util.Log.d(TAG, "onSendText [" + mSpaceId + "] : " + mTextEditor.getText());
+
+            ConversationMessage message = new ConversationMessage();
+            message.mSpaceId = mSpaceId;
+            message.mSender = mUserProfile.mUsername;
+            message.mAuthor = "user";
+            message.mMimetype = OliveHelper.MIMETYPE_TEXT;
+            message.mContext = mTextEditor.getText().toString();
+            message.mStatus = ConversationColumns.STATUS_PENDING;
+            message.mCreated = System.currentTimeMillis();
 			
 			Intent intent = new Intent(getApplicationContext(), SyncNetworkService.class)
-	        	.setAction(SyncNetworkService.INTENT_ACTION_POST_OLIVE)
-	        	.putExtra(SyncNetworkService.EXTRA_RECIPIENTNAME, mRecipientName)
-	        	.putExtra(SyncNetworkService.EXTRA_MESSAGE, String.valueOf(mTextEditor.getText()));
+	        	.setAction(SyncNetworkService.INTENT_ACTION_SEND_MESSAGE)
+	        	.putExtra(Constants.Intent.EXTRA_SPACE_ID, mSpaceId)
+                .putExtra(Constants.Intent.EXTRA_AUTHOR, message.mAuthor)
+                .putExtra(Constants.Intent.EXTRA_MIMETYPE, message.mMimetype)
+	        	.putExtra(Constants.Intent.EXTRA_CONTEXT, String.valueOf(mTextEditor.getText()));
 	        startService(intent);
 	        
 	        changeNormalMode();
@@ -150,21 +159,19 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		setContentView(R.layout.activity_conversation);
 		
 		// Initialize
-		mRecipientId = getIntent().getLongExtra(EXTRA_RECIPIENT_ID, -1);
+        long idRoom = getIntent().getLongExtra(Constants.Intent.EXTRA_ROOM_ID, -1);
+        mSpaceId = AWSQueryManager.obtainSpaceIdByRoomId(this, idRoom);
+		if (mSpaceId >= 0) {
+            mUserProfile = DatabaseHelper.UserHelper.getUserProfile(this);
+            mSpaceInfo = DatabaseHelper.ChatSpaceHelper.getChatSpaceInfo(this, mSpaceId);
+            SharedVariables.put(Constants.Conversation.SHARED_SPACE_INFO, mSpaceInfo);
+        }
+
+        if (mSpaceInfo == null) {
+            throw new IllegalArgumentException();
+        }
 		
-		if (mRecipientId >= 0) {
-			mRecipientName = OliveHelper.getRecipientName(this, mRecipientId);
-			
-			android.util.Log.d(TAG, "Message from " + mRecipientName + " (" + mRecipientId + ")");
-			
-			if (mRecipientName == null) {
-				Toast.makeText(this, R.string.toast_error_no_registered_recipient, Toast.LENGTH_SHORT).show();
-				finish();
-				return;
-			}
-		}		
-		
-		mConversationAdapter = new ConversationRecyclerAdapter(this, mRecipientId);
+		mConversationAdapter = new ConversationRecyclerAdapter(this, mSpaceId);
 		mConversationView = (ConversationRecyclerView) findViewById(R.id.conversations_list_view);
 		mConversationView.setAdapter(mConversationAdapter);
 			
@@ -213,7 +220,9 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		// Update UI
 		if (mConversationAdapter != null) {
 			TextView tv = (TextView) findViewById(R.id.title_name);
-			tv.setText(mConversationAdapter.getNickName());
+            String title = mSpaceInfo.mDisplayname;
+            if (title == null) title = mSpaceInfo.mTitle;
+			tv.setText(title);
 			
 			Cursor cursor = mConversationAdapter.getCursor();
 			if (cursor != null) cursor.moveToLast();
@@ -224,30 +233,36 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		setEnablePasscode(true);
 	}
 
-	@Override
+    @Override
+    protected void onDestroy() {
+        SharedVariables.remove(Constants.Conversation.SHARED_SPACE_INFO);
+        super.onDestroy();
+    }
+
+    @Override
 	public void onStart() {
 		super.onStart();
-		
-        Intent intent = new Intent(this, SyncNetworkService.class)
-        	.setAction(SyncNetworkService.INTENT_ACTION_MARK_TO_READ)
-        	.putExtra(SyncNetworkService.EXTRA_RECIPIENTNAME, mRecipientName);
-        startService(intent);
-        
-        sCurrentRecipientName = mRecipientName;        
+
+        Intent syncIntent = null;
+
+        syncIntent = new Intent(this, SyncNetworkService.class)
+                .setAction(SyncNetworkService.INTENT_ACTION_SYNC_CONVERSATION)
+                .putExtra(Constants.Intent.EXTRA_ROOM_ID, mSpaceInfo.mChatroomId);
+        startService(syncIntent);
+
+        syncIntent = new Intent(this, SyncNetworkService.class)
+        	.setAction(SyncNetworkService.INTENT_ACTION_READ_MESSAGES)
+        	.putExtra(Constants.Intent.EXTRA_SPACE_ID, mSpaceId);
+        startService(syncIntent);
+
+        if (mSpaceInfo.mChatroomId == SharedVariables.getLong(Constants.Notification.SHARED_NOTIFICATION_ROOM_ID)) {
+            OliveHelper.removeNotification(this);
+        }
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
-		ContentValues values = new ContentValues();
-		values.put(ConversationColumns.IS_READ, "true");
-		
-		getContentResolver().update(
-				ConversationColumns.CONTENT_URI, 
-				values, 
-				ConversationColumns.RECIPIENT_ID + "=" + mRecipientId, 
-				null);
 	}
 	
 	@Override
@@ -258,8 +273,6 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	@Override
 	public void onStop() {
 		super.onStop();
-		
-		sCurrentRecipientName = "";		
 	}
 
 	@Override
@@ -372,12 +385,21 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	public void onKeypadClick(int sectionNumber, int index) {
 		KeypadFragment fragment = (KeypadFragment)KeypadFragment.getFragment(sectionNumber);
 		Button view = (Button)fragment.getOliveButton(index);
-		
+
+        ConversationMessage message = new ConversationMessage();
+        message.mMessageId = -1;
+        message.mAuthor = "user";
+        message.mMimetype = "text/plain";
+        message.mContext = view.getText().toString();
+        message.mSpaceId = mSpaceId;
+        message.mSender = DatabaseHelper.UserHelper.getUserProfile(this).mUsername;
+        message.mStatus = ConversationColumns.STATUS_PENDING;
+        message.mCreated = System.currentTimeMillis();
+        DatabaseHelper.ConversationHelper.addMessage(this, message);
+
         Intent intent = new Intent(this, SyncNetworkService.class)
-        	.setAction(SyncNetworkService.INTENT_ACTION_POST_OLIVE)
-        	.putExtra(SyncNetworkService.EXTRA_RECIPIENTNAME, mRecipientName)
-        	.putExtra(SyncNetworkService.EXTRA_MESSAGE, String.valueOf(view.getText()));
-        startService(intent);	
+        	.setAction(SyncNetworkService.INTENT_ACTION_SEND_MESSAGE);
+        startService(intent);
 	}
 	
 	public void onExpand(View view) {
@@ -387,7 +409,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	
 	public void updateLastOlive(Cursor cursor) {
 		if (cursor != null && cursor.getCount() > 0) {
-			String content = cursor.getString(cursor.getColumnIndex(ConversationColumns.CTX_DETAIL));
+			String content = cursor.getString(cursor.getColumnIndex(ConversationColumns.CONTEXT));
 			mLastOliveText.setText(content);
 		} else {
 			mLastOliveText.setText("Hello?");
@@ -432,12 +454,5 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
 		}
-	}
-	
-	
-	/// static
-	private static String sCurrentRecipientName;
-	public static String getCurrentRecipientName() {
-		return sCurrentRecipientName;
 	}
 }

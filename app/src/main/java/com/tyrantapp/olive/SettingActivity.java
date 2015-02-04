@@ -1,19 +1,19 @@
 package com.tyrantapp.olive;
 
+import com.tyrantapp.olive.helper.DatabaseHelper;
+import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.helper.PreferenceHelper;
-import com.tyrantapp.olive.helper.RESTHelper;
-import com.tyrantapp.olive.types.UserInfo;
+import com.tyrantapp.olive.type.UserProfile;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.telephony.PhoneNumberUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-
-import java.util.Locale;
 
 public class SettingActivity extends BaseActivity {
 	private final static String TAG = "SettingActivity";
@@ -40,14 +40,17 @@ public class SettingActivity extends BaseActivity {
         TextView pv = (TextView) findViewById(R.id.pref_phonenumber);
 
 		// Get Userinfo from DB
-		RESTHelper helper = RESTHelper.getInstance();
-		UserInfo info = helper.getUserProfile();
+//		RESTApiManager helper = RESTApiManager.getInstance();
+//		HashMap<String, String> mapProfile = helper.getUserProfile();
+//      mapProfile.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_BASE.OLIVE_PROPERTY_USERNAME)
+
+        UserProfile profile = DatabaseHelper.UserHelper.getUserProfile(SettingActivity.this);
 		
-		ev.setText(info.mNickname);
+		ev.setText(profile.mUsername);
 		ev.setSelected(true);
 
-        pv.setText(PhoneNumberUtils.formatNumber(info.mPhoneNumber, Locale.getDefault().getCountry()));
-		
+        pv.setText(OliveHelper.formatNumber(OliveHelper.getLineNumber(this)));
+
 		setEnablePasscode(true);
 	}
 	
@@ -75,7 +78,30 @@ public class SettingActivity extends BaseActivity {
     }
 
     public void onLogout(View view) {
-
+        AlertDialog.Builder alert_confirm = new AlertDialog.Builder(SettingActivity.this);
+        alert_confirm.setMessage(R.string.alert_logout).setCancelable(false).setPositiveButton(android.R.string.ok,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 'YES'
+                        // db 삭제
+                        //DatabaseHelper.RecipientHelper.removeRecipients(SettingActivity.this);
+                        //DatabaseHelper.SpaceHelper.removeSpaces(SettingActivity.this);
+                        //DatabaseHelper.ConversationHelper.removeConversations(SettingActivity.this);
+                        //DatabaseHelper.ButtonBoardHelper.removeButtonBoards(SettingActivity.this);
+                        // user정보 삭제
+                        DatabaseHelper.UserHelper.removeUserProfile(SettingActivity.this);
+                    }
+                }).setNegativeButton(android.R.string.cancel,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 'No'
+                        return;
+                    }
+                });
+        AlertDialog alert = alert_confirm.create();
+        alert.show();
     }
 
 	public void onSwitchNotification(View view) {

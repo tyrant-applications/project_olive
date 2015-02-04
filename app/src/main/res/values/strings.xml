@@ -42,5 +42,10 @@
     <string name="edittext_hint_search_friend">Search ID or Phone Number</string>
     <string name="error_not_found">Not found.</string>
     <string name="title_activity_change_password">ChangePasswordActivity</string>
+    <string name="alert_logout">Your data will be removed. \nDo you want to sign out?</string>
+    <string name="duplicated_signin">You are signed oud. \nYour account accessed by other device.</string>
+
+    <string name="notification_title_message">Message is arrived.</string>
+    <string name="notification_title_signout">Sign out</string>
 
 </resources>

@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -19,21 +18,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.helper.RESTHelper;
-import com.tyrantapp.olive.services.SyncNetworkService;
+import com.tyrantapp.olive.network.RESTApiManager;
 
 /**
  * A sign up screen that offers sign up via email/password.
  */
 public class SignUpActivity extends BaseActivity {
-
-	/**
-	 * A dummy authentication store containing known user names and passwords.
-	 * TODO: remove after connecting to a real authentication system.
-	 */
-	private static final String[] DUMMY_CREDENTIALS = new String[] {
-			"foo@example.com:hello", "bar@example.com:world" };
 	/**
 	 * Keep track of the sign up task to ensure we can cancel it if requested.
 	 */
@@ -133,13 +123,13 @@ public class SignUpActivity extends BaseActivity {
 			// Show a progress spinner, and kick off a background task to
 			// perform the user sign up attempt.
 			showProgress(true);			
-			int eError = mRESTHelper.signUp(username, password);
-			if (eError == RESTHelper.OLIVE_SUCCESS) {
+			int eError = mRESTApiManager.signUp(username, password);
+			if (eError == RESTApiManager.OLIVE_SUCCESS) {
 				Toast.makeText(getApplicationContext(), R.string.toast_succeed_to_create_account, Toast.LENGTH_SHORT);
 				showProgress(false);
 				finish();
 			} else
-			if (eError == RESTHelper.OLIVE_FAIL_INVALID_ID_PW) {
+			if (eError == RESTApiManager.OLIVE_FAIL_INVALID_ID_PW) {
 				Toast.makeText(getApplicationContext(), R.string.toast_invalid_email_address, Toast.LENGTH_SHORT).show();
 			} else {
 				String message = String.format(getResources().getString(R.string.toast_failed_to_create_account), eError);
@@ -219,14 +209,6 @@ public class SignUpActivity extends BaseActivity {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
 				return false;
-			}
-
-			for (String credential : DUMMY_CREDENTIALS) {
-				String[] pieces = credential.split(":");
-				if (pieces[0].equals(mEmail)) {
-					// Account exists, return true if the password matches.
-					return pieces[1].equals(mPassword);
-				}
 			}
 
 			// TODO: register the new account here.

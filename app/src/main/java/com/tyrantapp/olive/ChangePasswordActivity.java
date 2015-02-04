@@ -5,6 +5,10 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.tyrantapp.olive.network.RESTApiManager;
 
 
 public class ChangePasswordActivity extends Activity {
@@ -39,6 +43,21 @@ public class ChangePasswordActivity extends Activity {
     }
 
     public void onChangePassword(View view) {
+        EditText cv = (EditText)findViewById(R.id.current_password);
+        EditText nv = (EditText)findViewById(R.id.new_password);
+        EditText fv = (EditText)findViewById(R.id.confirm_password);
 
+        String currentPassword = cv.getText().toString();
+        String newPassword = nv.getText().toString();
+        String confirmPassword = fv.getText().toString();
+
+        if (nv != null && nv.equals(fv)) {
+            RESTApiManager helper = RESTApiManager.getInstance();
+            if (helper.changePassword(currentPassword, newPassword) == RESTApiManager.OLIVE_SUCCESS) {
+                Toast.makeText(this, "Succeed to change.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Failed to change.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

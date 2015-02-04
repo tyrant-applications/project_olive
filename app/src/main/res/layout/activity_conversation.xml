@@ -53,7 +53,7 @@
     <!-- 
     <org.lucasr.twowayview.widget.TwoWayView
     -->
-    <com.tyrantapp.olive.components.ConversationRecyclerView
+    <com.tyrantapp.olive.component.ConversationRecyclerView
         android:id="@+id/conversations_list_view"
         android:layout_width="match_parent"
         android:layout_height="90dp"

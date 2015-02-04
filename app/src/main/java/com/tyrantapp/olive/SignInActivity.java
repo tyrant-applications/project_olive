@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -19,22 +18,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.helper.RESTHelper;
-import com.tyrantapp.olive.services.SyncNetworkService;
-import com.tyrantapp.olive.types.UserInfo;
+import com.tyrantapp.olive.network.RESTApiManager;
+import com.tyrantapp.olive.service.SyncNetworkService;
 
 /**
  * A sign in screen that offers sign in via email/password.
  */
 public class SignInActivity extends BaseActivity {
-
-	/**
-	 * A dummy authentication store containing known user names and passwords.
-	 * TODO: remove after connecting to a real authentication system.
-	 */
-	private static final String[] DUMMY_CREDENTIALS = new String[] {
-			"foo@example.com:hello", "bar@example.com:world" };
 	/**
 	 * Keep track of the sign in task to ensure we can cancel it if requested.
 	 */
@@ -128,15 +118,20 @@ public class SignInActivity extends BaseActivity {
 			// Show a progress spinner, and kick off a background task to
 			// perform the user sign in attempt.
 			showProgress(true);
-			int eError = mRESTHelper.signIn(username, password);
-			if (eError == RESTHelper.OLIVE_SUCCESS) {
-				UserInfo info = mRESTHelper.getUserProfile();					
-				
+			int eError = mRESTApiManager.signIn(username, password);
+			if (eError == RESTApiManager.OLIVE_SUCCESS) {
+
+                // Sync with server
+                // 1. sync all (room -> conversation -> friends -> user)
+                Intent syncIntent = null;
+                syncIntent = new Intent(this, SyncNetworkService.class).setAction(SyncNetworkService.INTENT_ACTION_SYNC_ALL);
+                startService(syncIntent);
+
 				finish();					
-				Intent intent = new Intent(getApplicationContext(), MainActivity.class).putExtra("username", info.mUsername);
+				Intent intent = new Intent(getApplicationContext(), MainActivity.class);//.putExtra("username", info.mUsername);
 				startActivityForPasscode(intent);
 			} else
-			if (eError == RESTHelper.OLIVE_FAIL_INVALID_ID_PW){
+			if (eError == RESTApiManager.OLIVE_FAIL_INVALID_ID_PW){
 				Toast.makeText(getApplicationContext(), R.string.toast_invalid_id_or_password, Toast.LENGTH_SHORT).show();
 			} else {
 				Toast.makeText(getApplicationContext(), R.string.toast_failed_to_sign_in, Toast.LENGTH_SHORT).show();
@@ -215,14 +210,6 @@ public class SignInActivity extends BaseActivity {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
 				return false;
-			}
-
-			for (String credential : DUMMY_CREDENTIALS) {
-				String[] pieces = credential.split(":");
-				if (pieces[0].equals(mEmail)) {
-					// Account exists, return true if the password matches.
-					return pieces[1].equals(mPassword);
-				}
 			}
 
 			// TODO: register the new account here.

@@ -1,16 +1,12 @@
 package com.tyrantapp.olive;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.ContactsContract;
 import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.telephony.PhoneNumberUtils;
 import android.view.LayoutInflater;
@@ -20,40 +16,40 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
-import com.tyrantapp.olive.helper.RESTHelper;
-import com.tyrantapp.olive.providers.OliveContentProvider;
-import com.tyrantapp.olive.types.UserInfo;
+import com.tyrantapp.olive.network.RESTApiManager;
+import com.tyrantapp.olive.service.SyncNetworkService;
+import com.tyrantapp.olive.type.RecipientInfo;
+import com.tyrantapp.olive.type.UserProfile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
+import java.util.HashSet;
 
 
 public class AddRecipientActivity extends BaseActivity {
     private final static String TAG = "AddRecipientActivity";
 
-    //private UserInfo mFoundInfo = null;
+    //private RecipientInfo mFoundInfo = null;
     private ListView mListView;
     private TextView mErrorView;
     private MySimpleArrayAdapter mAdapter;
-    private ArrayList<UserInfo> mFoundInfoList = new ArrayList<UserInfo>();
+    private ArrayList<RecipientInfo> mFoundInfoList = new ArrayList<RecipientInfo>();
 
     private EditText mEditTextSearchKey;
 
     private Handler mConfirmHandler = new Handler() {
         public void handleMessage(Message message) {
-            ArrayList<UserInfo> arrayInfo = (ArrayList<UserInfo>)message.obj;
+            ArrayList<RecipientInfo> arrayInfo = (ArrayList<RecipientInfo>)message.obj;
             updateRecipientInfo(arrayInfo);
         }
     };
@@ -71,6 +67,8 @@ public class AddRecipientActivity extends BaseActivity {
 
         mEditTextSearchKey = ((EditText)findViewById(R.id.edit_search_friend));
         mEditTextSearchKey.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
+
+        setEnablePasscode(true);
     }
 
     @Override
@@ -108,67 +106,59 @@ public class AddRecipientActivity extends BaseActivity {
 
         new Thread(new Runnable() {
             public void run() {
-                String displayName="", emailAddress="", phoneNumber="";
-                ContentResolver cr =getContentResolver();
-                Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-                ArrayList<UserInfo> arrayInfo = new ArrayList<UserInfo>();
+                Cursor cursor = DatabaseHelper.ContactProviderHelper.getCursor(AddRecipientActivity.this);
+                if (cursor != null && cursor.getCount() > 0) {
+                    cursor.moveToFirst();
 
-                while (cursor.moveToNext()) {
-                    if (!dialog.isShowing()) {
-                        mConfirmHandler.post(
-                                new Runnable() {
-                                    public void run() {
-                                        Toast.makeText(AddRecipientActivity.this, "Cancelled loading from contacts.", Toast.LENGTH_SHORT).show();
+                    ArrayList<String> listPhoneNumber = new ArrayList<String>();
+                    ArrayList<String> listEmail = new ArrayList<String>();
+                    do {
+                        if (!dialog.isShowing()) {
+                            mConfirmHandler.post(
+                                    new Runnable() {
+                                        public void run() {
+                                            Toast.makeText(AddRecipientActivity.this, "Cancelled loading from contacts.", Toast.LENGTH_SHORT).show();
+                                        }
                                     }
-                                }
-                        );
-                        break;
-                    }
-
-                    displayName = "";
-                    emailAddress = "";
-                    phoneNumber = "";
-                    displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                    String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-
-//                    Cursor emails = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + id, null, null);
-//                    while (emails.moveToNext()) {
-//                        emailAddress = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-//                        break;
-//                    }
-//                    emails.close();
-
-                    if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-                        Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
-                        while (pCur.moveToNext()) {
-                            phoneNumber = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                            );
                             break;
                         }
-                        pCur.close();
+
+                        String value = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ContactProviderHelper.DATA));
+                        if (OliveHelper.isEmailAddress(AddRecipientActivity.this, value)) {
+                            listEmail.add(value);
+                        } else if (OliveHelper.isPhoneNumber(value)) {
+                            listPhoneNumber.add(OliveHelper.formatNumber(value));
+                        }
+                    } while (cursor.moveToNext());
+
+                    String[] arrPhonenumbers = new String[listPhoneNumber.size()];
+                    for (int i=0; i<listPhoneNumber.size(); i++) {
+                        arrPhonenumbers[i] = listPhoneNumber.get(i);
+                    }
+                    String[] arrEmails = new String[listEmail.size()];
+                    for (int i=0; i<listEmail.size(); i++) {
+                        arrEmails[i] = listEmail.get(i);
                     }
 
-                    android.util.Log.d(TAG, "DisplayName: " + displayName + ", PhoneNumber: " + phoneNumber + ", EmailAddress: " + emailAddress);
-
-                    UserInfo info = null;
-                    if (OliveHelper.isEmailAddress(AddRecipientActivity.this, emailAddress)) {
-                        info = mRESTHelper.getRecipientProfile(emailAddress, null);
-                    }
-                    if (info == null && PhoneNumberUtils.isGlobalPhoneNumber(phoneNumber)) {
-                        phoneNumber = PhoneNumberUtils.formatNumberToE164(phoneNumber, Locale.getDefault().getCountry());
-                        if (phoneNumber != null) {
-                            info = mRESTHelper.getRecipientProfile(null, phoneNumber);
+                    ArrayList<RecipientInfo> listInfo = null;
+                    ArrayList<HashMap<String, String>> listFriends = mRESTApiManager.findFriends(arrEmails, arrPhonenumbers);
+                    if (listFriends != null && listFriends.size() > 0) {
+                        listInfo = new ArrayList<RecipientInfo>();
+                        for (HashMap<String, String> friend : listFriends) {
+                            RecipientInfo info = new RecipientInfo();
+                            info.mUsername = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_USERNAME);
+                            info.mPhoneNumber = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PHONE);
+                            info.mDisplayname = DatabaseHelper.ContactProviderHelper.getDisplayname(AddRecipientActivity.this, info.mUsername, info.mPhoneNumber);
+                            listInfo.add(info);
                         }
                     }
-                    if (info != null) {
-                        info.mNickname = displayName;
-                        arrayInfo.add(info);
-                    }
-                }
 
-                Message msg = mConfirmHandler.obtainMessage();
-                msg.obj = arrayInfo;
-                mConfirmHandler.sendMessage(msg);
-                cursor.close();
+                    Message msg = mConfirmHandler.obtainMessage();
+                    msg.obj = listInfo;
+                    mConfirmHandler.sendMessage(msg);
+                    cursor.close();
+                }
 
                 dialog.dismiss();
             }
@@ -177,47 +167,72 @@ public class AddRecipientActivity extends BaseActivity {
 
     public void onSearchFriend(View view) {
         String keyword = mEditTextSearchKey.getText().toString();
-        mFoundInfoList.clear();
-        mAdapter.notifyDataSetChanged();
-        UserInfo info = null;
+        ArrayList<RecipientInfo> listInfo = null;
+        ArrayList<HashMap<String, String>> listFriends = null;
         if (PhoneNumberUtils.isGlobalPhoneNumber(keyword)) {
-            String phoneNumber = PhoneNumberUtils.formatNumberToE164(keyword, Locale.getDefault().getCountry());
-            info = mRESTHelper.getRecipientProfile(null, phoneNumber);
+            String phoneNumber = OliveHelper.formatNumber(keyword);
+            listFriends = mRESTApiManager.findFriends(null, new String[] { phoneNumber, });
         } else
         if (OliveHelper.isEmailAddress(this, keyword)) {
-            info = mRESTHelper.getRecipientProfile(keyword, null);
+            listFriends = mRESTApiManager.findFriends(new String[] { keyword, }, null);
         }
-        updateRecipientInfo(info);
+
+        if (listFriends != null && listFriends.size() > 0) {
+            listInfo = new ArrayList<RecipientInfo>();
+            for (HashMap<String, String> friend : listFriends) {
+                RecipientInfo info = new RecipientInfo();
+                info.mUsername = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_USERNAME);
+                info.mPhoneNumber = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PHONE);
+                info.mDisplayname = DatabaseHelper.ContactProviderHelper.getDisplayname(this, info.mUsername, info.mPhoneNumber);
+                listInfo.add(info);
+            }
+        }
+        updateRecipientInfo(listInfo);
     }
 
     public void onAddRecipient(View view) {
         if (!mFoundInfoList.isEmpty()) {
-            for (UserInfo info : mFoundInfoList) {
+            UserProfile profile = DatabaseHelper.UserHelper.getUserProfile(this);
+            ArrayList<HashMap<String, String>> listFriends = mRESTApiManager.getFriendsList();
+            HashSet<String> setFriends = new HashSet<String>();
+            for (HashMap<String, String> friend : listFriends) {
+                setFriends.add(friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_USERNAME));
+            }
+            ArrayList<String> listAddFriends = new ArrayList<String>();
+            for (RecipientInfo info : mFoundInfoList) {
                 if (mAdapter.isSelected(info.mUsername)) {
-                    Cursor cursor = getContentResolver().query(
-                            OliveContentProvider.RecipientColumns.CONTENT_URI,
-                            new String[]{OliveContentProvider.RecipientColumns._ID,},
-                            OliveContentProvider.RecipientColumns.USERNAME + "=?",
-                            new String[]{info.mUsername,},
-                            null
-                    );
-
-                    if (cursor.getCount() > 0) {
-                        android.util.Log.d("Olive", "Not insert recipient!");
-                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_error_already_registered), Toast.LENGTH_SHORT).show();
-                    } else {
-                        ContentValues values = new ContentValues();
-                        values.put(OliveContentProvider.RecipientColumns.USERNAME, info.mUsername);
-                        values.put(OliveContentProvider.RecipientColumns.NICKNAME, info.mNickname);
-                        values.put(OliveContentProvider.RecipientColumns.PHONENUMBER, info.mPhoneNumber);
-                        values.put(OliveContentProvider.RecipientColumns.UNREAD, false);
-
-                        getContentResolver().insert(OliveContentProvider.RecipientColumns.CONTENT_URI, values);
-                        android.util.Log.d("Olive", "Insert recipient!");
+                    //if (DatabaseHelper.RecipientHelper.getRecipientInfo(this, info.mId) == null) {
+                    if (!setFriends.contains(info.mUsername)) {
+                        listAddFriends.add(info.mUsername);
+                        HashMap<String, String> roomInfo = mRESTApiManager.createRoom(new String[] {info.mUsername, });
+                        if (roomInfo != null) {
+                            android.util.Log.d(TAG, "Succeed to create new space.");
+                        }
                         Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_succeed_add_recipient), Toast.LENGTH_SHORT).show();
+                    } else {
+                        android.util.Log.d("Olive", "Cannot insert recipient!");
+                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_error_already_registered), Toast.LENGTH_SHORT).show();
                     }
                 }
             }
+
+            String[] arrAddFriends = new String[listAddFriends.size()];
+            for (int i=0; i<listAddFriends.size(); i++) {
+                arrAddFriends[i] = listAddFriends.get(i);
+            }
+
+            mRESTApiManager.addFriends(arrAddFriends);
+
+            // Sync room and friends
+            Intent syncIntent = null;
+
+            syncIntent = new Intent(this, SyncNetworkService.class)
+                    .setAction(SyncNetworkService.INTENT_ACTION_SYNC_ROOMS_LIST);
+            startService(syncIntent);
+
+            syncIntent = new Intent(this, SyncNetworkService.class)
+                    .setAction(SyncNetworkService.INTENT_ACTION_SYNC_FRIENDS_LIST);
+            startService(syncIntent);
         } else {
             android.util.Log.d("Olive", "Failed Insert recipient!");
             Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_failed_add_recipient), Toast.LENGTH_SHORT).show();
@@ -232,29 +247,14 @@ public class AddRecipientActivity extends BaseActivity {
         finish();
     }
 
-    private void updateRecipientInfo(UserInfo info) {
-        if (info != null) {
-            mFoundInfoList.add(info);
-            mAdapter.notifyDataSetChanged();
-
-            mErrorView.setVisibility(View.GONE);
-        } else {
-            mFoundInfoList.clear();
-            mAdapter.notifyDataSetChanged();
-
-            // Need to add UI for notifying "not found"
-            mErrorView.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void updateRecipientInfo(ArrayList<UserInfo> array) {
+    private void updateRecipientInfo(ArrayList<RecipientInfo> array) {
+        mFoundInfoList.clear();
         if (array != null && !array.isEmpty()) {
-            for (UserInfo info : array) mFoundInfoList.add(info);
+            for (RecipientInfo info : array) mFoundInfoList.add(info);
             mAdapter.notifyDataSetChanged();
 
             mErrorView.setVisibility(View.GONE);
         } else {
-            mFoundInfoList.clear();
             mAdapter.notifyDataSetChanged();
 
             // Need to add UI for notifying "not found"
@@ -262,12 +262,12 @@ public class AddRecipientActivity extends BaseActivity {
         }
     }
 
-    public class MySimpleArrayAdapter extends ArrayAdapter<UserInfo> implements CompoundButton.OnCheckedChangeListener {
-        private ArrayList<UserInfo> mItems;
+    public class MySimpleArrayAdapter extends ArrayAdapter<RecipientInfo> implements CompoundButton.OnCheckedChangeListener {
+        private ArrayList<RecipientInfo> mItems;
         private int mResourceId;
         private HashMap<String, Boolean> mMapSelected = new HashMap<String, Boolean>();
 
-        public MySimpleArrayAdapter(Context context, int textViewResourceId, ArrayList<UserInfo> items) {
+        public MySimpleArrayAdapter(Context context, int textViewResourceId, ArrayList<RecipientInfo> items) {
             super(context, textViewResourceId, items);
             mResourceId = textViewResourceId;
             mItems = items;
@@ -290,10 +290,10 @@ public class AddRecipientActivity extends BaseActivity {
                 holder = (MySimpleViewHolder)v.getTag();
             }
 
-            UserInfo info = mItems.get(position);
+            RecipientInfo info = mItems.get(position);
             if (info != null) {
                 boolean bChecked = (mMapSelected.get(info.mUsername) != null) ? mMapSelected.get(info.mUsername).booleanValue() : false;
-                holder.mUsername.setText(info.mUsername);
+                holder.mUsername.setText(info.mDisplayname);
                 holder.mUsername.setSelected(true);
                 holder.mChecked.setChecked(bChecked);
                 holder.mChecked.setTag(info.mUsername);

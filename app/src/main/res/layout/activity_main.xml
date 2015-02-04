@@ -5,7 +5,7 @@
     android:orientation="vertical"
     tools:context="com.tyrantapp.olive.activities.MainActivity" >
      
-    <com.tyrantapp.olive.components.RecipientsListView
+    <com.tyrantapp.olive.component.RecipientsListView
         android:id="@+id/recipients_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
