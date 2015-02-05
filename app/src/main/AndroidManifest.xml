@@ -30,10 +30,10 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- android:maxSdkVersion="18" -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- android:maxSdkVersion="18" -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".OliveApplication"
@@ -53,35 +53,29 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".SignInActivity"
             android:label="@string/title_activity_signin"
             android:windowSoftInputMode="adjustPan" >
         </activity>
-
         <activity
             android:name=".SignUpActivity"
             android:label="@string/title_activity_signup"
             android:windowSoftInputMode="adjustPan" >
         </activity>
-
         <activity
             android:name=".PasscodeActivity"
             android:label="@string/title_activity_passcode" >
         </activity>
-
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main" >
         </activity>
-
         <activity
             android:name=".AddRecipientActivity"
             android:label="@string/title_activity_add_recipient"
             android:windowSoftInputMode="adjustPan" >
         </activity>
-
         <activity
             android:name=".ConversationActivity"
             android:label="@string/title_activity_conversation"
@@ -93,7 +87,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tyrantapp.olive.MainActivity" />
         </activity>
-
         <activity
             android:name=".SettingActivity"
             android:label="@string/title_activity_setting"
@@ -102,7 +95,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="BaseActivity" />
         </activity>
-
         <activity
             android:name=".ChangePasswordActivity"
             android:label="@string/title_activity_change_password" >
@@ -140,8 +132,8 @@
                 <category android:name="com.tyrantapp.olive" />
             </intent-filter>
         </receiver>
-
-        <receiver android:name=".receiver.BootCompleteBroadcastReceiver"
+        <receiver
+            android:name=".receiver.BootCompleteBroadcastReceiver"
             android:enabled="true"
             android:exported="false" >
             <intent-filter>
@@ -158,6 +150,14 @@
         -->
         <service android:name=".service.GCMIntentService" />
 
+        <activity
+            android:name=".KeyCustomizeActivity"
+            android:label="@string/title_activity_key_customize"
+            android:parentActivityName=".BaseActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.tyrantapp.olive.BaseActivity" />
+        </activity>
     </application>
 
 </manifest>

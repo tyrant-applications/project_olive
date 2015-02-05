@@ -519,8 +519,8 @@ public class DatabaseHelper {
             return context.getContentResolver().update(
                     OliveContentProvider.ConversationColumns.CONTENT_URI,
                     values,
-                    OliveContentProvider.ConversationColumns._ID + "=? AND " + OliveContentProvider.ConversationColumns.SENDER + "=?",
-                    new String[] {String.valueOf(idConversation), UserHelper.getUserProfile(context).mUsername, } ) > 0;
+                    OliveContentProvider.ConversationColumns._ID + "=?",
+                    new String[] {String.valueOf(idConversation), } ) > 0;
         }
 
         public static boolean setReadToOtherMessages(Context context, long idSpace) {

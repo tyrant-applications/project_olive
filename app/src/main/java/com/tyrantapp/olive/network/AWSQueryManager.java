@@ -2,7 +2,10 @@ package com.tyrantapp.olive.network;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.kth.baasio.Baas;
 import com.kth.baasio.entity.BaasioBaseEntity;
@@ -14,10 +17,12 @@ import com.kth.baasio.exception.BaasioException;
 import com.kth.baasio.query.BaasioQuery;
 import com.kth.baasio.query.BaasioQuery.ORDER_BY;
 import com.kth.baasio.response.BaasioResponse;
+import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.configuration.BaasioConfig;
 import com.tyrantapp.olive.configuration.Constants;
 import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
+import com.tyrantapp.olive.helper.PreferenceHelper;
 import com.tyrantapp.olive.provider.OliveContentProvider;
 import com.tyrantapp.olive.type.ChatSpaceInfo;
 import com.tyrantapp.olive.type.SpaceInfo;
@@ -200,6 +205,9 @@ public class AWSQueryManager extends RESTApiManager {
         } else {
             eRet = OLIVE_FAIL_UNKNOWN;
         }
+        // clear preference
+        PreferenceHelper.removeAllPreferences(getContext());
+
         return eRet;
     }
 
@@ -229,8 +237,10 @@ public class AWSQueryManager extends RESTApiManager {
 
     public boolean verifyDevice() {
         boolean bRet = false;
+
         // Accesstoken이 유효한지, 혹시 타기기에 의해 로그아웃이 되진 않았는지 확인 필요.
-        bRet = true;
+        bRet = true;//(getUserProfile() != null);
+
         return bRet;
     }
 
@@ -255,7 +265,8 @@ public class AWSQueryManager extends RESTApiManager {
             restClient.AddParam("friends_id", DatabaseHelper.UserHelper.getUserProfile(getContext()).mUsername);
 
             HashMap<String, String> mapRecv = new HashMap<String, String>();
-            if (sendByHttp(RestClient.POST, restClient, mapRecv) == OLIVE_SUCCESS) {
+            int eRet = sendByHttp(RestClient.POST, restClient, mapRecv);
+            if (eRet == OLIVE_SUCCESS) {
                 ArrayList<HashMap<String, String>> arrayData = JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_USER_PROFILE.OLIVE_PROPERTY_PROFILE_LIST));
                 if (arrayData.size() > 0) {
                     mapRet = new HashMap<String, String>();
@@ -486,7 +497,6 @@ public class AWSQueryManager extends RESTApiManager {
                 arrRet = JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_ROOMS_LIST.OLIVE_PROPERTY_ROOM_LIST));
             } else
             if (eRet == OLIVE_FAIL_BAD_NETWORK) {
-                arrRet.clear();
                 arrRet = null;
             }
         }
@@ -726,7 +736,7 @@ public class AWSQueryManager extends RESTApiManager {
             info.mStarred = false;
             idSpace = DatabaseHelper.SpaceHelper.addSpace(context, info);
         } else
-        if (!verifySpace(context, idSpace)) {
+        if (OliveHelper.isConnectedNetwork(context) && !verifySpace(context, idSpace)) {
             // 서버에는 없고 로컬에만 있는 경우 (안해도 될것 같지만... 혹시 모르니... 하지만 데이터 소모량이 많다면 삭제해도 무방)
             DatabaseHelper.SpaceHelper.removeSpace(context, idSpace);
             idSpace = -1;

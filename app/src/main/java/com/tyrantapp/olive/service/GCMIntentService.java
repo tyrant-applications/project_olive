@@ -25,6 +25,8 @@ import com.kth.baasio.utils.ObjectUtils;
 import com.kth.common.utils.LogUtils;
 import com.tyrantapp.olive.ConversationActivity;
 import com.tyrantapp.olive.OliveApplication;
+import com.tyrantapp.olive.R;
+import com.tyrantapp.olive.SplashActivity;
 import com.tyrantapp.olive.configuration.BaasioConfig;
 import com.tyrantapp.olive.configuration.Constants;
 import com.tyrantapp.olive.helper.OliveHelper;
@@ -35,6 +37,7 @@ import com.tyrantapp.olive.util.SharedVariables;
 
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 /**
  * {@link android.app.IntentService} responsible for handling GCM messages.
@@ -113,6 +116,13 @@ public class GCMIntentService extends GCMBaseIntentService {
             context.startService(syncIntent);
         } else
         if (RESTApiManager.OLIVE_PUSH_PROPERTY_PUSH_TYPE_SIGNOUT.equals(pushType)) {
+            RESTApiManager restManager = AWSQueryManager.getInstance();
+            if (!restManager.verifyDevice()) {
+                restManager.signOut();
+                Toast.makeText(context, R.string.toast_failed_to_sign_in, Toast.LENGTH_SHORT).show();
+                Intent newIntent = new Intent(context, SplashActivity.class);
+                newIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            }
         } else
         if (RESTApiManager.OLIVE_PUSH_PROPERTY_PUSH_TYPE_POST.equals(pushType)) {
             Long idRoom = msg.getProperty(RESTApiManager.OLIVE_PUSH_PROPERTY_ROOM_ID).asLong();

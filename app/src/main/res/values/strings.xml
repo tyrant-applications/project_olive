@@ -30,6 +30,8 @@
     <string name="toast_error_invalid_email">Check email address please.</string>
     <string name="toast_error_no_registered_recipient">This message from stranger.</string>
     <string name="toast_error_already_registered">Already registered e-mail.</string>
+    <string name="toast_error_bad_network">Bad network.</string>
+    <string name="toast_error_duplicated_signin">You are signed out. \nYour account connected other device.</string>
     <string name="error_not_supported_yet">Not support yet.</string>
     <string name="title_activity_setting">SettingActivity</string>
     <string name="btn_default_keypad">Make your own button!</string>
@@ -44,8 +46,8 @@
     <string name="title_activity_change_password">ChangePasswordActivity</string>
     <string name="alert_logout">Your data will be removed. \nDo you want to sign out?</string>
     <string name="duplicated_signin">You are signed oud. \nYour account accessed by other device.</string>
-
     <string name="notification_title_message">Message is arrived.</string>
     <string name="notification_title_signout">Sign out</string>
+    <string name="title_activity_key_customize">KeyCustomizeActivity</string>
 
 </resources>

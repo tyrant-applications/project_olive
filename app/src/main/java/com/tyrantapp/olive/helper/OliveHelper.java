@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import com.tyrantapp.olive.OliveApplication;
+import com.tyrantapp.olive.PasscodeActivity;
 import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.SettingActivity;
 import com.tyrantapp.olive.SplashActivity;
@@ -22,6 +24,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
@@ -77,15 +81,16 @@ public class OliveHelper {
                 .setContentTitle(context.getString(R.string.notification_title_message))
                 .setContentText(sender)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
-                .setDefaults(Notification.DEFAULT_ALL) // requires VIBRATE permission
+                .setDefaults(Notification.DEFAULT_ALL)
                 .setContentIntent(intent)
                 //.setTicker(message)
                 .setAutoCancel(true);
         
-        if (PreferenceHelper.getBooleanPreferences(context, SettingActivity.OLIVE_PREF_NOTIFICATION, true)) {
-        	// Notification ON!
-        	//builder.setVibrate(new long[]{200, 100, 200, 100});
-        	builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        if (!PreferenceHelper.getBooleanPreferences(context, SettingActivity.OLIVE_PREF_NOTIFICATION, true)) {
+        	// Notification OFF!
+            builder.setDefaults(Notification.DEFAULT_LIGHTS);
+            //builder.setVibrate(new long[]{200, 100, 200, 100});
+            //builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         }
         
         Notification notification = builder.getNotification();
@@ -192,4 +197,26 @@ public class OliveHelper {
 
         return nRet;
     }
+
+
+    public static boolean isConnectedNetwork(Context context) {
+        boolean bNetwork = false;
+        try {
+            ConnectivityManager conMan = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            NetworkInfo.State wifi = conMan.getNetworkInfo(1).getState(); // wifi
+            if (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING) {
+                bNetwork = true;
+            }
+
+            NetworkInfo.State mobile = conMan.getNetworkInfo(0).getState(); // mobile ConnectivityManager.TYPE_MOBILE
+            if (mobile == NetworkInfo.State.CONNECTED || mobile == NetworkInfo.State.CONNECTING) {
+                bNetwork = true;
+            }
+        } catch (NullPointerException e) {
+        }
+
+        return bNetwork;
+    }
+
 }

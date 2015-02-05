@@ -53,57 +53,59 @@ public class MainActivity extends BaseActivity {
 
 		mRecipientsListView.setOnItemClickListener(mOnItemClickListener);
 
-        // Access to conversation activity directly
-        setEnablePasscode(true);
-        if (!passToConversationActivity(getIntent())) {
-            Cursor cRecipient = DatabaseHelper.RecipientHelper.getCursor(this);
-            Cursor cSpace = DatabaseHelper.SpaceHelper.getCursor(this);
-            Cursor cChat = DatabaseHelper.ChatSpaceHelper.getCursor(this);
+        Cursor cRecipient = DatabaseHelper.RecipientHelper.getCursor(this);
+        Cursor cSpace = DatabaseHelper.SpaceHelper.getCursor(this);
+        Cursor cChat = DatabaseHelper.ChatSpaceHelper.getCursor(this);
 
-            if (cRecipient != null && cRecipient.getCount() > 0) {
-                cRecipient.moveToFirst();
-                android.util.Log.d(TAG, "Recipient Data");
-                do {
-                    for (int i = 0; i < cRecipient.getColumnCount(); i++) {
-                        android.util.Log.d(TAG, "        " + cRecipient.getColumnName(i) + " : " + cRecipient.getString(i));
-                    }
-                } while (cRecipient.moveToNext());
-            }
-
-            if (cSpace != null && cSpace.getCount() > 0) {
-                cSpace.moveToFirst();
-                android.util.Log.d(TAG, "Space Data");
-                do {
-                    for (int i = 0; i < cSpace.getColumnCount(); i++) {
-                        android.util.Log.d(TAG, "        " + cSpace.getColumnName(i) + " : " + cSpace.getString(i));
-                    }
-                } while (cSpace.moveToNext());
-            }
-
-            if (cChat != null && cChat.getCount() > 0) {
-                cChat.moveToFirst();
-                android.util.Log.d(TAG, "ChatSpace Data");
-                do {
-                    for (int i = 0; i < cChat.getColumnCount(); i++) {
-                        android.util.Log.d(TAG, "        " + cChat.getColumnName(i) + " : " + cChat.getString(i));
-                    }
-                } while (cChat.moveToNext());
-            }
+        if (cRecipient != null && cRecipient.getCount() > 0) {
+            cRecipient.moveToFirst();
+            android.util.Log.d(TAG, "Recipient Data");
+            do {
+                for (int i = 0; i < cRecipient.getColumnCount(); i++) {
+                    android.util.Log.d(TAG, "        " + cRecipient.getColumnName(i) + " : " + cRecipient.getString(i));
+                }
+            } while (cRecipient.moveToNext());
         }
+
+        if (cSpace != null && cSpace.getCount() > 0) {
+            cSpace.moveToFirst();
+            android.util.Log.d(TAG, "Space Data");
+            do {
+                for (int i = 0; i < cSpace.getColumnCount(); i++) {
+                    android.util.Log.d(TAG, "        " + cSpace.getColumnName(i) + " : " + cSpace.getString(i));
+                }
+            } while (cSpace.moveToNext());
+        }
+
+        if (cChat != null && cChat.getCount() > 0) {
+            cChat.moveToFirst();
+            android.util.Log.d(TAG, "ChatSpace Data");
+            do {
+                for (int i = 0; i < cChat.getColumnCount(); i++) {
+                    android.util.Log.d(TAG, "        " + cChat.getColumnName(i) + " : " + cChat.getString(i));
+                }
+            } while (cChat.moveToNext());
+        }
+
+        setEnablePasscode(true);
     }
-	
-	@Override
-	protected void onNewIntent(Intent intent) {
-		super.onNewIntent(intent);
-        passToConversationActivity(intent);
-        setIntent(null);
-	}
+
+// Intent가 Main에서 Splash로 옮겨지게 됨에 따라 필요 없어짐.
+//	@Override
+//	protected void onNewIntent(Intent intent) {
+//		super.onNewIntent(intent);
+//        passToConversationActivity(intent);
+//        setIntent(null);
+//	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
 		
 		android.util.Log.d(TAG, "onStart");
+
+        // Access to conversation activity directly
+        passToConversationActivity();
     }
 	
 	@Override
@@ -114,19 +116,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-
-    }
-
-    private boolean passToConversationActivity(Intent intent) {
-        boolean bRet = false;
-        // Access to conversation activity directly
-        long idRoom = intent.getLongExtra(Constants.Intent.EXTRA_ROOM_ID, -1);
-        if (idRoom >= 0) {
-            Intent newIntent = new Intent(getApplicationContext(), ConversationActivity.class).putExtra(Constants.Intent.EXTRA_ROOM_ID, idRoom);
-            startActivityForPasscode(newIntent);
-            bRet = true;
-        }
-        return bRet;
     }
 
     @Override
@@ -147,6 +136,22 @@ public class MainActivity extends BaseActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
+    private boolean passToConversationActivity() {
+        boolean bRet = false;
+        // Access to conversation activity directly
+        if (isAuthenticated()) {
+            Intent intent = getIntent();
+            long idRoom = intent.getLongExtra(Constants.Intent.EXTRA_ROOM_ID, -1);
+            if (idRoom >= 0) {
+                Intent newIntent = new Intent(getApplicationContext(), ConversationActivity.class).putExtra(Constants.Intent.EXTRA_ROOM_ID, idRoom);
+                startActivityForPasscode(newIntent);
+                bRet = true;
+            }
+            getIntent().removeExtra(Constants.Intent.EXTRA_ROOM_ID);
+        }
+        return bRet;
+    }
 
 	public void onVoting(View v) {		
 		Toast.makeText(this,  getResources().getString(R.string.error_not_supported_yet), Toast.LENGTH_SHORT).show();

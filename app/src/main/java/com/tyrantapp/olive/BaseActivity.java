@@ -16,37 +16,34 @@ import java.util.ArrayList;
 
 
 public abstract class BaseActivity extends FragmentActivity {
-	private static final String TAG = "BaseActivity";
+	private static final String         TAG = BaseActivity.class.getSimpleName();
 	
 	private OnConnectServiceListener	mConnectServiceListener = null;
 	private boolean					    mActivatePasscode = false;
-	
-	protected RESTApiManager mRESTApiManager = RESTApiManager.getInstance();
+    private boolean                     mAuthenticated = false;
 
-    private boolean mHoldStartActivity = true;
-    private ArrayList<Intent>   mPendingIntent = new ArrayList<Intent>();
-	
+	protected RESTApiManager            mRESTApiManager = RESTApiManager.getInstance();
+
 	@Override
 	protected void onStart() {
 		super.onStart();
-		
+
+        mAuthenticated = false;
 		if (mActivatePasscode) {
-            mHoldStartActivity = false;
-            new Exception().printStackTrace();
             if (!PasscodeActivity.verifyAuthenticateKey(getApplicationContext(), getIntent().getStringExtra(PasscodeActivity.AUTHENTICATE_KEY))) {
 	        	Intent intent = new Intent(this, PasscodeActivity.class);
 	        	startActivityForPasscode(intent);
 	        } else {
+                mAuthenticated = true;
 	        	ignorePasscodeOnce();
 	        }
 		}
-    	
+
 		startServiceBind();		
 	}
 
 	@Override
 	protected void onStop() {
-        mHoldStartActivity = true;
 		stopServiceBind();
 		super.onStop();
 	}
@@ -60,17 +57,10 @@ public abstract class BaseActivity extends FragmentActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		super.onActivityResult(requestCode, resultCode, intent);
-		//new Exception().printStackTrace();
 		android.util.Log.d(TAG, "onActivityResult");
 		if (requestCode == PasscodeActivity.REQUEST_CODE) {
 			if (resultCode == PasscodeActivity.RESULT_SUCCESS) {
                 getIntent().putExtra(PasscodeActivity.AUTHENTICATE_KEY, PasscodeActivity.requestAuthenticateKey());
-
-                mHoldStartActivity = false;
-                for (Intent newIntent : mPendingIntent) {
-                    startActivityForPasscode(newIntent);
-                }
-                mPendingIntent.clear();
             }
 		}
 	}
@@ -80,19 +70,23 @@ public abstract class BaseActivity extends FragmentActivity {
 	}
 	
 	protected void startActivityForPasscode(Intent intent) {
-        if (mActivatePasscode && mHoldStartActivity) {
-            mPendingIntent.add(intent);
-        } else {
-            intent.putExtra(PasscodeActivity.AUTHENTICATE_KEY, PasscodeActivity.requestAuthenticateKey());
-            startActivityForResult(intent, PasscodeActivity.REQUEST_CODE);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        }
+        intent.putExtra(PasscodeActivity.AUTHENTICATE_KEY, PasscodeActivity.requestAuthenticateKey());
+        startActivityForResult(intent, PasscodeActivity.REQUEST_CODE);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 	}
 
 	protected void setEnablePasscode(boolean enable) {
 		mActivatePasscode = enable;
 	}
-	
+
+    protected boolean isEnabledPasscode() {
+        return mActivatePasscode;
+    }
+
+    protected boolean isAuthenticated() {
+        return mAuthenticated;
+    }
+
 	protected void setOnConnectServiceListener(OnConnectServiceListener listener) {
 		mConnectServiceListener = listener;
 	}

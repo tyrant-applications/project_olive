@@ -201,10 +201,9 @@ public class AddRecipientActivity extends BaseActivity {
             ArrayList<String> listAddFriends = new ArrayList<String>();
             for (RecipientInfo info : mFoundInfoList) {
                 if (mAdapter.isSelected(info.mUsername)) {
-                    //if (DatabaseHelper.RecipientHelper.getRecipientInfo(this, info.mId) == null) {
                     if (!setFriends.contains(info.mUsername)) {
                         listAddFriends.add(info.mUsername);
-                        HashMap<String, String> roomInfo = mRESTApiManager.createRoom(new String[] {info.mUsername, });
+                        HashMap<String, String> roomInfo = mRESTApiManager.createRoom(new String[] { info.mUsername, });
                         if (roomInfo != null) {
                             android.util.Log.d(TAG, "Succeed to create new space.");
                         }

@@ -132,21 +132,19 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 			android.util.Log.d(TAG, "onSendText [" + mSpaceId + "] : " + mTextEditor.getText());
 
             ConversationMessage message = new ConversationMessage();
-            message.mSpaceId = mSpaceId;
-            message.mSender = mUserProfile.mUsername;
+            message.mMessageId = -1;
             message.mAuthor = "user";
-            message.mMimetype = OliveHelper.MIMETYPE_TEXT;
+            message.mMimetype = "text/plain";
             message.mContext = mTextEditor.getText().toString();
+            message.mSpaceId = mSpaceId;
+            message.mSender = DatabaseHelper.UserHelper.getUserProfile(getApplicationContext()).mUsername;
             message.mStatus = ConversationColumns.STATUS_PENDING;
             message.mCreated = System.currentTimeMillis();
-			
-			Intent intent = new Intent(getApplicationContext(), SyncNetworkService.class)
-	        	.setAction(SyncNetworkService.INTENT_ACTION_SEND_MESSAGE)
-	        	.putExtra(Constants.Intent.EXTRA_SPACE_ID, mSpaceId)
-                .putExtra(Constants.Intent.EXTRA_AUTHOR, message.mAuthor)
-                .putExtra(Constants.Intent.EXTRA_MIMETYPE, message.mMimetype)
-	        	.putExtra(Constants.Intent.EXTRA_CONTEXT, String.valueOf(mTextEditor.getText()));
-	        startService(intent);
+            DatabaseHelper.ConversationHelper.addMessage(getApplicationContext(), message);
+
+            Intent intent = new Intent(getApplicationContext(), SyncNetworkService.class)
+                    .setAction(SyncNetworkService.INTENT_ACTION_SEND_MESSAGE);
+            startService(intent);
 	        
 	        changeNormalMode();
 		}

@@ -74,46 +74,41 @@ public class SyncNetworkService extends Service {
 
 	@Override
 	public synchronized int onStartCommand(Intent intent, int flags, int startId) {
-		if (intent != null && intent.getAction() != null)
-			android.util.Log.d(TAG, "onStartCommand(" + intent.getAction().toString() + ")");
-		else
-			android.util.Log.d(TAG, "onStartCommand()");
+        if (intent != null && intent.getAction() != null)
+            android.util.Log.d(TAG, "onStartCommand(" + intent.getAction().toString() + ")");
+        else
+            android.util.Log.d(TAG, "onStartCommand()");
 
         if (intent != null && INTENT_ACTION_SYNC_ALL.equals(intent.getAction())) {
             new ServiceTask(ServiceTask.SYNC_ALL).execute();
-        } else
-		if (intent != null && INTENT_ACTION_SYNC_CONVERSATION.equals(intent.getAction())) {
-			// sync unread count acquired by sync conversation
-			android.util.Log.d(TAG, "SYNC CONVERSATION");
+        } else if (intent != null && INTENT_ACTION_SYNC_CONVERSATION.equals(intent.getAction())) {
+            // sync unread count acquired by sync conversation
+            android.util.Log.d(TAG, "SYNC CONVERSATION");
             long idRoom = intent.getLongExtra(Constants.Intent.EXTRA_ROOM_ID, -1);
             long idSpace = intent.getLongExtra(Constants.Intent.EXTRA_SPACE_ID, -1);
-            if (idRoom < 0 && idSpace >= 0) idRoom = DatabaseHelper.SpaceHelper.getRoomId(this, idSpace);
+            if (idRoom < 0 && idSpace >= 0)
+                idRoom = DatabaseHelper.SpaceHelper.getRoomId(this, idSpace);
             new ServiceTask(ServiceTask.SYNC_CONVERSATION).execute(String.valueOf(idRoom));
-		} else 
-		if (intent != null && INTENT_ACTION_SYNC_FRIENDS_LIST.equals(intent.getAction())) {
-			android.util.Log.d(TAG, "SYNC FRIENDS LIST");
-			new ServiceTask(ServiceTask.SYNC_FRIENDS_LIST).execute();
-		} else
-        if (intent != null && INTENT_ACTION_SYNC_ROOMS_LIST.equals(intent.getAction())) {
+        } else if (intent != null && INTENT_ACTION_SYNC_FRIENDS_LIST.equals(intent.getAction())) {
+            android.util.Log.d(TAG, "SYNC FRIENDS LIST");
+            new ServiceTask(ServiceTask.SYNC_FRIENDS_LIST).execute();
+        } else if (intent != null && INTENT_ACTION_SYNC_ROOMS_LIST.equals(intent.getAction())) {
             android.util.Log.d(TAG, "SYNC ROOMS LIST");
             new ServiceTask(ServiceTask.SYNC_ROOMS_LIST).execute();
-        } else
-		if (intent != null && INTENT_ACTION_SYNC_USER_PROFILE.equals(intent.getAction())) {
-			android.util.Log.d(TAG, "SYNC USER INFO");
-			new ServiceTask(ServiceTask.SYNC_USER_PROFILE).execute();
-		} else
-		if (intent != null && INTENT_ACTION_SEND_MESSAGE.equals(intent.getAction())) {
-			android.util.Log.d(TAG, "POST OLIVE");
-			Long idSpace = intent.getLongExtra(Constants.Intent.EXTRA_SPACE_ID, -1);
+        } else if (intent != null && INTENT_ACTION_SYNC_USER_PROFILE.equals(intent.getAction())) {
+            android.util.Log.d(TAG, "SYNC USER INFO");
+            new ServiceTask(ServiceTask.SYNC_USER_PROFILE).execute();
+        } else if (intent != null && INTENT_ACTION_SEND_MESSAGE.equals(intent.getAction())) {
+            android.util.Log.d(TAG, "POST OLIVE");
+            Long idSpace = intent.getLongExtra(Constants.Intent.EXTRA_SPACE_ID, -1);
             String author = intent.getStringExtra(Constants.Intent.EXTRA_AUTHOR);
             String mimetype = intent.getStringExtra(Constants.Intent.EXTRA_MIMETYPE);
             String context = intent.getStringExtra(Constants.Intent.EXTRA_CONTEXT);
-			new ServiceTask(ServiceTask.SEND_MESSAGE).execute(idSpace.toString(), author, mimetype, context);
-		} else
-		if (intent != null && INTENT_ACTION_READ_MESSAGES.equals(intent.getAction())) {
-			android.util.Log.d(TAG, "MARK TO READ");
-			long idSpace = intent.getLongExtra(Constants.Intent.EXTRA_SPACE_ID, -1);
-			new ServiceTask(ServiceTask.MARK_TO_READ).execute(String.valueOf(idSpace));
+            new ServiceTask(ServiceTask.SEND_MESSAGE).execute(idSpace.toString(), author, mimetype, context);
+        } else if (intent != null && INTENT_ACTION_READ_MESSAGES.equals(intent.getAction())) {
+            android.util.Log.d(TAG, "MARK TO READ");
+            long idSpace = intent.getLongExtra(Constants.Intent.EXTRA_SPACE_ID, -1);
+            new ServiceTask(ServiceTask.MARK_TO_READ).execute(String.valueOf(idSpace));
         }
 
 		return START_STICKY;
@@ -219,37 +214,39 @@ public class SyncNetworkService extends Service {
         HashSet<Long> setSynchronized = new HashSet<Long>();
         RESTApiManager helper = RESTApiManager.getInstance();
         ArrayList<HashMap<String, String>> listRooms = helper.getRoomsList();
-        for (HashMap<String, String> room : listRooms) {
-            String idRoomStr = room.get(RESTApiManager.OLIVE_PROPERTY_ROOM_LIST_ITEM.OLIVE_PROPERTY_ROOM_ID);
-            if (idRoomStr == null) continue;
-            long idRoom = Long.parseLong(idRoomStr);
-            long idSpace = AWSQueryManager.obtainSpaceIdByRoomId(this, idRoom);
+        if (listRooms != null) {
+            for (HashMap<String, String> room : listRooms) {
+                String idRoomStr = room.get(RESTApiManager.OLIVE_PROPERTY_ROOM_LIST_ITEM.OLIVE_PROPERTY_ROOM_ID);
+                if (idRoomStr == null) continue;
+                long idRoom = Long.parseLong(idRoomStr);
+                long idSpace = AWSQueryManager.obtainSpaceIdByRoomId(this, idRoom);
 
-            SpaceInfo info = DatabaseHelper.SpaceHelper.getSpaceInfo(this, idSpace);
-            String[] participants = info.mParticipants.split(",");
+                SpaceInfo info = DatabaseHelper.SpaceHelper.getSpaceInfo(this, idSpace);
+                String[] participants = info.mParticipants.split(",");
 
-            if (participants.length > 1) {
-                setSynchronized.add(idSpace);
-            } else {
-                helper.leaveRoom(idRoom);
-            }
-        }
-
-        Cursor c = DatabaseHelper.SpaceHelper.getCursor(this);
-        if (c != null && c.getCount() > 0) {
-            c.moveToFirst();
-
-            HashSet<Long> setRemoved = new HashSet<Long>();
-            do {
-                long idSpace = c.getLong(c.getColumnIndex(OliveContentProvider.SpaceColumns._ID));
-                if (!setSynchronized.contains(idSpace)) {
-                    setRemoved.add(idSpace);
+                if (participants.length > 1) {
+                    setSynchronized.add(idSpace);
+                } else {
+                    helper.leaveRoom(idRoom);
                 }
-            } while (c.moveToNext());
-            c.close();
+            }
 
-            for (long idRemove : setRemoved) {
-                DatabaseHelper.SpaceHelper.removeSpace(this, idRemove);
+            Cursor c = DatabaseHelper.SpaceHelper.getCursor(this);
+            if (c != null && c.getCount() > 0) {
+                c.moveToFirst();
+
+                HashSet<Long> setRemoved = new HashSet<Long>();
+                do {
+                    long idSpace = c.getLong(c.getColumnIndex(OliveContentProvider.SpaceColumns._ID));
+                    if (!setSynchronized.contains(idSpace)) {
+                        setRemoved.add(idSpace);
+                    }
+                } while (c.moveToNext());
+                c.close();
+
+                for (long idRemove : setRemoved) {
+                    DatabaseHelper.SpaceHelper.removeSpace(this, idRemove);
+                }
             }
         }
     }
@@ -321,36 +318,39 @@ public class SyncNetworkService extends Service {
 
 		@Override
 		protected Boolean doInBackground(String... params) {
-			switch (mFunctionId) {
-            case SYNC_ALL:
-                onSyncRoomsList();
-                onSyncConversation();
-                onSendMessage();
-                onSyncFriendsList();
-                onSyncUserProfile();
-                break;
-			case SYNC_CONVERSATION_ALL:
-				onSyncConversation();
-				break;
-			case SYNC_CONVERSATION:
-                onSyncConversation(Long.parseLong(params[0]));
-                break;
-			case SYNC_FRIENDS_LIST:
-				onSyncFriendsList();
-				break;
-            case SYNC_ROOMS_LIST:
-                onSyncRoomsList();
-                break;
-			case SYNC_USER_PROFILE:
-				onSyncUserProfile();
-				break;
-			case SEND_MESSAGE:
-				onSendMessage(Long.parseLong(params[0]));
-				break;
-			case MARK_TO_READ:
-				onMarkToRead(Long.parseLong(params[0]));
-				break;
-			}
+            RESTApiManager restManager = RESTApiManager.getInstance();
+            if (OliveHelper.isConnectedNetwork(getApplicationContext())) {
+                switch (mFunctionId) {
+                    case SYNC_ALL:
+                        onSyncRoomsList();
+                        onSyncConversation();
+                        onSendMessage();
+                        onSyncFriendsList();
+                        onSyncUserProfile();
+                        break;
+                    case SYNC_CONVERSATION_ALL:
+                        onSyncConversation();
+                        break;
+                    case SYNC_CONVERSATION:
+                        onSyncConversation(Long.parseLong(params[0]));
+                        break;
+                    case SYNC_FRIENDS_LIST:
+                        onSyncFriendsList();
+                        break;
+                    case SYNC_ROOMS_LIST:
+                        onSyncRoomsList();
+                        break;
+                    case SYNC_USER_PROFILE:
+                        onSyncUserProfile();
+                        break;
+                    case SEND_MESSAGE:
+                        onSendMessage(Long.parseLong(params[0]));
+                        break;
+                    case MARK_TO_READ:
+                        onMarkToRead(Long.parseLong(params[0]));
+                        break;
+                }
+            }
 			
 			return true;
 		}

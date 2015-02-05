@@ -11,12 +11,14 @@ import android.widget.Toast;
 import com.tyrantapp.olive.network.RESTApiManager;
 
 
-public class ChangePasswordActivity extends Activity {
+public class ChangePasswordActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
+
+        setEnablePasscode(true);
     }
 
 
