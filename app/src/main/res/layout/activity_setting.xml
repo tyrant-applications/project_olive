@@ -113,7 +113,7 @@
                     android:id="@+id/pref_notification_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_switch"
+                    android:background="@drawable/ic_btn_toggle"
                     android:textOff=""
                     android:textOn=""
                     android:onClick="onSwitchNotification" />
@@ -135,7 +135,7 @@
                     android:id="@+id/pref_passcode_lock_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_switch"
+                    android:background="@drawable/ic_btn_toggle"
                     android:textOff=""
                     android:textOn=""
                     android:onClick="onSwitchPasscodeLock"/>
@@ -157,7 +157,7 @@
                     android:id="@+id/pref_location_service_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_switch"
+                    android:background="@drawable/ic_btn_toggle"
                     android:textOff=""
                     android:textOn=""
                     android:onClick="onSwitchLocationService"/>
@@ -202,7 +202,7 @@
                 android:id="@+id/setting_button"
                 android:layout_width="38dp"
                 android:layout_height="38dp"
-                android:background="@drawable/bg_back"
+                android:background="@drawable/ic_btn_footer_back"
                 android:onClick="onBack" />
 
         </RelativeLayout>

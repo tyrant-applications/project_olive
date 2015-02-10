@@ -53,13 +53,15 @@ public class ChangePasswordActivity extends BaseActivity {
         String newPassword = nv.getText().toString();
         String confirmPassword = fv.getText().toString();
 
-        if (nv != null && nv.equals(fv)) {
+        if (newPassword != null && newPassword.equals(confirmPassword)) {
             RESTApiManager helper = RESTApiManager.getInstance();
             if (helper.changePassword(currentPassword, newPassword) == RESTApiManager.OLIVE_SUCCESS) {
                 Toast.makeText(this, "Succeed to change.", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Failed to change.", Toast.LENGTH_SHORT).show();
             }
+        } else {
+            Toast.makeText(this, "New password is not matched.", Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -2,10 +2,6 @@ package com.tyrantapp.olive.network;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Bundle;
-import android.widget.Toast;
 
 import com.kth.baasio.Baas;
 import com.kth.baasio.entity.BaasioBaseEntity;
@@ -17,9 +13,7 @@ import com.kth.baasio.exception.BaasioException;
 import com.kth.baasio.query.BaasioQuery;
 import com.kth.baasio.query.BaasioQuery.ORDER_BY;
 import com.kth.baasio.response.BaasioResponse;
-import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.configuration.BaasioConfig;
-import com.tyrantapp.olive.configuration.Constants;
 import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.helper.PreferenceHelper;
@@ -307,10 +301,15 @@ public class AWSQueryManager extends RESTApiManager {
 
         if (isAutoSignIn()) {
             RestClient restClient = new RestClient(SERVER_URL_USER_UPDATE);
+            restClient.AddParam("password", oldPassword);
             restClient.AddParam("new_password", newPassword);
 
             HashMap<String, String> mapRecv = null;
-            eRet = sendByHttpWithAuthenticate(RestClient.POST, restClient, mapRecv);
+//            eRet = sendByHttpWithAuthenticate(RestClient.POST, restClient, mapRecv);
+            eRet = sendByHttp(RestClient.POST, restClient, mapRecv);
+            if (eRet == OLIVE_SUCCESS) {
+                DatabaseHelper.UserHelper.updateUserPassword(getContext(), newPassword);
+            }
         }
         return eRet;
     }
@@ -406,7 +405,7 @@ public class AWSQueryManager extends RESTApiManager {
         return arrRet;
     }
 
-    public ArrayList<HashMap<String, String>>  getFriendsProfile(String[] usernames) { // <- 동작 안함 (친구의 아이디/ 휴대전화/ 사진/ 최종수정시간)
+    public ArrayList<HashMap<String, String>> getFriendsProfile(String[] usernames) { // <- 동작 안함 (친구의 아이디/ 휴대전화/ 사진/ 최종수정시간)
         ArrayList<HashMap<String, String>> arrRet = null;
 
         if (isAutoSignIn()) {
@@ -735,11 +734,16 @@ public class AWSQueryManager extends RESTApiManager {
             info.mType = OliveContentProvider.SpaceColumns.TYPE_CHAT;
             info.mStarred = false;
             idSpace = DatabaseHelper.SpaceHelper.addSpace(context, info);
-        } else
-        if (OliveHelper.isConnectedNetwork(context) && !verifySpace(context, idSpace)) {
-            // 서버에는 없고 로컬에만 있는 경우 (안해도 될것 같지만... 혹시 모르니... 하지만 데이터 소모량이 많다면 삭제해도 무방)
-            DatabaseHelper.SpaceHelper.removeSpace(context, idSpace);
-            idSpace = -1;
+        } else {
+//            boolean bNetworkAvailable = OliveHelper.isNetworkAvailable(context);
+//            if (bNetworkAvailable) {
+//                if (!verifySpace(context, idSpace)) {
+//                    // 서버에는 없고 로컬에만 있는 경우 (안해도 될것 같지만... 혹시 모르니... 하지만 데이터 소모량이 많다면 삭제해도 무방)
+//                    // Exception 났을 때도 삭제되서 일단 무시
+//                    //DatabaseHelper.SpaceHelper.removeSpace(context, idSpace);
+//                    //idSpace = -1;
+//                }
+//            }
         }
         return idSpace;
     }

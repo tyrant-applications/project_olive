@@ -11,6 +11,9 @@ public class Constants {
         public static final String EXTRA_AUTHOR   = "author";
         public static final String EXTRA_MIMETYPE = "mimetype";
         public static final String EXTRA_CONTEXT  = "context";
+
+        public static final String EXTRA_SECTION_NUMBER = "section_number";
+        public static final String EXTRA_SECTION_INDEX = "section_index";
     }
 
     public static class Notification {

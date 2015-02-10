@@ -56,7 +56,7 @@
         <activity
             android:name=".SignInActivity"
             android:label="@string/title_activity_signin"
-            android:windowSoftInputMode="adjustPan" >
+            android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
             android:name=".SignUpActivity"
@@ -138,6 +138,12 @@
             android:exported="false" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receiver.ConnectionChangeBroadcastReceiver"
+            android:label="NetworkConnection">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
             </intent-filter>
         </receiver>
 

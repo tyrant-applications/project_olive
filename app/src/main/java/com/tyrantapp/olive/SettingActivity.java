@@ -90,7 +90,12 @@ public class SettingActivity extends BaseActivity {
                         //DatabaseHelper.ConversationHelper.removeConversations(SettingActivity.this);
                         //DatabaseHelper.ButtonBoardHelper.removeButtonBoards(SettingActivity.this);
                         // user정보 삭제
-                        DatabaseHelper.UserHelper.removeUserProfile(SettingActivity.this);
+                        if (DatabaseHelper.UserHelper.removeUserProfile(SettingActivity.this)) {
+                            Intent intent = new Intent(getApplicationContext(), SignInActivity.class)
+                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        }
                     }
                 }).setNegativeButton(android.R.string.cancel,
                 new DialogInterface.OnClickListener() {

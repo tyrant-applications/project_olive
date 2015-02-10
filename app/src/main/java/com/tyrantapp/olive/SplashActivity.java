@@ -1,7 +1,6 @@
 package com.tyrantapp.olive;
 
 import com.tyrantapp.olive.configuration.Constants;
-import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.service.SyncNetworkService;
 
@@ -9,7 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.widget.Toast;
 
 public class SplashActivity extends BaseActivity {
 	private final static String TAG = "SplashActivity";
@@ -69,7 +67,7 @@ public class SplashActivity extends BaseActivity {
 		super.onStart();
 
         if (mRESTApiManager.isAutoSignIn()) {
-            if (!OliveHelper.isConnectedNetwork(this) || mRESTApiManager.verifyDevice()) {
+            if (!OliveHelper.isNetworkAvailable(this) || mRESTApiManager.verifyDevice()) {
 
                 // check intent
                 Intent intent = getIntent();

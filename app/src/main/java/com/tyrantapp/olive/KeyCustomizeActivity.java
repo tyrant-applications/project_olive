@@ -1,9 +1,11 @@
 package com.tyrantapp.olive;
 
 import android.app.Activity;
+import android.inputmethodservice.KeyboardView;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 
 public class KeyCustomizeActivity extends BaseActivity {
@@ -31,11 +33,22 @@ public class KeyCustomizeActivity extends BaseActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        KeyboardView keyboardView = new KeyboardView(getApplicationContext(), null);
+        int height = (keyboardView.getKeyboard()).getHeight();
+
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onBack(View view) {
+        onBackPressed();
+    }
+
+    public void onAccept(View view) {
+        onBackPressed();
     }
 }

@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 
 import com.tyrantapp.olive.provider.OliveContentProvider;
+import com.tyrantapp.olive.type.ButtonInfo;
 import com.tyrantapp.olive.type.ChatSpaceInfo;
 import com.tyrantapp.olive.type.ConversationMessage;
 import com.tyrantapp.olive.type.RecipientInfo;
@@ -329,9 +330,9 @@ public class DatabaseHelper {
             if (chatroom_id >= 0) {
                 Cursor cursor = context.getContentResolver().query(
                         OliveContentProvider.SpaceColumns.CONTENT_URI,
-                        new String[] { OliveContentProvider.SpaceColumns._ID, },
+                        new String[]{OliveContentProvider.SpaceColumns._ID,},
                         OliveContentProvider.SpaceColumns.CHATROOM_ID + "=?",
-                        new String[] { String.valueOf(chatroom_id), },
+                        new String[]{String.valueOf(chatroom_id),},
                         null);
 
                 if (cursor != null && cursor.getCount() > 0) {
@@ -349,9 +350,9 @@ public class DatabaseHelper {
             if (spaceId >= 0) {
                 Cursor cursor = context.getContentResolver().query(
                         OliveContentProvider.SpaceColumns.CONTENT_URI,
-                        new String[] { OliveContentProvider.SpaceColumns.CHATROOM_ID, },
+                        new String[]{OliveContentProvider.SpaceColumns.CHATROOM_ID,},
                         OliveContentProvider.SpaceColumns._ID + "=?",
-                        new String[] { String.valueOf(spaceId), },
+                        new String[]{String.valueOf(spaceId),},
                         null);
 
                 if (cursor != null && cursor.getCount() > 0) {
@@ -388,7 +389,7 @@ public class DatabaseHelper {
                 values.put(OliveContentProvider.ConversationColumns.AUTHOR, message.mAuthor);
                 values.put(OliveContentProvider.ConversationColumns.MIMETYPE, message.mMimetype);
                 values.put(OliveContentProvider.ConversationColumns.CONTEXT, message.mContext);
-                values.put(OliveContentProvider.ConversationColumns.STATUS, OliveContentProvider.ConversationColumns.STATUS_PENDING);
+                values.put(OliveContentProvider.ConversationColumns.STATUS, message.mStatus);
                 values.put(OliveContentProvider.ConversationColumns.CREATED, message.mCreated);
                 Uri uri = context.getContentResolver().insert(OliveContentProvider.ConversationColumns.CONTENT_URI, values);
                 return Long.valueOf(uri.getLastPathSegment());
@@ -477,9 +478,9 @@ public class DatabaseHelper {
             if (message_id >= 0) {
                 Cursor cursor = context.getContentResolver().query(
                         OliveContentProvider.ConversationColumns.CONTENT_URI,
-                        new String[] { OliveContentProvider.ConversationColumns._ID, },
+                        new String[]{OliveContentProvider.ConversationColumns._ID,},
                         OliveContentProvider.ConversationColumns.MESSAGE_ID + "=?",
-                        new String[] { String.valueOf(message_id), },
+                        new String[]{String.valueOf(message_id),},
                         null);
 
                 if (cursor != null && cursor.getCount() > 0) {
@@ -586,7 +587,63 @@ public class DatabaseHelper {
             return info;
         }
 
-    };
+    }
+
+    public static class PresetButtonHelper {
+
+        public static boolean initialize(Context context) {
+            // register default buttons.
+            return true;
+        }
+
+        public static long addSection() {
+            return -1;
+        }
+
+        public static boolean removeSection(long idSection) {
+            return false;
+        }
+
+        public static int updateButtons(long idSection, int idxSection, ButtonInfo info) {
+            return -1;
+        }
+
+        public static ButtonInfo getButtonInfo(long idSection, int idxSection) {
+            return null;
+        }
+
+        public static Cursor getCursor() {
+            return null;
+        }
+
+    }
+
+    public static class DownloadSetHelper {
+
+    }
+
+    public static class DownloadButtonHelper {
+
+        public static long addPreset(String author, String mimetype, int index, String context) {
+            return -1;
+        }
+
+        public static boolean removePreset(String author) {
+            return false;
+        }
+
+        public static int updateButtons(long idSection, int idxSection, ButtonInfo info) {
+            return -1;
+        }
+
+        public static ButtonInfo getButtonInfo(long idSection, int idxSection) {
+            return null;
+        }
+
+        public static Cursor getCursor() {
+            return null;
+        }
+    }
 
     public static class ContactProviderHelper {
         public final static String DISPLAYNAME = ContactsContract.Data.DISPLAY_NAME;
@@ -655,10 +712,6 @@ public class DatabaseHelper {
 
             return pszRet;
         }
-
-    };
-
-    public static class ButtonBoardHelper {
 
     };
 }

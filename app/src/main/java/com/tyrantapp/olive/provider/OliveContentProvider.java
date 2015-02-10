@@ -28,6 +28,9 @@ public class OliveContentProvider extends ContentProvider {
     private static final String CONVERSATIONS_TABLE_NAME = "conversations";
     private static final String SPACES_VIEW_NAME = "spaces_view";
     private static final String CHATSPACES_VIEW_NAME = "chatspaces";
+    private static final String PRESETBUTTONS_TABLE_NAME = "presetbuttons";
+    private static final String DOWNLOADSETS_TABLE_NAME = "downloadsets";
+    private static final String DOWNLOADBUTTONS_TABLE_NAME = "downloadbuttons";
     private static final int	DATABASE_VERSION = 1;
 
     private static final UriMatcher sUriMatcher;
@@ -46,12 +49,23 @@ public class OliveContentProvider extends ContentProvider {
     private static final int CHATSPACES                 = 8;
     private static final int CHATSPACE_ID               = 9;
 
+    private static final int PRESETBUTTONS              = 10;
+    private static final int PRESETBUTTON_ID            = 11;
+
+    private static final int DOWNLOADSETS               = 12;
+    private static final int DOWNLOADSET_ID             = 13;
+
+    private static final int DOWNLOADBUTTONS            = 14;
+    private static final int DOWNLOADBUTTON_ID          = 15;
 
     private static HashMap<String, String> mapUserProjection;
     private static HashMap<String, String> mapRecipientsProjection;
     private static HashMap<String, String> mapSpacesProjection;
     private static HashMap<String, String> mapConversationsProjection;
     private static HashMap<String, String> mapChatSpacesProjection;
+    private static HashMap<String, String> mapPresetButtonsProjection;
+    private static HashMap<String, String> mapDownloadSetsProjection;
+    private static HashMap<String, String> mapDownloadButtonsProjection;
 
     public static final class UserColumns implements BaseColumns {
         public static final Uri 		CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/user");
@@ -148,6 +162,48 @@ public class OliveContentProvider extends ContentProvider {
         public static final String 		ORDERBY = UNREAD + " DESC, " + STARRED + " DESC, " + TITLE;
     }
 
+    public static final class PresetButtonColumns implements BaseColumns {
+        public static final Uri 		CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/presetbuttons");
+        public static final String 		CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tyrantapp.olive.presetbuttons";
+
+        public static final String 		SECTION_ID      = "section_id";
+        public static final String 		SECTION_INDEX   = "section_index";
+
+        public static final String 		AUTHOR		    = "author";
+        public static final String		BUTTON_ID	    = "button_id";
+        public static final String      MIMETYPE        = "mimetype";
+        public static final String		CONTEXT			= "context";
+
+        public static final String[] 	PROJECTIONS = new String[] { _ID, SECTION_ID, SECTION_INDEX, AUTHOR, BUTTON_ID, MIMETYPE, CONTEXT, };
+        public static final String 		ORDERBY = SECTION_ID + "," + SECTION_INDEX;
+    }
+
+    public static final class DownloadSetColumns implements BaseColumns {
+        public static final Uri 		CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/downloadsets");
+        public static final String 		CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tyrantapp.olive.downloadsets";
+
+        public static final String 		INDEX		    = "index";
+        public static final String 		AUTHOR		    = "author";
+        public static final String      TABICON         = "mimetype";
+        public static final String		PLACEICON       = "index";
+
+        public static final String[] 	PROJECTIONS = new String[] { _ID, INDEX, AUTHOR, TABICON, PLACEICON, };
+        public static final String 		ORDERBY = INDEX;
+    }
+
+    public static final class DownloadButtonColumns implements BaseColumns {
+        public static final Uri 		CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/downloadbuttons");
+        public static final String 		CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tyrantapp.olive.downloadbuttons";
+
+        public static final String 		AUTHOR		    = "author";
+        public static final String		BUTTON_ID	    = "button_id";
+        public static final String      MIMETYPE        = "mimetype";
+        public static final String		CONTEXT			= "context";
+
+        public static final String[] 	PROJECTIONS = new String[] { _ID, AUTHOR, BUTTON_ID, MIMETYPE, CONTEXT, };
+        public static final String 		ORDERBY = AUTHOR + "," + BUTTON_ID;
+    }
+
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -225,6 +281,41 @@ public class OliveContentProvider extends ContentProvider {
         mapChatSpacesProjection.put(ChatSpaceColumns.DISPLAYNAME, ChatSpaceColumns.DISPLAYNAME);
         mapChatSpacesProjection.put(ChatSpaceColumns.PHONENUMBER, ChatSpaceColumns.PHONENUMBER);
         mapChatSpacesProjection.put(ChatSpaceColumns.PICTURE, ChatSpaceColumns.PICTURE);
+
+        // PresetButtons
+        sUriMatcher.addURI(AUTHORITY, PRESETBUTTONS_TABLE_NAME, PRESETBUTTONS);
+        sUriMatcher.addURI(AUTHORITY, PRESETBUTTONS_TABLE_NAME + "/#", PRESETBUTTON_ID);
+
+        mapPresetButtonsProjection = new HashMap<String, String>();
+        mapPresetButtonsProjection.put(PresetButtonColumns._ID, PresetButtonColumns._ID);
+        mapPresetButtonsProjection.put(PresetButtonColumns.SECTION_ID, PresetButtonColumns.SECTION_ID);
+        mapPresetButtonsProjection.put(PresetButtonColumns.SECTION_INDEX, PresetButtonColumns.SECTION_INDEX);
+        mapPresetButtonsProjection.put(PresetButtonColumns.AUTHOR, PresetButtonColumns.AUTHOR);
+        mapPresetButtonsProjection.put(PresetButtonColumns.BUTTON_ID, PresetButtonColumns.BUTTON_ID);
+        mapPresetButtonsProjection.put(PresetButtonColumns.MIMETYPE, PresetButtonColumns.MIMETYPE);
+        mapPresetButtonsProjection.put(PresetButtonColumns.CONTEXT, PresetButtonColumns.CONTEXT);
+
+        // DownloadSets
+        sUriMatcher.addURI(AUTHORITY, DOWNLOADSETS_TABLE_NAME, DOWNLOADSETS);
+        sUriMatcher.addURI(AUTHORITY, DOWNLOADSETS_TABLE_NAME + "/#", DOWNLOADSET_ID);
+
+        mapDownloadSetsProjection = new HashMap<String, String>();
+        mapDownloadSetsProjection.put(DownloadSetColumns._ID, DownloadSetColumns._ID);
+        mapDownloadSetsProjection.put(DownloadSetColumns.INDEX, DownloadSetColumns.INDEX);
+        mapDownloadSetsProjection.put(DownloadSetColumns.AUTHOR, DownloadSetColumns.AUTHOR);
+        mapDownloadSetsProjection.put(DownloadSetColumns.TABICON, DownloadSetColumns.TABICON);
+        mapDownloadSetsProjection.put(DownloadSetColumns.PLACEICON, DownloadSetColumns.AUTHOR);
+
+        // DownloadButtons
+        sUriMatcher.addURI(AUTHORITY, DOWNLOADBUTTONS_TABLE_NAME, DOWNLOADBUTTONS);
+        sUriMatcher.addURI(AUTHORITY, DOWNLOADBUTTONS_TABLE_NAME + "/#", DOWNLOADBUTTON_ID);
+
+        mapDownloadButtonsProjection = new HashMap<String, String>();
+        mapDownloadButtonsProjection.put(DownloadButtonColumns._ID, DownloadButtonColumns._ID);
+        mapDownloadButtonsProjection.put(DownloadButtonColumns.AUTHOR, DownloadButtonColumns.AUTHOR);
+        mapDownloadButtonsProjection.put(DownloadButtonColumns.BUTTON_ID, DownloadButtonColumns.BUTTON_ID);
+        mapDownloadButtonsProjection.put(DownloadButtonColumns.MIMETYPE, DownloadButtonColumns.MIMETYPE);
+        mapDownloadButtonsProjection.put(DownloadButtonColumns.CONTEXT, DownloadButtonColumns.CONTEXT);
     }
     
     private static class DatabaseOpenHelper extends SQLiteOpenHelper {
@@ -308,6 +399,32 @@ public class OliveContentProvider extends ContentProvider {
                     " WHERE " +
                     SPACES_VIEW_NAME + "." + SpaceColumns.TYPE + " == " + SpaceColumns.TYPE_CHAT
             );
+
+            db.execSQL("CREATE TABLE IF NOT EXISTS " + PRESETBUTTONS_TABLE_NAME + " (" +
+                    PresetButtonColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    PresetButtonColumns.SECTION_ID + " INTEGER," +
+                    PresetButtonColumns.SECTION_INDEX + " INTEGER," +
+                    PresetButtonColumns.AUTHOR + " VARCHAR(255) NOT NULL," +
+                    PresetButtonColumns.BUTTON_ID + " INTEGER," +
+                    PresetButtonColumns.MIMETYPE + " VARCHAR(255) NOT NULL," +
+                    PresetButtonColumns.CONTEXT + " VARCHAR(255) NOT NULL" +
+                    ");");
+
+            db.execSQL("CREATE TABLE IF NOT EXISTS " + DOWNLOADSETS_TABLE_NAME + " (" +
+                    DownloadSetColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    DownloadSetColumns.INDEX + " INTEGER," +
+                    DownloadSetColumns.AUTHOR + " VARCHAR(255) NOT NULL," +
+                    DownloadSetColumns.TABICON + " BLOB," +
+                    DownloadSetColumns.PLACEICON + " BLOB" +
+                    ");");
+
+            db.execSQL("CREATE TABLE IF NOT EXISTS " + DOWNLOADBUTTONS_TABLE_NAME + " (" +
+                    DownloadButtonColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    DownloadButtonColumns.AUTHOR + " VARCHAR(255) NOT NULL," +
+                    DownloadButtonColumns.BUTTON_ID + " INTEGER," +
+                    DownloadButtonColumns.MIMETYPE + " VARCHAR(255) NOT NULL," +
+                    DownloadButtonColumns.CONTEXT + " VARCHAR(255) NOT NULL" +
+                    ");");
         }
  
         @Override
@@ -319,6 +436,9 @@ public class OliveContentProvider extends ContentProvider {
             db.execSQL("DROP TABLE IF EXISTS " + CONVERSATIONS_TABLE_NAME);
             db.execSQL("DROP VIEW  IF EXISTS " + SPACES_VIEW_NAME);
             db.execSQL("DROP VIEW  IF EXISTS " + CHATSPACES_VIEW_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + PRESETBUTTONS_TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + DOWNLOADSETS_TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + DOWNLOADBUTTONS_TABLE_NAME);
             onCreate(db);
         }
     }
@@ -338,6 +458,7 @@ public class OliveContentProvider extends ContentProvider {
 
         switch (sUriMatcher.match(uri)) {
             case USER:
+                count = db.delete(USER_TABLE_NAME, where, whereArgs);
                 break;
             case RECIPIENT_ID:
                 where = ((where != null) ? where + " AND " : "") + RecipientColumns._ID + " = " + uri.getLastPathSegment();
@@ -353,6 +474,20 @@ public class OliveContentProvider extends ContentProvider {
                 where = ((where != null) ? where + " AND " : "") +  ConversationColumns._ID + " = " + uri.getLastPathSegment();
             case CONVERSATIONS:
                 count = db.delete(CONVERSATIONS_TABLE_NAME, where, whereArgs);
+                break;
+            case PRESETBUTTON_ID:
+                where = ((where != null) ? where + " AND " : "") +  PresetButtonColumns._ID + " = " + uri.getLastPathSegment();
+            case PRESETBUTTONS:
+                count = db.delete(PRESETBUTTONS_TABLE_NAME, where, whereArgs);
+                break;
+            case DOWNLOADSET_ID:
+                where = ((where != null) ? where + " AND " : "") +  DownloadSetColumns._ID + " = " + uri.getLastPathSegment();
+            case DOWNLOADSETS:
+                count = db.delete(DOWNLOADSETS_TABLE_NAME, where, whereArgs);
+            case DOWNLOADBUTTON_ID:
+                where = ((where != null) ? where + " AND " : "") +  DownloadButtonColumns._ID + " = " + uri.getLastPathSegment();
+            case DOWNLOADBUTTONS:
+                count = db.delete(DOWNLOADBUTTONS_TABLE_NAME, where, whereArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -381,12 +516,24 @@ public class OliveContentProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case USER:
                 return UserColumns.CONTENT_TYPE;
+            case RECIPIENT_ID:
             case RECIPIENTS:
                 return RecipientColumns.CONTENT_TYPE;
+            case SPACE_ID:
             case SPACES:
                 return SpaceColumns.CONTENT_TYPE;
+            case CONVERSATION_ID:
             case CONVERSATIONS:
                 return ConversationColumns.CONTENT_TYPE;
+            case PRESETBUTTON_ID:
+            case PRESETBUTTONS:
+                return PresetButtonColumns.CONTENT_TYPE;
+            case DOWNLOADSET_ID:
+            case DOWNLOADSETS:
+                return DownloadSetColumns.CONTENT_TYPE;
+            case DOWNLOADBUTTON_ID:
+            case DOWNLOADBUTTONS:
+                return DownloadButtonColumns.CONTENT_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -425,6 +572,21 @@ public class OliveContentProvider extends ContentProvider {
             sUriMatcher.match(uri) == CONVERSATION_ID) {
             rowId = db.insert(CONVERSATIONS_TABLE_NAME, ConversationColumns.CONTEXT, values);
             insertUri = ContentUris.withAppendedId(ConversationColumns.CONTENT_URI, rowId);
+        } else
+        if (sUriMatcher.match(uri) == PRESETBUTTONS ||
+                sUriMatcher.match(uri) == PRESETBUTTON_ID) {
+            rowId = db.insert(PRESETBUTTONS_TABLE_NAME, PresetButtonColumns.CONTEXT, values);
+            insertUri = ContentUris.withAppendedId(PresetButtonColumns.CONTENT_URI, rowId);
+        } else
+        if (sUriMatcher.match(uri) == DOWNLOADSETS ||
+                sUriMatcher.match(uri) == DOWNLOADSET_ID) {
+            rowId = db.insert(DOWNLOADSETS_TABLE_NAME, DownloadSetColumns.AUTHOR, values);
+            insertUri = ContentUris.withAppendedId(DownloadSetColumns.CONTENT_URI, rowId);
+        } else
+        if (sUriMatcher.match(uri) == DOWNLOADBUTTONS ||
+                sUriMatcher.match(uri) == DOWNLOADBUTTON_ID) {
+            rowId = db.insert(DOWNLOADBUTTONS_TABLE_NAME, DownloadButtonColumns.CONTEXT, values);
+            insertUri = ContentUris.withAppendedId(DownloadButtonColumns.CONTENT_URI, rowId);
         } else {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -481,6 +643,24 @@ public class OliveContentProvider extends ContentProvider {
                 qb.setTables(CHATSPACES_VIEW_NAME);
                 qb.setProjectionMap(mapChatSpacesProjection);
                 break;
+            case PRESETBUTTON_ID:
+                selection = ((selection != null) ? selection + " AND " : "") + PresetButtonColumns._ID + " = " + uri.getLastPathSegment();
+            case PRESETBUTTONS:
+                qb.setTables(PRESETBUTTONS_TABLE_NAME);
+                qb.setProjectionMap(mapPresetButtonsProjection);
+                break;
+            case DOWNLOADSET_ID:
+                selection = ((selection != null) ? selection + " AND " : "") + DownloadSetColumns._ID + " = " + uri.getLastPathSegment();
+            case DOWNLOADSETS:
+                qb.setTables(DOWNLOADSETS_TABLE_NAME);
+                qb.setProjectionMap(mapDownloadSetsProjection);
+                break;
+            case DOWNLOADBUTTON_ID:
+                selection = ((selection != null) ? selection + " AND " : "") + DownloadButtonColumns._ID + " = " + uri.getLastPathSegment();
+            case DOWNLOADBUTTONS:
+                qb.setTables(DOWNLOADBUTTONS_TABLE_NAME);
+                qb.setProjectionMap(mapDownloadButtonsProjection);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -517,6 +697,24 @@ public class OliveContentProvider extends ContentProvider {
                 break;
             case CONVERSATION_ID:
                 count = db.update(CONVERSATIONS_TABLE_NAME, values, ((where != null) ? where + " AND " : "") + ConversationColumns._ID + "=" + uri.getLastPathSegment(), null);
+                break;
+            case PRESETBUTTONS:
+                count = db.update(PRESETBUTTONS_TABLE_NAME, values, where, whereArgs);
+                break;
+            case PRESETBUTTON_ID:
+                count = db.update(PRESETBUTTONS_TABLE_NAME, values, ((where != null) ? where + " AND " : "") + PresetButtonColumns._ID + "=" + uri.getLastPathSegment(), null);
+                break;
+            case DOWNLOADSETS:
+                count = db.update(DOWNLOADSETS_TABLE_NAME, values, where, whereArgs);
+                break;
+            case DOWNLOADSET_ID:
+                count = db.update(DOWNLOADSETS_TABLE_NAME, values, ((where != null) ? where + " AND " : "") + DownloadSetColumns._ID + "=" + uri.getLastPathSegment(), null);
+                break;
+            case DOWNLOADBUTTONS:
+                count = db.update(DOWNLOADBUTTONS_TABLE_NAME, values, where, whereArgs);
+                break;
+            case DOWNLOADBUTTON_ID:
+                count = db.update(DOWNLOADBUTTONS_TABLE_NAME, values, ((where != null) ? where + " AND " : "") + DownloadButtonColumns._ID + "=" + uri.getLastPathSegment(), null);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);

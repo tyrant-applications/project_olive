@@ -1,0 +1,72 @@
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/horizontalScrollView1"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:id="@+id/olive_keypad_extend"
+        android:layout_width="match_parent"
+        android:layout_height="53dp"
+        android:layout_weight="1"
+        android:background="@color/oliveblue"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/tab_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minWidth="53dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tab"
+            android:src="@drawable/ic_tab_text" />
+
+        <ImageButton
+            android:id="@+id/tab_opinion"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minWidth="53dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tab"
+            android:src="@drawable/ic_tab_emoji_opinions" />
+
+        <ImageButton
+            android:id="@+id/tab_foods"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minWidth="53dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tab"
+            android:src="@drawable/ic_tab_emoji_foods" />
+
+        <ImageButton
+            android:id="@+id/tab_trans"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minWidth="53dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tab"
+            android:src="@drawable/ic_tab_emoji_trans" />
+
+        <ImageButton
+            android:id="@+id/tab_shopping"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minWidth="53dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tab"
+            android:src="@drawable/ic_tab_emoji_shopping" />
+
+        <ImageButton
+            android:id="@+id/tab_expand"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minWidth="53dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tab"
+            android:src="@drawable/ic_tab_emoji_expand" />
+
+    </LinearLayout>
+
+</HorizontalScrollView>

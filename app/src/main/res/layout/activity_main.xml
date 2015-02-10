@@ -41,7 +41,7 @@
                     android:id="@+id/group_vote_button"
                     android:layout_width="38dp"
                     android:layout_height="38dp"
-                    android:background="@drawable/bg_vote"
+                    android:background="@drawable/ic_btn_footer_vote"
                     android:onClick="onVoting" />
 
             </RelativeLayout>
@@ -56,7 +56,7 @@
                     android:id="@+id/recipient_add_button"
                     android:layout_width="38dp"
                     android:layout_height="38dp"
-                    android:background="@drawable/bg_add_recipient"
+                    android:background="@drawable/ic_btn_bottom_add_recipient"
                     android:onClick="onAdding" />
 
             </RelativeLayout>
@@ -71,7 +71,7 @@
                     android:id="@+id/setting_button"
                     android:layout_width="38dp"
                     android:layout_height="38dp"
-                    android:background="@drawable/bg_settings"
+                    android:background="@drawable/ic_btn_footer_settings"
                     android:onClick="onSetting" />
 
             </RelativeLayout>

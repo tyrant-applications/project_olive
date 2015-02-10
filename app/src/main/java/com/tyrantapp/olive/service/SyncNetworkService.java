@@ -58,6 +58,9 @@ public class SyncNetworkService extends Service {
 
 		super.onCreate();
 
+        // prepare default keypad
+        DatabaseHelper.ConversationHelper
+
         // run SyncConversation();
         RESTApiManager restManager = RESTApiManager.getInstance();
         if (restManager.isAutoSignIn() && restManager.verifyDevice()) {
@@ -319,7 +322,7 @@ public class SyncNetworkService extends Service {
 		@Override
 		protected Boolean doInBackground(String... params) {
             RESTApiManager restManager = RESTApiManager.getInstance();
-            if (OliveHelper.isConnectedNetwork(getApplicationContext())) {
+            if (OliveHelper.isNetworkAvailable(getApplicationContext())) {
                 switch (mFunctionId) {
                     case SYNC_ALL:
                         onSyncRoomsList();

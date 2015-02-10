@@ -134,7 +134,7 @@
                     android:id="@+id/recipient_add_button"
                     android:layout_width="38dp"
                     android:layout_height="38dp"
-                    android:background="@drawable/bg_add_recipient_pressed"/>
+                    android:background="@drawable/ic_btn_bottom_add_recipient_pressed"/>
 
             </RelativeLayout>
 
@@ -148,7 +148,7 @@
                     android:id="@+id/setting_button"
                     android:layout_width="38dp"
                     android:layout_height="38dp"
-                    android:background="@drawable/bg_back"
+                    android:background="@drawable/ic_btn_footer_back"
                     android:onClick="onBack" />
 
             </RelativeLayout>

@@ -243,14 +243,14 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 
         Intent syncIntent = null;
 
-        syncIntent = new Intent(this, SyncNetworkService.class)
-                .setAction(SyncNetworkService.INTENT_ACTION_SYNC_CONVERSATION)
-                .putExtra(Constants.Intent.EXTRA_ROOM_ID, mSpaceInfo.mChatroomId);
-        startService(syncIntent);
+//        syncIntent = new Intent(this, SyncNetworkService.class)
+//                .setAction(SyncNetworkService.INTENT_ACTION_SYNC_CONVERSATION)
+//                .putExtra(Constants.Intent.EXTRA_ROOM_ID, mSpaceInfo.mChatroomId);
+//        startService(syncIntent);
 
         syncIntent = new Intent(this, SyncNetworkService.class)
-        	.setAction(SyncNetworkService.INTENT_ACTION_READ_MESSAGES)
-        	.putExtra(Constants.Intent.EXTRA_SPACE_ID, mSpaceId);
+                .setAction(SyncNetworkService.INTENT_ACTION_READ_MESSAGES)
+                .putExtra(Constants.Intent.EXTRA_SPACE_ID, mSpaceId);
         startService(syncIntent);
 
         if (mSpaceInfo.mChatroomId == SharedVariables.getLong(Constants.Notification.SHARED_NOTIFICATION_ROOM_ID)) {
@@ -271,6 +271,14 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	@Override
 	public void onStop() {
 		super.onStop();
+
+        // Mark to read one more time.
+        Intent syncIntent = null;
+
+        syncIntent = new Intent(this, SyncNetworkService.class)
+                .setAction(SyncNetworkService.INTENT_ACTION_READ_MESSAGES)
+                .putExtra(Constants.Intent.EXTRA_SPACE_ID, mSpaceId);
+        startService(syncIntent);
 	}
 
 	@Override
@@ -399,6 +407,14 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
         	.setAction(SyncNetworkService.INTENT_ACTION_SEND_MESSAGE);
         startService(intent);
 	}
+
+    @Override
+    public void onKeypadLongClick(int sectionNumber, int index) {
+        Intent intent = new Intent(this, KeyCustomizeActivity.class)
+                .putExtra(Constants.Intent.EXTRA_SECTION_NUMBER, sectionNumber)
+                .putExtra(Constants.Intent.EXTRA_SECTION_INDEX, index);
+        startActivityForPasscode(intent);
+    }
 	
 	public void onExpand(View view) {
 		android.util.Log.d(TAG, "Not supported yet.");

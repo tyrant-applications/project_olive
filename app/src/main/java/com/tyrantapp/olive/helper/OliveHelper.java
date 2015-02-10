@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-import com.tyrantapp.olive.OliveApplication;
-import com.tyrantapp.olive.PasscodeActivity;
 import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.SettingActivity;
 import com.tyrantapp.olive.SplashActivity;
@@ -23,7 +21,7 @@ import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.media.RingtoneManager;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.provider.Settings;
@@ -42,7 +40,7 @@ public class OliveHelper {
     public static final String MIMETYPE_VIDEO      = "video/mpeg";
     public static final String MIMETYPE_AUDIO      = "audio/ogg";
     public static final String MIMETYPE_GEOLOCATE  = "application/x-geolocation";
-    public static final String MIMETYPE_EMOTICON   = "image/x-emoticon";
+    public static final String MIMETYPE_EMOJI      = "image/x-emoji";
 
 
     public static String getForegroundActivityName(Context context) {
@@ -78,6 +76,7 @@ public class OliveHelper {
         
         Builder builder = new NotificationCompat.Builder(context).setWhen(when)
                 .setSmallIcon(icon)
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher))
                 .setContentTitle(context.getString(R.string.notification_title_message))
                 .setContentText(sender)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
@@ -174,7 +173,7 @@ public class OliveHelper {
                 pszRet = MIMETYPE_GEOLOCATE;
                 break;
             case 5:
-                pszRet = MIMETYPE_EMOTICON;
+                pszRet = MIMETYPE_EMOJI;
                 break;
         }
         return pszRet;
@@ -192,14 +191,14 @@ public class OliveHelper {
             nRet = 3;
         else if (MIMETYPE_GEOLOCATE.equals(mimetype))
             nRet = 4;
-        else if (MIMETYPE_EMOTICON.equals(mimetype))
+        else if (MIMETYPE_EMOJI.equals(mimetype))
             nRet = 5;
 
         return nRet;
     }
 
 
-    public static boolean isConnectedNetwork(Context context) {
+    public static boolean isNetworkAvailable(Context context) {
         boolean bNetwork = false;
         try {
             ConnectivityManager conMan = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

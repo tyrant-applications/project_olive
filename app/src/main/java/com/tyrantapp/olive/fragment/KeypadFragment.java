@@ -2,16 +2,21 @@ package com.tyrantapp.olive.fragment;
 
 import java.util.HashMap;
 
+import com.tyrantapp.olive.KeyCustomizeActivity;
 import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.listener.OnOliveKeypadListener;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.Button;
 
 /**
@@ -30,8 +35,8 @@ public class KeypadFragment extends Fragment {
 	 * fragment.
 	 */
 	private static final String 				ARG_SECTION_NUMBER = "section_number";
-	private static final String 				ARG_SECTION_TYPE = "section_type";
-	
+    private static final String 				ARG_SECTION_TYPE = "section_type";
+
 	public static final int						TYPE_KEYPAD_12 = 0;
 	public static final int						TYPE_KEYPAD_2  = 1;
 	
@@ -102,7 +107,10 @@ public class KeypadFragment extends Fragment {
 					
 		if (mOliveKeypadListener != null) {
 			for (int idx = 0; idx < 12; idx++) {
-				if (mOliveButtons[idx] != null) mOliveButtons[idx].setOnClickListener(new OnKeypadClickListener(mOliveKeypadListener, mSectionNumber, idx));
+				if (mOliveButtons[idx] != null) {
+                    mOliveButtons[idx].setOnClickListener(new OnKeypadClickListener(mOliveKeypadListener, mSectionNumber, idx));
+                    mOliveButtons[idx].setOnLongClickListener(new OnKeypadClickListener(mOliveKeypadListener, mSectionNumber, idx));
+                }
 			}
 			
 			mOliveKeypadListener.onKeypadCreate(mSectionNumber);
@@ -110,28 +118,37 @@ public class KeypadFragment extends Fragment {
 		
 		return rootView;
 	}
-	
+
+    class OnKeypadClickListener implements OnClickListener, OnLongClickListener {
+        private OnOliveKeypadListener 	mKeypadListener;
+
+        private int						mSectionNumber;
+        private int 					mIndexNumber;
+
+        public OnKeypadClickListener(OnOliveKeypadListener listener, int sectionNumber, int index) {
+            mKeypadListener = listener;
+            mSectionNumber = sectionNumber;
+            mIndexNumber = index;
+        }
+
+        @Override
+        public void onClick(View view) {
+            if (mKeypadListener != null) {
+                mKeypadListener.onKeypadClick(mSectionNumber, mIndexNumber);
+            }
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            if (mKeypadListener != null) {
+                mKeypadListener.onKeypadLongClick(mSectionNumber, mIndexNumber);
+            }
+            ((Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
+            return false;
+        }
+    }
+
 	public View getOliveButton(int idx) {
 		return (View)mOliveButtons[idx];
-	}
-	
-	class OnKeypadClickListener implements OnClickListener {
-		private OnOliveKeypadListener 	mKeypadListener;
-		
-		private int						mSectionNumber;
-		private int 					mIndexNumber;
-		
-		public OnKeypadClickListener(OnOliveKeypadListener listener, int sectionNumber, int index) {
-			mKeypadListener = listener;
-			mSectionNumber = sectionNumber;
-			mIndexNumber = index;
-		}
-
-		@Override
-		public void onClick(View view) {
-			if (mKeypadListener != null) {
-				mKeypadListener.onKeypadClick(mSectionNumber, mIndexNumber);
-			}
-		}			
 	}
 }

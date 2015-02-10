@@ -32,6 +32,6 @@
         android:layout_height="21dp"
         android:textOff=""
         android:textOn=""
-        android:background="@drawable/bg_checkbox" />
+        android:background="@drawable/ic_btn_checkbox" />
 
 </LinearLayout>
