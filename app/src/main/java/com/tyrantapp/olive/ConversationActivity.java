@@ -10,8 +10,10 @@ import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.listener.OnOliveKeypadListener;
 import com.tyrantapp.olive.network.AWSQueryManager;
+import com.tyrantapp.olive.provider.OliveContentProvider;
 import com.tyrantapp.olive.provider.OliveContentProvider.ConversationColumns;
 import com.tyrantapp.olive.service.SyncNetworkService;
+import com.tyrantapp.olive.type.ButtonInfo;
 import com.tyrantapp.olive.type.ChatSpaceInfo;
 import com.tyrantapp.olive.type.ConversationMessage;
 import com.tyrantapp.olive.type.UserProfile;
@@ -190,7 +192,10 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		// Fragment for Olive Keyboard
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the activity.
-		mKeypadPagerAdapter = new KeypadPagerAdapter(getSupportFragmentManager(), this, new int[] { KeypadFragment.TYPE_KEYPAD_12, KeypadFragment.TYPE_KEYPAD_2, KeypadFragment.TYPE_KEYPAD_12 });
+		mKeypadPagerAdapter = new KeypadPagerAdapter(
+                getSupportFragmentManager(),
+                this,
+                new int[] { KeypadFragment.TYPE_KEYPAD_12, KeypadFragment.TYPE_KEYPAD_12, KeypadFragment.TYPE_KEYPAD_12 });
 		
 		// Set up the ViewPager with the sections adapter.
 		mKeypadPager = (ViewPager) findViewById(R.id.olive_keypad_pager);
@@ -339,7 +344,12 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	@Override
 	public void onKeypadCreate(int sectionNumber) {
 		KeypadFragment fragment = (KeypadFragment)KeypadFragment.getFragment(sectionNumber);
-		
+
+        for (int i=0; i<12; i++) {
+            long idButton = DatabaseHelper.PresetButtonHelper.getIdByIndex(this, sectionNumber * 12 + i);
+            ButtonInfo info = DatabaseHelper.PresetButtonHelper.getButtonInfo(this, idButton);
+            ((Button)fragment.getOliveButton(i)).setText(info.mContext);
+        }
 		switch (sectionNumber) {
 		/*  // first resource
 		 * ((Button)fragment.getOliveButton(0)).setText("Eat");
@@ -355,34 +365,34 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 			((Button)fragment.getOliveButton(10)).setText("Busy");
 			((Button)fragment.getOliveButton(11)).setText("With?");
 		 */
-		case 0:
-			((Button)fragment.getOliveButton(0)).setText("(Food?)");
-			((Button)fragment.getOliveButton(1)).setText("(Yes)");
-			((Button)fragment.getOliveButton(2)).setText("Where?");
-			((Button)fragment.getOliveButton(4)).setText("(Coffee?)");
-			((Button)fragment.getOliveButton(5)).setText("(No)");
-			((Button)fragment.getOliveButton(6)).setText("When?");
-			((Button)fragment.getOliveButton(8)).setText("(Drink?)");
-			((Button)fragment.getOliveButton(9)).setText("(Maybe)");
-			((Button)fragment.getOliveButton(10)).setText("(Busy)");
-			break;
-		case 1:
-			((Button)fragment.getOliveButton(0)).setText("BEER NOW");
-			((Button)fragment.getOliveButton(1)).setText("BEER LATER");
-			break;
-		case 2:			
-			((Button)fragment.getOliveButton(0)).setText("Happy Hour");
-			((Button)fragment.getOliveButton(1)).setText("Uris");
-			((Button)fragment.getOliveButton(2)).setText("(Mel's)");
-			((Button)fragment.getOliveButton(3)).setText("In class");
-			((Button)fragment.getOliveButton(4)).setText("Rugby HH");
-			((Button)fragment.getOliveButton(5)).setText("Watson");
-			((Button)fragment.getOliveButton(6)).setText("(Pourhouse)");
-			((Button)fragment.getOliveButton(7)).setText("CBS Matters");
-			((Button)fragment.getOliveButton(8)).setText("Afterparty");
-			((Button)fragment.getOliveButton(9)).setText("Warren");
-			((Button)fragment.getOliveButton(10)).setText("(Parlour)");
-			break;
+//		case 0:
+//			((Button)fragment.getOliveButton(0)).setText("(Food?)");
+//			((Button)fragment.getOliveButton(1)).setText("(Yes)");
+//			((Button)fragment.getOliveButton(2)).setText("Where?");
+//			((Button)fragment.getOliveButton(4)).setText("(Coffee?)");
+//			((Button)fragment.getOliveButton(5)).setText("(No)");
+//			((Button)fragment.getOliveButton(6)).setText("When?");
+//			((Button)fragment.getOliveButton(8)).setText("(Drink?)");
+//			((Button)fragment.getOliveButton(9)).setText("(Maybe)");
+//			((Button)fragment.getOliveButton(10)).setText("(Busy)");
+//			break;
+//		case 1:
+//			((Button)fragment.getOliveButton(0)).setText("BEER NOW");
+//			((Button)fragment.getOliveButton(1)).setText("BEER LATER");
+//			break;
+//		case 2:
+//			((Button)fragment.getOliveButton(0)).setText("Happy Hour");
+//			((Button)fragment.getOliveButton(1)).setText("Uris");
+//			((Button)fragment.getOliveButton(2)).setText("(Mel's)");
+//			((Button)fragment.getOliveButton(3)).setText("In class");
+//			((Button)fragment.getOliveButton(4)).setText("Rugby HH");
+//			((Button)fragment.getOliveButton(5)).setText("Watson");
+//			((Button)fragment.getOliveButton(6)).setText("(Pourhouse)");
+//			((Button)fragment.getOliveButton(7)).setText("CBS Matters");
+//			((Button)fragment.getOliveButton(8)).setText("Afterparty");
+//			((Button)fragment.getOliveButton(9)).setText("Warren");
+//			((Button)fragment.getOliveButton(10)).setText("(Parlour)");
+//			break;
 		default:
 		}		
 	}

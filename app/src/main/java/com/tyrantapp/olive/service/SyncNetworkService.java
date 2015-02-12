@@ -40,8 +40,6 @@ public class SyncNetworkService extends Service {
     public static final String INTENT_ACTION_SEND_MESSAGE           = INTENT_ACTION + ".send_message";
     public static final String INTENT_ACTION_READ_MESSAGES          = INTENT_ACTION + ".read_messages";
 
-	private long mNotificationSpaceId;
-		
 	private final ISyncNetworkService.Stub mBinder = new ISyncNetworkService.Stub() {
 	};
 		
@@ -59,7 +57,7 @@ public class SyncNetworkService extends Service {
 		super.onCreate();
 
         // prepare default keypad
-        DatabaseHelper.ConversationHelper
+        DatabaseHelper.PresetButtonHelper.initialize(this);
 
         // run SyncConversation();
         RESTApiManager restManager = RESTApiManager.getInstance();

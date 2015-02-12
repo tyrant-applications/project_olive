@@ -166,26 +166,24 @@ public class OliveContentProvider extends ContentProvider {
         public static final Uri 		CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/presetbuttons");
         public static final String 		CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tyrantapp.olive.presetbuttons";
 
-        public static final String 		SECTION_ID      = "section_id";
-        public static final String 		SECTION_INDEX   = "section_index";
-
+        public static final String 		INDEX           = "_index";
         public static final String 		AUTHOR		    = "author";
-        public static final String		BUTTON_ID	    = "button_id";
         public static final String      MIMETYPE        = "mimetype";
+        public static final String		EXTRA_ID	    = "extra_id";
         public static final String		CONTEXT			= "context";
 
-        public static final String[] 	PROJECTIONS = new String[] { _ID, SECTION_ID, SECTION_INDEX, AUTHOR, BUTTON_ID, MIMETYPE, CONTEXT, };
-        public static final String 		ORDERBY = SECTION_ID + "," + SECTION_INDEX;
+        public static final String[] 	PROJECTIONS = new String[] { _ID, INDEX, AUTHOR, MIMETYPE, EXTRA_ID, CONTEXT, };
+        public static final String 		ORDERBY = INDEX;
     }
 
     public static final class DownloadSetColumns implements BaseColumns {
         public static final Uri 		CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/downloadsets");
         public static final String 		CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tyrantapp.olive.downloadsets";
 
-        public static final String 		INDEX		    = "index";
+        public static final String 		INDEX		    = "_index";
         public static final String 		AUTHOR		    = "author";
-        public static final String      TABICON         = "mimetype";
-        public static final String		PLACEICON       = "index";
+        public static final String      TABICON         = "tabicon";
+        public static final String		PLACEICON       = "placeicon";
 
         public static final String[] 	PROJECTIONS = new String[] { _ID, INDEX, AUTHOR, TABICON, PLACEICON, };
         public static final String 		ORDERBY = INDEX;
@@ -195,13 +193,14 @@ public class OliveContentProvider extends ContentProvider {
         public static final Uri 		CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/downloadbuttons");
         public static final String 		CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tyrantapp.olive.downloadbuttons";
 
+        public static final String      INDEX           = "_index";
         public static final String 		AUTHOR		    = "author";
-        public static final String		BUTTON_ID	    = "button_id";
         public static final String      MIMETYPE        = "mimetype";
+        public static final String		EXTRA_ID	    = "extra_id";
         public static final String		CONTEXT			= "context";
 
-        public static final String[] 	PROJECTIONS = new String[] { _ID, AUTHOR, BUTTON_ID, MIMETYPE, CONTEXT, };
-        public static final String 		ORDERBY = AUTHOR + "," + BUTTON_ID;
+        public static final String[] 	PROJECTIONS = new String[] { _ID, AUTHOR, MIMETYPE, EXTRA_ID, CONTEXT, };
+        public static final String 		ORDERBY = INDEX;
     }
 
     static {
@@ -288,11 +287,10 @@ public class OliveContentProvider extends ContentProvider {
 
         mapPresetButtonsProjection = new HashMap<String, String>();
         mapPresetButtonsProjection.put(PresetButtonColumns._ID, PresetButtonColumns._ID);
-        mapPresetButtonsProjection.put(PresetButtonColumns.SECTION_ID, PresetButtonColumns.SECTION_ID);
-        mapPresetButtonsProjection.put(PresetButtonColumns.SECTION_INDEX, PresetButtonColumns.SECTION_INDEX);
+        mapPresetButtonsProjection.put(PresetButtonColumns.INDEX, PresetButtonColumns.INDEX);
         mapPresetButtonsProjection.put(PresetButtonColumns.AUTHOR, PresetButtonColumns.AUTHOR);
-        mapPresetButtonsProjection.put(PresetButtonColumns.BUTTON_ID, PresetButtonColumns.BUTTON_ID);
         mapPresetButtonsProjection.put(PresetButtonColumns.MIMETYPE, PresetButtonColumns.MIMETYPE);
+        mapPresetButtonsProjection.put(PresetButtonColumns.EXTRA_ID, PresetButtonColumns.EXTRA_ID);
         mapPresetButtonsProjection.put(PresetButtonColumns.CONTEXT, PresetButtonColumns.CONTEXT);
 
         // DownloadSets
@@ -312,9 +310,10 @@ public class OliveContentProvider extends ContentProvider {
 
         mapDownloadButtonsProjection = new HashMap<String, String>();
         mapDownloadButtonsProjection.put(DownloadButtonColumns._ID, DownloadButtonColumns._ID);
+        mapDownloadButtonsProjection.put(DownloadButtonColumns.INDEX, DownloadButtonColumns.INDEX);
         mapDownloadButtonsProjection.put(DownloadButtonColumns.AUTHOR, DownloadButtonColumns.AUTHOR);
-        mapDownloadButtonsProjection.put(DownloadButtonColumns.BUTTON_ID, DownloadButtonColumns.BUTTON_ID);
         mapDownloadButtonsProjection.put(DownloadButtonColumns.MIMETYPE, DownloadButtonColumns.MIMETYPE);
+        mapDownloadButtonsProjection.put(DownloadButtonColumns.EXTRA_ID, DownloadButtonColumns.EXTRA_ID);
         mapDownloadButtonsProjection.put(DownloadButtonColumns.CONTEXT, DownloadButtonColumns.CONTEXT);
     }
     
@@ -402,11 +401,10 @@ public class OliveContentProvider extends ContentProvider {
 
             db.execSQL("CREATE TABLE IF NOT EXISTS " + PRESETBUTTONS_TABLE_NAME + " (" +
                     PresetButtonColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    PresetButtonColumns.SECTION_ID + " INTEGER," +
-                    PresetButtonColumns.SECTION_INDEX + " INTEGER," +
+                    PresetButtonColumns.INDEX + " INTEGER," +
                     PresetButtonColumns.AUTHOR + " VARCHAR(255) NOT NULL," +
-                    PresetButtonColumns.BUTTON_ID + " INTEGER," +
                     PresetButtonColumns.MIMETYPE + " VARCHAR(255) NOT NULL," +
+                    PresetButtonColumns.EXTRA_ID + " LONG," +
                     PresetButtonColumns.CONTEXT + " VARCHAR(255) NOT NULL" +
                     ");");
 
@@ -420,9 +418,10 @@ public class OliveContentProvider extends ContentProvider {
 
             db.execSQL("CREATE TABLE IF NOT EXISTS " + DOWNLOADBUTTONS_TABLE_NAME + " (" +
                     DownloadButtonColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    DownloadButtonColumns.INDEX + " INTEGER," +
                     DownloadButtonColumns.AUTHOR + " VARCHAR(255) NOT NULL," +
-                    DownloadButtonColumns.BUTTON_ID + " INTEGER," +
                     DownloadButtonColumns.MIMETYPE + " VARCHAR(255) NOT NULL," +
+                    DownloadButtonColumns.EXTRA_ID + " LONG," +
                     DownloadButtonColumns.CONTEXT + " VARCHAR(255) NOT NULL" +
                     ");");
         }

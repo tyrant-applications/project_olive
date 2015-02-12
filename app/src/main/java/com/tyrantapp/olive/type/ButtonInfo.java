@@ -5,11 +5,10 @@ import android.os.Parcelable;
 
 public class ButtonInfo implements Parcelable {
     public long     mId;
-    public long     mSectionId;
-    public int   	mSectionIndex;
+    public int      mIndex;
     public String	mAuthor;
     public String   mMimetype;
-    public int      mIndex;
+    public long     mExtraId;
     public String   mContext;
 
     public static final Creator<ButtonInfo> CREATOR = new Creator<ButtonInfo>() {
@@ -17,11 +16,10 @@ public class ButtonInfo implements Parcelable {
         	ButtonInfo oRet = new ButtonInfo();
 
             oRet.mId = in.readLong();
-            oRet.mSectionId = in.readLong();
-            oRet.mSectionIndex = in.readInt();
+            oRet.mIndex = in.readInt();
             oRet.mAuthor = in.readString();
             oRet.mMimetype = in.readString();
-            oRet.mIndex = in.readInt();
+            oRet.mExtraId = in.readLong();
             oRet.mContext = in.readString();
 
         	return oRet;
@@ -39,11 +37,10 @@ public class ButtonInfo implements Parcelable {
 
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(mId);
-        dest.writeLong(mSectionId);
-        dest.writeInt(mSectionIndex);
+        dest.writeInt(mIndex);
         dest.writeString(mAuthor);
         dest.writeString(mMimetype);
-        dest.writeInt(mIndex);
+        dest.writeLong(mExtraId);
         dest.writeString(mContext);
     }
 }
