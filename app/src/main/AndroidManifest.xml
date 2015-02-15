@@ -87,6 +87,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tyrantapp.olive.MainActivity" />
         </activity>
+
+        <activity
+            android:name=".KeyCustomizeActivity"
+            android:label="@string/title_activity_key_customize"
+            android:windowSoftInputMode="adjustResize" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.tyrantapp.olive.ConversationActivity" />
+        </activity>
+
         <activity
             android:name=".SettingActivity"
             android:label="@string/title_activity_setting"
@@ -156,14 +166,6 @@
         -->
         <service android:name=".service.GCMIntentService" />
 
-        <activity
-            android:name=".KeyCustomizeActivity"
-            android:label="@string/title_activity_key_customize"
-            android:parentActivityName=".BaseActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.tyrantapp.olive.BaseActivity" />
-        </activity>
     </application>
 
 </manifest>

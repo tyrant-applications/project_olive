@@ -5,12 +5,14 @@ import com.tyrantapp.olive.component.ConversationRecyclerView.RecyclerItemClickL
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.LinearLayout;
 
 public class ConversationRecyclerView extends RecyclerView {
 	private final static String TAG = "ConversationRecyclerView";
@@ -43,7 +45,8 @@ public class ConversationRecyclerView extends RecyclerView {
 	
 	public void initializeView(Context context) {
 		LinearLayoutManager layoutManager = new LinearLayoutManager(context);
-		layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+		layoutManager.setOrientation(LinearLayout.HORIZONTAL);
+        layoutManager.setSmoothScrollbarEnabled(true);
 		layoutManager.setStackFromEnd(true);
 		setLayoutManager(layoutManager);
 		setHasFixedSize(true);

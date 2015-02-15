@@ -42,7 +42,8 @@
                     android:layout_width="38dp"
                     android:layout_height="38dp"
                     android:background="@drawable/ic_btn_footer_vote"
-                    android:onClick="onVoting" />
+                    android:onClick="onVoting"
+                    android:visibility="invisible"/>
 
             </RelativeLayout>
 

@@ -5,15 +5,14 @@ package com.tyrantapp.olive.configuration;
  */
 public class Constants {
     public static class Intent {
-        public static final String EXTRA_ROOM_ID  = "room_id";
-        public static final String EXTRA_SPACE_ID = "space_id";
+        public static final String EXTRA_ROOM_ID    = "room_id";
+        public static final String EXTRA_SPACE_ID   = "space_id";
 
-        public static final String EXTRA_AUTHOR   = "author";
-        public static final String EXTRA_MIMETYPE = "mimetype";
-        public static final String EXTRA_CONTEXT  = "context";
+        public static final String EXTRA_AUTHOR     = "author";
+        public static final String EXTRA_MIMETYPE   = "mimetype";
+        public static final String EXTRA_CONTEXT    = "context";
 
-        public static final String EXTRA_SECTION_NUMBER = "section_number";
-        public static final String EXTRA_SECTION_INDEX = "section_index";
+        public static final String EXTRA_BUTTON_ID  = "button_id";
     }
 
     public static class Notification {

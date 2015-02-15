@@ -22,6 +22,12 @@ import com.tyrantapp.olive.type.ChatSpaceInfo;
 import com.tyrantapp.olive.type.SpaceInfo;
 import com.tyrantapp.olive.type.UserProfile;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -284,14 +290,50 @@ public class AWSQueryManager extends RESTApiManager {
         return eRet;
     }
 
-    public int updateUserPicture(Bitmap picture) {
+    public int updateUserPicture(InputStream stream) {
         int eRet = OLIVE_FAIL_UNKNOWN;
 
         if (isAutoSignIn()) {
             RestClient restClient = new RestClient(SERVER_URL_USER_UPDATE);
-            //restClient.AddParam("new_picture", DatabaseHelper.UserHelper.getUserProfile(getContext()).mPicture);
 
-            eRet = sendByHttpWithAuthenticate(RestClient.POST, restClient, null);
+            UserProfile profile = DatabaseHelper.UserHelper.getUserProfile(getContext());
+            OutputStream out = null;
+            try {
+                File outFile = new File(getContext().getExternalFilesDir(null), "/profile/profile.jpg");
+                if (!outFile.exists()) {
+                    if (new File(getContext().getExternalFilesDir(null), "/profile/").mkdir()) {
+                        outFile.createNewFile();
+                    }
+                }
+
+                out = new FileOutputStream(outFile);
+
+                // copy
+                byte[] buffer = new byte[1024];
+                int read;
+                while ((read = stream.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+
+                // Upload
+                restClient.AddParam("new_picture", profile.mPicture);
+                eRet = sendByHttpWithAuthenticate(RestClient.POST, restClient, null);
+
+                // Update Database
+                profile.mPicture = "file://" + getContext().getExternalFilesDir(null) + "/profile/profile.jpg";
+                DatabaseHelper.UserHelper.updateUserProfile(getContext(), profile);
+            } catch (IOException e1) {
+                profile.mPicture = "";
+                e1.printStackTrace();
+            } finally {
+                try {
+                    if (out != null) {
+                        out.close();
+                    }
+                } catch (IOException e2) {
+                    e2.printStackTrace();
+                }
+            }
         }
         return eRet;
     }

@@ -20,7 +20,8 @@
             android:minWidth="53dp"
             android:layout_weight="1"
             android:background="@drawable/bg_tab"
-            android:src="@drawable/ic_tab_text" />
+            android:src="@drawable/ic_tab_text"
+            android:onClick="onEditText"/>
 
         <ImageButton
             android:id="@+id/tab_opinion"

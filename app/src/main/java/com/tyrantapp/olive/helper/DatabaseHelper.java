@@ -590,49 +590,51 @@ public class DatabaseHelper {
     }
 
     public static class PresetButtonHelper {
+        public final static int BUTTON_PER_SECTION = 12;
+
         private static final Object[] DEFAULT_BUTTON = new Object[] {
-                 -1, "user", "text/plain", -1, "Make your own button."
+                 -1, "user", "text/plain", (long)-1, "Make your own button."
         };
         private static final Object[][] DEFAULT_PRESET = new Object[][] {
                 // IDX, AUTH, M_TYPE, X_ID, CXT
-                {  0, "user", "text/plain", -1, "Make your own button[00]."},
-                {  1, "user", "text/plain", -1, "Make your own button[01]."},
-                {  2, "user", "text/plain", -1, "Make your own button[02]."},
-                {  3, "user", "text/plain", -1, "Make your own button[03]."},
-                {  4, "user", "text/plain", -1, "Make your own button[04]."},
-                {  5, "user", "text/plain", -1, "Make your own button[05]."},
-                {  6, "user", "text/plain", -1, "Make your own button[06]."},
-                {  7, "user", "text/plain", -1, "Make your own button[07]."},
-                {  8, "user", "text/plain", -1, "Make your own button[08]."},
-                {  9, "user", "text/plain", -1, "Make your own button[09]."},
-                { 10, "user", "text/plain", -1, "Make your own button[10]."},
-                { 11, "user", "text/plain", -1, "Make your own button[11]."},
+                {  0, "user", "text/plain", (long)-1, "Eat"},
+                {  1, "user", "text/plain", (long)-1, "Can We Meet?"},
+                {  2, "user", "text/plain", (long)-1, "Yes"},
+                {  3, "user", "text/plain", (long)-1, "Where?"},
+                {  4, "user", "text/plain", (long)-1, "Coffee"},
+                {  5, "user", "text/plain", (long)-1, "Can We Talk?"},
+                {  6, "user", "text/plain", (long)-1, "No"},
+                {  7, "user", "text/plain", (long)-1, "When?"},
+                {  8, "user", "text/plain", (long)-1, "Pub"},
+                {  9, "user", "text/plain", (long)-1, "Wanna Do Something?"},
+                { 10, "user", "text/plain", (long)-1, "Busy"},
+                { 11, "user", "text/plain", (long)-1, "With?"},
 
-                { 12, "user", "text/plain", -1, "Make your own button[12]."},
-                { 13, "user", "text/plain", -1, "Make your own button[13]."},
-                { 14, "user", "text/plain", -1, "Make your own button[14]."},
-                { 15, "user", "text/plain", -1, "Make your own button[15]."},
-                { 16, "user", "text/plain", -1, "Make your own button[16]."},
-                { 17, "user", "text/plain", -1, "Make your own button[17]."},
-                { 18, "user", "text/plain", -1, "Make your own button[18]."},
-                { 19, "user", "text/plain", -1, "Make your own button[19]."},
-                { 20, "user", "text/plain", -1, "Make your own button[20]."},
-                { 21, "user", "text/plain", -1, "Make your own button[21]."},
-                { 22, "user", "text/plain", -1, "Make your own button[22]."},
-                { 23, "user", "text/plain", -1, "Make your own button[23]."},
+                { 12, "user", "text/plain", (long)-1, "(Food?)"},
+                { 13, "user", "text/plain", (long)-1, "(Yes)"},
+                { 14, "user", "text/plain", (long)-1, "Where?"},
+                { 15, "user", "text/plain", (long)-1, "Make your own button."},
+                { 16, "user", "text/plain", (long)-1, "(Coffee?)"},
+                { 17, "user", "text/plain", (long)-1, "(No)"},
+                { 18, "user", "text/plain", (long)-1, "When?"},
+                { 19, "user", "text/plain", (long)-1, "Make your own button."},
+                { 20, "user", "text/plain", (long)-1, "(Drink?)"},
+                { 21, "user", "text/plain", (long)-1, "(Maybe)"},
+                { 22, "user", "text/plain", (long)-1, "(Busy)"},
+                { 23, "user", "text/plain", (long)-1, "Make your own button."},
 
-                { 24, "user", "text/plain", -1, "Make your own button[24]."},
-                { 25, "user", "text/plain", -1, "Make your own button[25]."},
-                { 26, "user", "text/plain", -1, "Make your own button[26]."},
-                { 27, "user", "text/plain", -1, "Make your own button[27]."},
-                { 28, "user", "text/plain", -1, "Make your own button[28]."},
-                { 29, "user", "text/plain", -1, "Make your own button[29]."},
-                { 30, "user", "text/plain", -1, "Make your own button[30]."},
-                { 31, "user", "text/plain", -1, "Make your own button[31]."},
-                { 32, "user", "text/plain", -1, "Make your own button[32]."},
-                { 33, "user", "text/plain", -1, "Make your own button[33]."},
-                { 34, "user", "text/plain", -1, "Make your own button[34]."},
-                { 35, "user", "text/plain", -1, "Make your own button[35]."},
+                { 24, "user", "text/plain", (long)-1, "Happy Hour"},
+                { 25, "user", "text/plain", (long)-1, "Uris"},
+                { 26, "user", "text/plain", (long)-1, "(Mel's)"},
+                { 27, "user", "text/plain", (long)-1, "In class"},
+                { 28, "user", "text/plain", (long)-1, "Rugby HH"},
+                { 29, "user", "text/plain", (long)-1, "Watson"},
+                { 30, "user", "text/plain", (long)-1, "(Pourhouse)"},
+                { 31, "user", "text/plain", (long)-1, "CBS Matters"},
+                { 32, "user", "text/plain", (long)-1, "Afterparty"},
+                { 33, "user", "text/plain", (long)-1, "Warren"},
+                { 34, "user", "text/plain", (long)-1, "(Parlour)"},
+                { 35, "user", "text/plain", (long)-1, "Make your own button."},
         };
 
         public static boolean initialize(Context context) {
@@ -645,11 +647,11 @@ public class DatabaseHelper {
             if (c == null || c.getCount() == 0) {
                 for (Object[] def : DEFAULT_PRESET) {
                     ContentValues values = new ContentValues();
-                    values.put(OliveContentProvider.PresetButtonColumns.INDEX,      (Integer)def[1]);
-                    values.put(OliveContentProvider.PresetButtonColumns.AUTHOR,     (String) def[2]);
+                    values.put(OliveContentProvider.PresetButtonColumns.INDEX,      (Integer)def[0]);
+                    values.put(OliveContentProvider.PresetButtonColumns.AUTHOR,     (String) def[1]);
+                    values.put(OliveContentProvider.PresetButtonColumns.MIMETYPE,   (String) def[2]);
                     values.put(OliveContentProvider.PresetButtonColumns.EXTRA_ID,   (Long)   def[3]);
-                    values.put(OliveContentProvider.PresetButtonColumns.MIMETYPE,   (String) def[4]);
-                    values.put(OliveContentProvider.PresetButtonColumns.CONTEXT,    (String) def[5]);
+                    values.put(OliveContentProvider.PresetButtonColumns.CONTEXT,    (String) def[4]);
                     cr.insert(OliveContentProvider.PresetButtonColumns.CONTENT_URI, values);
                 }
                 bRet = true;
@@ -692,6 +694,17 @@ public class DatabaseHelper {
                 c.close();
             }
             return bRet;
+        }
+
+        public static int getNumberOfSections(Context context) {
+            int nRet = 0;
+            Cursor c = getCursor(context);
+            if (c != null) {
+                nRet = c.getCount() / BUTTON_PER_SECTION;
+
+                c.close();
+            }
+            return nRet;
         }
 
         public static boolean swapButton(Context context, long srcId, long dstId) {
@@ -768,8 +781,7 @@ public class DatabaseHelper {
         }
 
         public static Cursor getSectionCursor(Context context, int sectionNumber) {
-            final int MAX_BTN_PER_SECTION = 12;
-            int[] range = { sectionNumber * MAX_BTN_PER_SECTION, (sectionNumber + 1) * MAX_BTN_PER_SECTION, };
+            int[] range = { sectionNumber * BUTTON_PER_SECTION, (sectionNumber + 1) * BUTTON_PER_SECTION, };
             ContentResolver cr = context.getContentResolver();
             Cursor c = cr.query(OliveContentProvider.PresetButtonColumns.CONTENT_URI,
                     OliveContentProvider.PresetButtonColumns.PROJECTIONS,
@@ -777,7 +789,7 @@ public class DatabaseHelper {
                     new String[] { String.valueOf(range[0]), String.valueOf(range[1]) },
                     OliveContentProvider.PresetButtonColumns.ORDERBY);
 
-            if (c.getCount() < MAX_BTN_PER_SECTION) {
+            if (c.getCount() < BUTTON_PER_SECTION) {
                 android.util.Log.e(TAG, "Invalid section number.");
                 throw new IllegalArgumentException();
             }

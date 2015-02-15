@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="TITLE"
+            android:text="@string/title_edit_button"
             android:textColor="@color/oliveblue"
             android:textSize="20sp"
             android:gravity="center" />
@@ -59,23 +59,47 @@
     <org.lucasr.twowayview.widget.TwoWayView
     -->
 
-    <LinearLayout
-        android:id="@+id/conversation_last_olive"
+    <RelativeLayout
+        android:id="@+id/button_context"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical" >
+        android:gravity="center">
 
-        <EditText
-            android:id="@+id/button_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="25dp"
-            android:textColor="@color/black"
-            android:text="Type your message" />
+        <RelativeLayout
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:elevation="5dp"
+            android:gravity="center"
+            android:background="@drawable/bg_keypad_button">
 
-    </LinearLayout>
+            <EditText
+                android:id="@+id/button_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:inputType="textImeMultiLine"
+                android:maxLines="3"
+                android:singleLine="false"
+                android:textSize="20dp"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"
+                android:hint="@string/edittext_hint_edit_button"
+                android:background="@drawable/bg_edit_box"
+                android:lines="3"
+                android:gravity="center" />
+
+            <ImageView
+                android:id="@+id/button_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:visibility="gone"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
 
     <ViewFlipper
         android:id="@+id/input_method_flipper"
@@ -85,10 +109,24 @@
     <!-- android:id="@+id/input_method" -->
 
     <LinearLayout
+        android:id="@+id/input_method_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <include layout="@layout/tab_key_customize"/>
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/input_method_keypad"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <include layout="@layout/tab_key_customize"/>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -101,19 +139,6 @@
                 android:layout_marginTop="43dp" />
 
         </RelativeLayout>
-
-        <include layout="@layout/tab_key_customize"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/input_method_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <include layout="@layout/activity_conversation_text"/>
 
     </LinearLayout>
 

@@ -21,14 +21,19 @@ import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 public class OliveHelper {
 	private final static String TAG = "OliveHelper";
@@ -218,4 +223,19 @@ public class OliveHelper {
         return bNetwork;
     }
 
+    public static void showSoftInputMethod(Context context, EditText focusView) {
+        if (focusView != null) {
+            focusView.requestFocus();
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(focusView, InputMethodManager.SHOW_IMPLICIT);
+        }
+    }
+
+    public static void hideSoftInputMethod(Context context, EditText focusView) {
+        if (focusView != null) {
+            focusView.setText(null);
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
+        }
+    }
 }

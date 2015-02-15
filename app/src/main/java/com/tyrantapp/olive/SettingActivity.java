@@ -8,17 +8,35 @@ import com.tyrantapp.olive.type.UserProfile;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import org.springframework.util.FileCopyUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 public class SettingActivity extends BaseActivity {
 	private final static String TAG = "SettingActivity";
-	
-	public final static String OLIVE_PREF_NOTIFICATION = "olive_pref_notification";
+
+    private final static int			RESULT_LOAD_IMAGE	= 1;
+    private final static int			RESULT_TAKE_PICTURE	= 2;
+
+    public final static String OLIVE_PREF_NOTIFICATION = "olive_pref_notification";
 	public final static String OLIVE_PREF_PASSCODE_LOCK = "olive_pref_passcode_lock";
 	public final static String OLIVE_PREF_PASSCODE_KEY = "olive_pref_passcode_key";
 	public final static String OLIVE_PREF_LOCATION_SERVICE = "olive_pref_locationservice";
@@ -54,24 +72,46 @@ public class SettingActivity extends BaseActivity {
 		setEnablePasscode(true);
 	}
 	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.setting, menu);
-		return true;
-	}
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		// Inflate the menu; this adds items to the action bar if it is present.
+//		getMenuInflater().inflate(R.menu.setting, menu);
+//		return true;
+//	}
+//
+//	@Override
+//	public boolean onOptionsItemSelected(MenuItem item) {
+//		// Handle action bar item clicks here. The action bar will
+//		// automatically handle clicks on the Home/Up button, so long
+//		// as you specify a parent activity in AndroidManifest.xml.
+//		int id = item.getItemId();
+//		if (id == R.id.action_settings) {
+//			return true;
+//		}
+//		return super.onOptionsItemSelected(item);
+//	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+    public void onChangePortrait(View view) {
+        // in onCreate or any event where your want the user to
+        // select a file
+        final CharSequence[] chooseType = { "Take Picture", "Album" };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        //builder.setTitle("Make your selection");
+        builder.setItems(chooseType, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                if (item == 0) {
+                    Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(intent, RESULT_TAKE_PICTURE);
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(intent, RESULT_LOAD_IMAGE);
+                }
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
 
     public void onChangePassword(View view) {
         startActivityForPasscode(new Intent(this, ChangePasswordActivity.class));
@@ -137,5 +177,46 @@ public class SettingActivity extends BaseActivity {
 
         ToggleButton btnPasscodeLock = (ToggleButton) findViewById(R.id.pref_passcode_lock_switch);
         btnPasscodeLock.setChecked(PreferenceHelper.getBooleanPreferences(this, OLIVE_PREF_PASSCODE_LOCK, false));
+
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != intent) {
+            Uri selectedImage = intent.getData();
+
+            // String picturePath contains the path of selected Image
+            // first, upload picture
+            // second, obtain filename from server
+            // finally, copy original file to data folder by filename from server.
+
+            // first, copy file to data folder as profile.png? jpg?
+            // second, upload picture.
+
+            InputStream in = null;
+            try {
+                in = getContentResolver().openInputStream(selectedImage);
+
+                // Make bitmap
+                mRESTApiManager.updateUserPicture(in);
+            } catch (FileNotFoundException e1) {
+                e1.printStackTrace();
+            } catch (IOException e2) {
+                e2.printStackTrace();
+                android.util.Log.e("tag", "Failed to copy picture file: " + e2);
+            } finally {
+                try {
+                    if (in != null) {
+                        in.close();
+                    }
+                } catch (IOException e2) {
+                    // NOOP
+                }
+            }
+
+            ignorePasscodeOnce();
+        } else
+        if (requestCode == RESULT_TAKE_PICTURE && resultCode == RESULT_OK) {
+            Bitmap bmpPicture = (Bitmap) intent.getExtras().get("data");
+            //imageView.setImageBitmap(bmpPicture);
+
+            ignorePasscodeOnce();
+        }
     }
 }

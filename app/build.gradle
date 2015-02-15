@@ -30,6 +30,7 @@ android {
         exclude 'META-INF/ASL2.0'
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
+        exclude 'META-INF/DEPENDENCIES'
     }
 }
 
@@ -42,4 +43,8 @@ dependencies {
     compile files('libs/spring-android-rest-template-1.0.1.RELEASE.jar')
     compile files('libs/jackson-core-asl-1.9.1.jar')
     compile files('libs/spring-android-core-1.0.1.RELEASE.jar')
+    compile files('libs/httpcore-4.3.2.jar')
+    compile files('libs/httpmime-4.3.5.jar')
+    compile files('libs/httpclient-4.3.5.jar')
 }
+

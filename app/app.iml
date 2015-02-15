@@ -86,6 +86,9 @@
     <orderEntry type="library" exported="" name="spring-android-rest-template-1.0.1.RELEASE" level="project" />
     <orderEntry type="library" exported="" name="android-support-v7-recyclerview" level="project" />
     <orderEntry type="library" exported="" name="android-support-v4" level="project" />
+    <orderEntry type="library" exported="" name="httpmime-4.3.5" level="project" />
+    <orderEntry type="library" exported="" name="httpclient-4.3.5" level="project" />
+    <orderEntry type="library" exported="" name="httpcore-4.3.2" level="project" />
     <orderEntry type="library" exported="" name="baasioandroid" level="project" />
     <orderEntry type="library" exported="" name="gcm" level="project" />
     <orderEntry type="library" exported="" name="spring-android-core-1.0.1.RELEASE" level="project" />

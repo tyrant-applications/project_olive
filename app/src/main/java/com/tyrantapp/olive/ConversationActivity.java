@@ -17,8 +17,11 @@ import com.tyrantapp.olive.type.ButtonInfo;
 import com.tyrantapp.olive.type.ChatSpaceInfo;
 import com.tyrantapp.olive.type.ConversationMessage;
 import com.tyrantapp.olive.type.UserProfile;
+import com.tyrantapp.olive.util.FileUtils;
 import com.tyrantapp.olive.util.SharedVariables;
 
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.content.Context;
@@ -38,6 +41,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 public class ConversationActivity extends BaseActivity implements OnOliveKeypadListener {
 	final static private String			TAG = "ConversationActivity";
@@ -106,7 +112,12 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	
 	private OnClickListener	mOnGalleryClickListener = new OnClickListener() {
 		public void onClick(View view) {
-			Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+			//Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/*");
+
 			startActivityForResult(intent, RESULT_LOAD_IMAGE);
 		}
 	};
@@ -192,10 +203,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		// Fragment for Olive Keyboard
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the activity.
-		mKeypadPagerAdapter = new KeypadPagerAdapter(
-                getSupportFragmentManager(),
-                this,
-                new int[] { KeypadFragment.TYPE_KEYPAD_12, KeypadFragment.TYPE_KEYPAD_12, KeypadFragment.TYPE_KEYPAD_12 });
+		mKeypadPagerAdapter = new KeypadPagerAdapter(getSupportFragmentManager(), this, this);
 		
 		// Set up the ViewPager with the sections adapter.
 		mKeypadPager = (ViewPager) findViewById(R.id.olive_keypad_pager);
@@ -311,15 +319,16 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	      
 	     if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
 	         Uri selectedImage = data.getData();
-	         String[] filePathColumn = { MediaStore.Images.Media.DATA };
-	 
-	         Cursor cursor = getContentResolver().query(selectedImage,
-	                 filePathColumn, null, null, null);
-	         cursor.moveToFirst();
 
-	         int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-	         String picturePath = cursor.getString(columnIndex);
-	                      
+             InputStream input = null;
+             Bitmap bmp = null;
+             try {
+                 input = getContentResolver().openInputStream(selectedImage);
+                 bmp = BitmapFactory.decodeStream(input);
+             } catch (FileNotFoundException e) {
+                 e.printStackTrace();
+             }
+
 	         // String picturePath contains the path of selected Image
 	         
 	         ignorePasscodeOnce();
@@ -344,27 +353,27 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	@Override
 	public void onKeypadCreate(int sectionNumber) {
 		KeypadFragment fragment = (KeypadFragment)KeypadFragment.getFragment(sectionNumber);
-
-        for (int i=0; i<12; i++) {
-            long idButton = DatabaseHelper.PresetButtonHelper.getIdByIndex(this, sectionNumber * 12 + i);
-            ButtonInfo info = DatabaseHelper.PresetButtonHelper.getButtonInfo(this, idButton);
-            ((Button)fragment.getOliveButton(i)).setText(info.mContext);
-        }
-		switch (sectionNumber) {
-		/*  // first resource
-		 * ((Button)fragment.getOliveButton(0)).setText("Eat");
-			((Button)fragment.getOliveButton(1)).setText("Can We Meet?");
-			((Button)fragment.getOliveButton(2)).setText("Yes");
-			((Button)fragment.getOliveButton(3)).setText("Where?");
-			((Button)fragment.getOliveButton(4)).setText("Coffee");
-			((Button)fragment.getOliveButton(5)).setText("Can We Talk?");
-			((Button)fragment.getOliveButton(6)).setText("No");
-			((Button)fragment.getOliveButton(7)).setText("When?");
-			((Button)fragment.getOliveButton(8)).setText("Pub");
-			((Button)fragment.getOliveButton(9)).setText("Wanna Do Something?");
-			((Button)fragment.getOliveButton(10)).setText("Busy");
-			((Button)fragment.getOliveButton(11)).setText("With?");
-		 */
+//
+//        for (int i=0; i<12; i++) {
+//            long idButton = DatabaseHelper.PresetButtonHelper.getIdByIndex(this, sectionNumber * 12 + i);
+//            ButtonInfo info = DatabaseHelper.PresetButtonHelper.getButtonInfo(this, idButton);
+//            //((Button)fragment.getOliveButton(sectionNumber, i)).setText(info.mContext);
+//        }
+//		switch (sectionNumber) {
+//		/*  // first resource
+//		 * ((Button)fragment.getOliveButton(0)).setText("Eat");
+//			((Button)fragment.getOliveButton(1)).setText("Can We Meet?");
+//			((Button)fragment.getOliveButton(2)).setText("Yes");
+//			((Button)fragment.getOliveButton(3)).setText("Where?");
+//			((Button)fragment.getOliveButton(4)).setText("Coffee");
+//			((Button)fragment.getOliveButton(5)).setText("Can We Talk?");
+//			((Button)fragment.getOliveButton(6)).setText("No");
+//			((Button)fragment.getOliveButton(7)).setText("When?");
+//			((Button)fragment.getOliveButton(8)).setText("Pub");
+//			((Button)fragment.getOliveButton(9)).setText("Wanna Do Something?");
+//			((Button)fragment.getOliveButton(10)).setText("Busy");
+//			((Button)fragment.getOliveButton(11)).setText("With?");
+//		 */
 //		case 0:
 //			((Button)fragment.getOliveButton(0)).setText("(Food?)");
 //			((Button)fragment.getOliveButton(1)).setText("(Yes)");
@@ -393,20 +402,20 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 //			((Button)fragment.getOliveButton(9)).setText("Warren");
 //			((Button)fragment.getOliveButton(10)).setText("(Parlour)");
 //			break;
-		default:
-		}		
+//		default:
+//		}
 	}
 
 	@Override
 	public void onKeypadClick(int sectionNumber, int index) {
 		KeypadFragment fragment = (KeypadFragment)KeypadFragment.getFragment(sectionNumber);
-		Button view = (Button)fragment.getOliveButton(index);
+		ButtonInfo info = (ButtonInfo)fragment.getOliveButton(sectionNumber, index);
 
         ConversationMessage message = new ConversationMessage();
         message.mMessageId = -1;
-        message.mAuthor = "user";
-        message.mMimetype = "text/plain";
-        message.mContext = view.getText().toString();
+        message.mAuthor = info.mAuthor;
+        message.mMimetype = info.mMimetype;
+        message.mContext = info.mContext;
         message.mSpaceId = mSpaceId;
         message.mSender = DatabaseHelper.UserHelper.getUserProfile(this).mUsername;
         message.mStatus = ConversationColumns.STATUS_PENDING;
@@ -420,9 +429,10 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 
     @Override
     public void onKeypadLongClick(int sectionNumber, int index) {
+        int position = sectionNumber * DatabaseHelper.PresetButtonHelper.BUTTON_PER_SECTION + index;
+        long idButton = DatabaseHelper.PresetButtonHelper.getIdByIndex(this, position);
         Intent intent = new Intent(this, KeyCustomizeActivity.class)
-                .putExtra(Constants.Intent.EXTRA_SECTION_NUMBER, sectionNumber)
-                .putExtra(Constants.Intent.EXTRA_SECTION_INDEX, index);
+                .putExtra(Constants.Intent.EXTRA_BUTTON_ID, idButton);
         startActivityForPasscode(intent);
     }
 	

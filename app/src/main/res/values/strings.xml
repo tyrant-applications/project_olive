@@ -21,6 +21,7 @@
     <string name="title_sectionOlive00">Olive Keyboard Preset #0</string>
     <string name="title_sectionOlive01">Olive Keyboard Preset #1</string>
     <string name="title_sectionOlive02">Olive Keyboard Preset #2</string>
+    <string name="title_edit_button">Edit Your Button</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_conversation">Conversation</string>
     <string name="hello_world">Hello world!</string>
@@ -42,6 +43,7 @@
     <string name="title_activity_add_recipient">Add Recipient</string>
     <string name="edittext_hint_phonenumber">Phone Number</string>
     <string name="edittext_hint_search_friend">Search ID or Phone Number</string>
+    <string name="edittext_hint_edit_button">Type your message.</string>
     <string name="error_not_found">Not found.</string>
     <string name="title_activity_change_password">ChangePasswordActivity</string>
     <string name="alert_logout">Your data will be removed. \nDo you want to sign out?</string>

@@ -1,6 +1,7 @@
 package com.tyrantapp.olive.network;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,18 +13,23 @@ import java.util.Iterator;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import org.apache.http.HttpVersion;
+import org.apache.http.entity.ContentType;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.mime.MIME;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.DefaultHttpClient;
+//import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
+import org.apache.http.params.CoreProtocolPNames;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -285,7 +291,24 @@ public abstract class RESTApiManager {
                     }
 
                     if(!params.isEmpty()){
-                        request.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
+                        //request.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
+
+                        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+                        builder.setCharset(MIME.UTF8_CHARSET);
+
+                        for(NameValuePair p : params) {
+                            if(p.getValue().startsWith("file://")) {
+                                File file = new File (p.getValue());
+                                if (file.exists()) {
+                                    builder.addBinaryBody(p.getName(), file, ContentType.MULTIPART_FORM_DATA, file.getName());
+                                }
+                            } else {
+                                // Normal string data
+                                builder.addTextBody(p.getName(), p.getValue(), ContentType.TEXT_PLAIN); //ContentType.create("text/plain", MIME.UTF8_CHARSET)
+                            }
+                        }
+
+                        request.setEntity(builder.build());
                     }
 
                     executeRequest(request, url);
@@ -297,6 +320,7 @@ public abstract class RESTApiManager {
         private void executeRequest(HttpUriRequest request, String url)
         {
             HttpClient client = new DefaultHttpClient();
+            client.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
 
             HttpResponse httpResponse;
 
@@ -496,7 +520,7 @@ public abstract class RESTApiManager {
 
 	public abstract HashMap<String, String>             getUserProfile();   // <- 동작 안함
     public abstract int	                                updateUserPhonenumber(String phonenumber);
-    public abstract int	                                updateUserPicture(Bitmap picture);
+    public abstract int	                                updateUserPicture(InputStream stream);
     public abstract int	                                changePassword(String oldPassword, String newPassword);
 
     public abstract int                                 addFriends(String[] usernames);

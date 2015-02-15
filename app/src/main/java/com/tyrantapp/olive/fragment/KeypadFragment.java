@@ -2,21 +2,22 @@ package com.tyrantapp.olive.fragment;
 
 import java.util.HashMap;
 
-import com.tyrantapp.olive.KeyCustomizeActivity;
 import com.tyrantapp.olive.R;
+import com.tyrantapp.olive.adapter.ButtonBoardRecyclerAdapter;
+import com.tyrantapp.olive.component.ButtonBoardRecyclerView;
+import com.tyrantapp.olive.component.ButtonBoardRecyclerView.*;
+import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.listener.OnOliveKeypadListener;
+import com.tyrantapp.olive.type.ButtonInfo;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.widget.Button;
 
 /**
@@ -35,30 +36,18 @@ public class KeypadFragment extends Fragment {
 	 * fragment.
 	 */
 	private static final String 				ARG_SECTION_NUMBER = "section_number";
-    private static final String 				ARG_SECTION_TYPE = "section_type";
 
-	public static final int						TYPE_KEYPAD_12 = 0;
-	public static final int						TYPE_KEYPAD_2  = 1;
-	
-	
 	private static HashMap<Integer, Fragment>	mFragmentsMap = new HashMap<Integer, Fragment>();
 	private static OnOliveKeypadListener		mOliveKeypadListener;
-		
-	
-	// member variables.
-	private int				mSectionNumber;
-	private int				mSectionType;
-	private Button[]		mOliveButtons = new Button[12];
-			
+
 	/**
 	 * Returns a new instance of this fragment for the given section number.
 	 */
-	public static KeypadFragment newInstance(int sectionNumber, int type) {
-		KeypadFragment fragment = new KeypadFragment();
+	public static KeypadFragment newInstance(Context context, int sectionNumber) {
+		KeypadFragment fragment = new KeypadFragment(context, sectionNumber);
 		Bundle args = new Bundle();
 		args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-		args.putInt(ARG_SECTION_TYPE, type);
-		fragment.setArguments(args);			
+		fragment.setArguments(args);
 		
 		mFragmentsMap.put(sectionNumber, fragment);		
 		return fragment;
@@ -72,7 +61,15 @@ public class KeypadFragment extends Fragment {
 		mOliveKeypadListener = listener;
 	}
 
-	public KeypadFragment() {
+
+    // member variables.
+    private Context                     mContext;
+    private int				            mSectionNumber;
+    private ButtonBoardRecyclerAdapter  mButtonBoardAdapter;
+
+    public KeypadFragment(Context context, int sectionNumber) {
+        mContext = context;
+        mButtonBoardAdapter = new ButtonBoardRecyclerAdapter(context, sectionNumber);
 	}
 
 	@Override
@@ -80,75 +77,49 @@ public class KeypadFragment extends Fragment {
 		View rootView = null;
 		
 		mSectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
-		mSectionType = getArguments().getInt(ARG_SECTION_TYPE);
-		
-		if (mSectionType == TYPE_KEYPAD_2) {
-			rootView = inflater.inflate(R.layout.fragment_keypad_2, container, false);
-			
-			mOliveButtons[0]  = (Button)rootView.findViewById(R.id.olive_1a);
-			mOliveButtons[1]  = (Button)rootView.findViewById(R.id.olive_1b);
-		} else {
-			rootView = inflater.inflate(R.layout.fragment_keypad_12, container, false);
-			
-			mOliveButtons[0]  = (Button)rootView.findViewById(R.id.olive_1a);
-			mOliveButtons[1]  = (Button)rootView.findViewById(R.id.olive_1b);
-			mOliveButtons[2]  = (Button)rootView.findViewById(R.id.olive_1c);
-			mOliveButtons[3]  = (Button)rootView.findViewById(R.id.olive_1d);
-			mOliveButtons[4]  = (Button)rootView.findViewById(R.id.olive_2a);
-			mOliveButtons[5]  = (Button)rootView.findViewById(R.id.olive_2b);
-			mOliveButtons[6]  = (Button)rootView.findViewById(R.id.olive_2c);
-			mOliveButtons[7]  = (Button)rootView.findViewById(R.id.olive_2d);
-			mOliveButtons[8]  = (Button)rootView.findViewById(R.id.olive_3a);
-			mOliveButtons[9]  = (Button)rootView.findViewById(R.id.olive_3b);
-			mOliveButtons[10] = (Button)rootView.findViewById(R.id.olive_3c);
-			mOliveButtons[11] = (Button)rootView.findViewById(R.id.olive_3d);
-		}
-			
-					
+
+        rootView = inflater.inflate(R.layout.fragment_buttonboard, container, false);
+
+        ButtonBoardRecyclerView view = (ButtonBoardRecyclerView)rootView.findViewById(R.id.buttonboard_view);
+        view.setAdapter(mButtonBoardAdapter);
+        view.setOnItemClickListener(new OnKeypadClickListener(mOliveKeypadListener, mSectionNumber));
+
 		if (mOliveKeypadListener != null) {
-			for (int idx = 0; idx < 12; idx++) {
-				if (mOliveButtons[idx] != null) {
-                    mOliveButtons[idx].setOnClickListener(new OnKeypadClickListener(mOliveKeypadListener, mSectionNumber, idx));
-                    mOliveButtons[idx].setOnLongClickListener(new OnKeypadClickListener(mOliveKeypadListener, mSectionNumber, idx));
-                }
-			}
-			
 			mOliveKeypadListener.onKeypadCreate(mSectionNumber);
 		}			
 		
 		return rootView;
 	}
 
-    class OnKeypadClickListener implements OnClickListener, OnLongClickListener {
+    class OnKeypadClickListener implements OnItemClickListener {
         private OnOliveKeypadListener 	mKeypadListener;
 
         private int						mSectionNumber;
-        private int 					mIndexNumber;
 
-        public OnKeypadClickListener(OnOliveKeypadListener listener, int sectionNumber, int index) {
+        public OnKeypadClickListener(OnOliveKeypadListener listener, int sectionNumber) {
             mKeypadListener = listener;
             mSectionNumber = sectionNumber;
-            mIndexNumber = index;
         }
 
         @Override
-        public void onClick(View view) {
+        public void onItemClick(View view, int position) {
             if (mKeypadListener != null) {
-                mKeypadListener.onKeypadClick(mSectionNumber, mIndexNumber);
+                mKeypadListener.onKeypadClick(mSectionNumber, position);
             }
         }
 
         @Override
-        public boolean onLongClick(View view) {
+        public void onItemLongClick(View view, int position) {
             if (mKeypadListener != null) {
-                mKeypadListener.onKeypadLongClick(mSectionNumber, mIndexNumber);
+                mKeypadListener.onKeypadLongClick(mSectionNumber, position);
             }
             ((Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
-            return false;
         }
     }
 
-	public View getOliveButton(int idx) {
-		return (View)mOliveButtons[idx];
+	public ButtonInfo getOliveButton(int sectionNumber, int index) {
+        int nIndex = sectionNumber * DatabaseHelper.PresetButtonHelper.BUTTON_PER_SECTION + index;
+        long id = DatabaseHelper.PresetButtonHelper.getIdByIndex(mContext, nIndex);
+		return DatabaseHelper.PresetButtonHelper.getButtonInfo(mContext, id);
 	}
 }
