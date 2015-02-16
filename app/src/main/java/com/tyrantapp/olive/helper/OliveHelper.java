@@ -22,7 +22,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -237,5 +243,24 @@ public class OliveHelper {
             InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
         }
+    }
+
+    public static Bitmap makeCircleBitmap(Bitmap bitmap) {
+        int cropSize = (bitmap.getWidth() > bitmap.getHeight()) ? bitmap.getHeight() : bitmap.getWidth();
+        Bitmap output = Bitmap.createBitmap(cropSize, cropSize, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        int offsetX = (int)((bitmap.getWidth() - cropSize) * .5f);
+        int offsetY = (int)((bitmap.getHeight() - cropSize) * .5f);
+        final Rect inRect = new Rect(offsetX, offsetY, cropSize + offsetX, cropSize + offsetY);
+        final Rect outRect = new Rect(0, 0, cropSize, cropSize);
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        canvas.drawCircle(cropSize / 2, cropSize / 2, cropSize / 2, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, inRect, outRect, paint);
+        return output;
     }
 }

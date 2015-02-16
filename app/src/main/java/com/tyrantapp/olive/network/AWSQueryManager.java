@@ -299,6 +299,7 @@ public class AWSQueryManager extends RESTApiManager {
             UserProfile profile = DatabaseHelper.UserHelper.getUserProfile(getContext());
             OutputStream out = null;
             try {
+                //String profileFilename = profile.mUsername.replace("@", "-").replace(".","-");
                 File outFile = new File(getContext().getExternalFilesDir(null), "/profile/profile.jpg");
                 if (!outFile.exists()) {
                     if (new File(getContext().getExternalFilesDir(null), "/profile/").mkdir()) {
@@ -314,14 +315,24 @@ public class AWSQueryManager extends RESTApiManager {
                 while ((read = stream.read(buffer)) != -1) {
                     out.write(buffer, 0, read);
                 }
+                try {
+                    if (out != null) {
+                        out.close();
+                    }
+                } catch (IOException e2) {
+                    e2.printStackTrace();
+                } finally {
+                    out = null;
+                }
+
+                profile.mPicture = getContext().getExternalFilesDir(null) + "/profile/profile.jpg";
 
                 // Upload
-                restClient.AddParam("new_picture", profile.mPicture);
+                restClient.AddParam("new_picture", "file://" + profile.mPicture);
                 eRet = sendByHttpWithAuthenticate(RestClient.POST, restClient, null);
 
                 // Update Database
-                profile.mPicture = "file://" + getContext().getExternalFilesDir(null) + "/profile/profile.jpg";
-                DatabaseHelper.UserHelper.updateUserProfile(getContext(), profile);
+                if (eRet == OLIVE_SUCCESS) DatabaseHelper.UserHelper.updateUserProfile(getContext(), profile);
             } catch (IOException e1) {
                 profile.mPicture = "";
                 e1.printStackTrace();

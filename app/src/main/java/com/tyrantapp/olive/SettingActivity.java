@@ -17,6 +17,7 @@ import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -53,24 +54,36 @@ public class SettingActivity extends BaseActivity {
 		btnNotification.setChecked(PreferenceHelper.getBooleanPreferences(this, OLIVE_PREF_NOTIFICATION, true));
 		btnPasscodeLock.setChecked(PreferenceHelper.getBooleanPreferences(this, OLIVE_PREF_PASSCODE_LOCK, false));
 		btnLocationService.setChecked(PreferenceHelper.getBooleanPreferences(this, OLIVE_PREF_LOCATION_SERVICE, false));
-		
-		TextView ev = (TextView) findViewById(R.id.pref_email);
-        TextView pv = (TextView) findViewById(R.id.pref_phonenumber);
 
 		// Get Userinfo from DB
 //		RESTApiManager helper = RESTApiManager.getInstance();
 //		HashMap<String, String> mapProfile = helper.getUserProfile();
 //      mapProfile.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_BASE.OLIVE_PROPERTY_USERNAME)
 
-        UserProfile profile = DatabaseHelper.UserHelper.getUserProfile(SettingActivity.this);
-		
-		ev.setText(profile.mUsername);
-		ev.setSelected(true);
-
-        pv.setText(OliveHelper.formatNumber(OliveHelper.getLineNumber(this)));
-
 		setEnablePasscode(true);
 	}
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        ImageView iv = (ImageView) findViewById(R.id.pref_photo);
+        TextView ev = (TextView) findViewById(R.id.pref_email);
+        TextView pv = (TextView) findViewById(R.id.pref_phonenumber);
+
+        UserProfile profile = DatabaseHelper.UserHelper.getUserProfile(SettingActivity.this);
+
+        if (profile.mPicture != null) {
+            Bitmap bmpProfile = BitmapFactory.decodeFile(profile.mPicture);
+            Bitmap bmpCircle = OliveHelper.makeCircleBitmap(bmpProfile);
+            iv.setImageBitmap(bmpCircle);
+        }
+
+        ev.setText(profile.mUsername);
+        ev.setSelected(true);
+
+        pv.setText(OliveHelper.formatNumber(OliveHelper.getLineNumber(this)));
+    }
 	
 //	@Override
 //	public boolean onCreateOptionsMenu(Menu menu) {

@@ -329,7 +329,7 @@ public class OliveContentProvider extends ContentProvider {
             		UserColumns.USERNAME + " VARCHAR(255) NOT NULL," +
             		UserColumns.PASSWORD + " VARCHAR(255)," +
             		UserColumns.ACCESSTOKEN + " VARCHAR(255)," +
-            		UserColumns.PICTURE + " BLOB," +
+            		UserColumns.PICTURE + " VARCHAR(255)," +
             		UserColumns.MODIFIED + " DATETIME" +
             		");");
 
@@ -338,7 +338,7 @@ public class OliveContentProvider extends ContentProvider {
                     RecipientColumns.USERNAME + " VARCHAR(255) NOT NULL," +
                     RecipientColumns.DISPLAYNAME + " VARCHAR(255) NOT NULL," +
                     RecipientColumns.PHONENUMBER + " VARCHAR(255) NOT NULL," +
-                    RecipientColumns.PICTURE + " BLOB," +
+                    RecipientColumns.PICTURE + " VARCHAR(255)," +
                     RecipientColumns.MODIFIED + " DATETIME" +
                     ");");
 
@@ -412,8 +412,8 @@ public class OliveContentProvider extends ContentProvider {
                     DownloadSetColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     DownloadSetColumns.INDEX + " INTEGER," +
                     DownloadSetColumns.AUTHOR + " VARCHAR(255) NOT NULL," +
-                    DownloadSetColumns.TABICON + " BLOB," +
-                    DownloadSetColumns.PLACEICON + " BLOB" +
+                    DownloadSetColumns.TABICON + " VARCHAR(255)," +
+                    DownloadSetColumns.PLACEICON + " VARCHAR(255)" +
                     ");");
 
             db.execSQL("CREATE TABLE IF NOT EXISTS " + DOWNLOADBUTTONS_TABLE_NAME + " (" +

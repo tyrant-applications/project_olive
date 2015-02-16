@@ -298,13 +298,14 @@ public abstract class RESTApiManager {
 
                         for(NameValuePair p : params) {
                             if(p.getValue().startsWith("file://")) {
-                                File file = new File (p.getValue());
+                                String path = p.getValue().substring(7);
+                                File file = new File (path);
                                 if (file.exists()) {
                                     builder.addBinaryBody(p.getName(), file, ContentType.MULTIPART_FORM_DATA, file.getName());
                                 }
                             } else {
                                 // Normal string data
-                                builder.addTextBody(p.getName(), p.getValue(), ContentType.TEXT_PLAIN); //ContentType.create("text/plain", MIME.UTF8_CHARSET)
+                                builder.addTextBody(p.getName(), p.getValue(), ContentType.create("text/plain", MIME.UTF8_CHARSET));
                             }
                         }
 

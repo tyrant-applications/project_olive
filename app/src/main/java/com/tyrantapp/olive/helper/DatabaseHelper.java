@@ -34,7 +34,7 @@ public class DatabaseHelper {
 
                     profile = new UserProfile();
                     profile.mUsername = cursor.getString(cursor.getColumnIndex(OliveContentProvider.UserColumns.USERNAME));
-                    //profile.mPicture = cursor.getBlob(cursor.getColumnIndex(OliveContentProvider.UserColumns.PICTURE));
+                    profile.mPicture = cursor.getString(cursor.getColumnIndex(OliveContentProvider.UserColumns.PICTURE));
                     profile.mModified = cursor.getLong(cursor.getColumnIndex(OliveContentProvider.UserColumns.MODIFIED));
                 }
                 cursor.close();
@@ -66,7 +66,7 @@ public class DatabaseHelper {
                         long id = cursor.getLong(cursor.getColumnIndex(OliveContentProvider.UserColumns._ID));
                         ContentValues values = new ContentValues();
                         values.put(OliveContentProvider.UserColumns.USERNAME, profile.mUsername);
-                        //values.put(OliveContentProvider.UserColumns.PICTURE, profile.mPicture);
+                        values.put(OliveContentProvider.UserColumns.PICTURE, profile.mPicture);
                         values.put(OliveContentProvider.UserColumns.MODIFIED, profile.mModified);
                         if (context.getContentResolver().update(OliveContentProvider.UserColumns.CONTENT_URI, values, OliveContentProvider.UserColumns._ID + "=?", new String[]{String.valueOf(id),}) > 0) {
                             bRet = true;
@@ -74,7 +74,7 @@ public class DatabaseHelper {
                     } else {
                         ContentValues values = new ContentValues();
                         values.put(OliveContentProvider.UserColumns.USERNAME, profile.mUsername);
-                        //values.put(OliveContentProvider.UserColumns.PICTURE, profile.mPicture);
+                        values.put(OliveContentProvider.UserColumns.PICTURE, profile.mPicture);
                         values.put(OliveContentProvider.UserColumns.MODIFIED, profile.mModified);
                         Uri uri = context.getContentResolver().insert(OliveContentProvider.UserColumns.CONTENT_URI, values);
                         if (Long.valueOf(uri.getLastPathSegment()) >= 0) {

@@ -1,5 +1,6 @@
 package com.tyrantapp.olive.service;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -169,22 +170,27 @@ public class SyncNetworkService extends Service {
         for (HashMap<String, String> friend : listFriends) {
             String username = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_USERNAME);
             String phone = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PHONE);
-            //friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PICTURE);
-            //friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_MODIFIED);
+            String picture = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PICTURE);
+            long modified = OliveHelper.dateToLong(friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_MODIFIED));
 
             long idRecipient = DatabaseHelper.RecipientHelper.getRecipientId(this, username);
             if (idRecipient < 0) {
+                // New Friend
                 RecipientInfo info = new RecipientInfo();
                 info.mUsername = username;
                 info.mPhoneNumber = phone;
                 info.mDisplayname = DatabaseHelper.ContactProviderHelper.getDisplayname(this, username, phone);
+                //info.mPicture = picture;
+                info.mModified = modified;
 
                 DatabaseHelper.RecipientHelper.addRecipient(this, info);
             } else {
+                // Update Friend
                 RecipientInfo info = DatabaseHelper.RecipientHelper.getRecipientInfo(this, idRecipient);
                 info.mPhoneNumber = phone;
                 info.mDisplayname = DatabaseHelper.ContactProviderHelper.getDisplayname(this, username, phone);
-                //info.mModified = ;
+                //info.mPicture = picture;
+                info.mModified = modified;
 
                 DatabaseHelper.RecipientHelper.updateRecipient(this, info);
             }
@@ -255,7 +261,9 @@ public class SyncNetworkService extends Service {
 	private void onSyncUserProfile() {
         // Sync phone number
         RESTApiManager helper = RESTApiManager.getInstance();
-        helper.updateUserPhonenumber(OliveHelper.formatNumber(OliveHelper.getLineNumber(this)));
+        String phoneNumber = OliveHelper.formatNumber(OliveHelper.getLineNumber(this));
+        if (phoneNumber != null) helper.updateUserPhonenumber(phoneNumber);
+        //InputStream is = this.getContentResolver().openInputStream();
         //helper.updateUserPicture();
     }
 
