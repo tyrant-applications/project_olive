@@ -12,6 +12,7 @@ public class ConversationMessage implements Parcelable {
 	public String	mAuthor;
 	public String   mMimetype;
 	public String	mContext;
+    public String   mMediaURL;
     public int      mStatus;
     public long		mCreated;
 
@@ -26,6 +27,7 @@ public class ConversationMessage implements Parcelable {
         	oRet.mAuthor = in.readString();
             oRet.mMimetype = in.readString();
         	oRet.mContext = in.readString();
+            oRet.mMediaURL = in.readString();
             oRet.mStatus = in.readInt();
             oRet.mCreated = in.readLong();
             
@@ -50,6 +52,7 @@ public class ConversationMessage implements Parcelable {
         dest.writeString(mAuthor);
         dest.writeString(mMimetype);
         dest.writeString(mContext);
+        dest.writeString(mMediaURL);
         dest.writeInt(mStatus);
         dest.writeLong(mCreated);
     }

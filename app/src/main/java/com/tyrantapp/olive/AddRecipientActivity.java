@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -27,6 +28,7 @@ import android.widget.ToggleButton;
 import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.network.RESTApiManager;
+import com.tyrantapp.olive.provider.OliveContentProvider;
 import com.tyrantapp.olive.service.SyncNetworkService;
 import com.tyrantapp.olive.type.RecipientInfo;
 import com.tyrantapp.olive.type.UserProfile;
@@ -150,6 +152,8 @@ public class AddRecipientActivity extends BaseActivity {
                             info.mUsername = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_USERNAME);
                             info.mPhoneNumber = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PHONE);
                             info.mDisplayname = DatabaseHelper.ContactProviderHelper.getDisplayname(AddRecipientActivity.this, info.mUsername, info.mPhoneNumber);
+                            info.mPicture = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PICTURE);
+                            info.mMediaURL = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_MEDIAURL);
                             listInfo.add(info);
                         }
                     }
@@ -184,6 +188,8 @@ public class AddRecipientActivity extends BaseActivity {
                 info.mUsername = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_USERNAME);
                 info.mPhoneNumber = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PHONE);
                 info.mDisplayname = DatabaseHelper.ContactProviderHelper.getDisplayname(this, info.mUsername, info.mPhoneNumber);
+                info.mPicture = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PICTURE);
+                info.mMediaURL = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_MEDIAURL);
                 listInfo.add(info);
             }
         }
@@ -292,6 +298,15 @@ public class AddRecipientActivity extends BaseActivity {
             RecipientInfo info = mItems.get(position);
             if (info != null) {
                 boolean bChecked = (mMapSelected.get(info.mUsername) != null) ? mMapSelected.get(info.mUsername).booleanValue() : false;
+
+                Bitmap bmpProfile = OliveHelper.getCachedImage(info.mPicture);
+                if (bmpProfile != null) {
+                    Bitmap bmpCircle = OliveHelper.makeCircleBitmap(bmpProfile);
+                    holder.mPhoto.setImageBitmap(bmpCircle);
+                } else {
+                    holder.mPhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_no_photo_login));
+                }
+
                 holder.mUsername.setText(info.mDisplayname);
                 holder.mUsername.setSelected(true);
                 holder.mChecked.setChecked(bChecked);

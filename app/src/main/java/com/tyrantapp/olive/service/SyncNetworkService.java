@@ -1,6 +1,7 @@
 package com.tyrantapp.olive.service;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -148,6 +149,7 @@ public class SyncNetworkService extends Service {
                 newMessage.mAuthor = "user";
                 newMessage.mMimetype = OliveHelper.convertMimetype(Integer.parseInt(message.get(RESTApiManager.OLIVE_PROPERTY_MESSAGE_LIST_ITEM.OLIVE_PROPERTY_MSG_TYPE)));
                 newMessage.mContext = message.get(RESTApiManager.OLIVE_PROPERTY_MESSAGE_LIST_ITEM.OLIVE_PROPERTY_CONTENTS);
+                newMessage.mMediaURL = message.get(RESTApiManager.OLIVE_PROPERTY_MESSAGE_LIST_ITEM.OLIVE_PROPERTY_MEDIAURL);
                 newMessage.mStatus = OliveContentProvider.ConversationColumns.STATUS_UNREAD;
                 newMessage.mCreated = OliveHelper.dateToLong(message.get(RESTApiManager.OLIVE_PROPERTY_MESSAGE_LIST_ITEM.OLIVE_PROPERTY_REG_DATE));
 
@@ -171,6 +173,8 @@ public class SyncNetworkService extends Service {
             String username = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_USERNAME);
             String phone = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PHONE);
             String picture = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PICTURE);
+            picture = OliveHelper.getProfileImageDir(this) + OliveHelper.getPathLastSegment(picture);
+            String mediaURL = friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_MEDIAURL);
             long modified = OliveHelper.dateToLong(friend.get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_MODIFIED));
 
             long idRecipient = DatabaseHelper.RecipientHelper.getRecipientId(this, username);
@@ -180,7 +184,8 @@ public class SyncNetworkService extends Service {
                 info.mUsername = username;
                 info.mPhoneNumber = phone;
                 info.mDisplayname = DatabaseHelper.ContactProviderHelper.getDisplayname(this, username, phone);
-                //info.mPicture = picture;
+                info.mPicture = picture;
+                info.mMediaURL = mediaURL;
                 info.mModified = modified;
 
                 DatabaseHelper.RecipientHelper.addRecipient(this, info);
@@ -189,7 +194,8 @@ public class SyncNetworkService extends Service {
                 RecipientInfo info = DatabaseHelper.RecipientHelper.getRecipientInfo(this, idRecipient);
                 info.mPhoneNumber = phone;
                 info.mDisplayname = DatabaseHelper.ContactProviderHelper.getDisplayname(this, username, phone);
-                //info.mPicture = picture;
+                info.mPicture = picture;
+                info.mMediaURL = mediaURL;
                 info.mModified = modified;
 
                 DatabaseHelper.RecipientHelper.updateRecipient(this, info);

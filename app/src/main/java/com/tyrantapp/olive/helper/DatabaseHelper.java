@@ -15,6 +15,7 @@ import com.tyrantapp.olive.type.RecipientInfo;
 import com.tyrantapp.olive.type.SpaceInfo;
 import com.tyrantapp.olive.type.UserProfile;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -34,7 +35,6 @@ public class DatabaseHelper {
 
                     profile = new UserProfile();
                     profile.mUsername = cursor.getString(cursor.getColumnIndex(OliveContentProvider.UserColumns.USERNAME));
-                    profile.mPicture = cursor.getString(cursor.getColumnIndex(OliveContentProvider.UserColumns.PICTURE));
                     profile.mModified = cursor.getLong(cursor.getColumnIndex(OliveContentProvider.UserColumns.MODIFIED));
                 }
                 cursor.close();
@@ -53,6 +53,10 @@ public class DatabaseHelper {
                 }
                 cursor.close();
             }
+
+            // remove profile picture
+            new File(OliveHelper.getProfileImagePath(context)).delete();
+
             return bRet;
         }
 
@@ -66,7 +70,6 @@ public class DatabaseHelper {
                         long id = cursor.getLong(cursor.getColumnIndex(OliveContentProvider.UserColumns._ID));
                         ContentValues values = new ContentValues();
                         values.put(OliveContentProvider.UserColumns.USERNAME, profile.mUsername);
-                        values.put(OliveContentProvider.UserColumns.PICTURE, profile.mPicture);
                         values.put(OliveContentProvider.UserColumns.MODIFIED, profile.mModified);
                         if (context.getContentResolver().update(OliveContentProvider.UserColumns.CONTENT_URI, values, OliveContentProvider.UserColumns._ID + "=?", new String[]{String.valueOf(id),}) > 0) {
                             bRet = true;
@@ -74,7 +77,6 @@ public class DatabaseHelper {
                     } else {
                         ContentValues values = new ContentValues();
                         values.put(OliveContentProvider.UserColumns.USERNAME, profile.mUsername);
-                        values.put(OliveContentProvider.UserColumns.PICTURE, profile.mPicture);
                         values.put(OliveContentProvider.UserColumns.MODIFIED, profile.mModified);
                         Uri uri = context.getContentResolver().insert(OliveContentProvider.UserColumns.CONTENT_URI, values);
                         if (Long.valueOf(uri.getLastPathSegment()) >= 0) {
@@ -166,6 +168,8 @@ public class DatabaseHelper {
                 values.put(OliveContentProvider.RecipientColumns.USERNAME, info.mUsername);
                 values.put(OliveContentProvider.RecipientColumns.DISPLAYNAME, info.mDisplayname);
                 values.put(OliveContentProvider.RecipientColumns.PHONENUMBER, info.mPhoneNumber);
+                values.put(OliveContentProvider.RecipientColumns.PICTURE, info.mPicture);
+                values.put(OliveContentProvider.RecipientColumns.MEDIAURL, info.mMediaURL);
                 values.put(OliveContentProvider.RecipientColumns.MODIFIED, info.mModified);
                 Uri uri = context.getContentResolver().insert(OliveContentProvider.RecipientColumns.CONTENT_URI, values);
                 return Long.valueOf(uri.getLastPathSegment());
@@ -193,6 +197,8 @@ public class DatabaseHelper {
                 values.put(OliveContentProvider.RecipientColumns.USERNAME, info.mUsername);
                 values.put(OliveContentProvider.RecipientColumns.DISPLAYNAME, info.mDisplayname);
                 values.put(OliveContentProvider.RecipientColumns.PHONENUMBER, info.mPhoneNumber);
+                values.put(OliveContentProvider.RecipientColumns.PICTURE, info.mPicture);
+                values.put(OliveContentProvider.RecipientColumns.MEDIAURL, info.mMediaURL);
                 values.put(OliveContentProvider.RecipientColumns.MODIFIED, info.mModified);
                 if (context.getContentResolver().update(uri, values, null, null) > 0) {
                     bRet = true;
@@ -214,6 +220,8 @@ public class DatabaseHelper {
                         info.mUsername = cursor.getString(cursor.getColumnIndex(OliveContentProvider.RecipientColumns.USERNAME));
                         info.mDisplayname = cursor.getString(cursor.getColumnIndex(OliveContentProvider.RecipientColumns.DISPLAYNAME));
                         info.mPhoneNumber = cursor.getString(cursor.getColumnIndex(OliveContentProvider.RecipientColumns.PHONENUMBER));
+                        info.mPicture = cursor.getString(cursor.getColumnIndex(OliveContentProvider.RecipientColumns.PICTURE));
+                        info.mMediaURL = cursor.getString(cursor.getColumnIndex(OliveContentProvider.RecipientColumns.MEDIAURL));
                         info.mModified = cursor.getLong(cursor.getColumnIndex(OliveContentProvider.RecipientColumns.MODIFIED));
                     }
                     cursor.close();
@@ -389,6 +397,7 @@ public class DatabaseHelper {
                 values.put(OliveContentProvider.ConversationColumns.AUTHOR, message.mAuthor);
                 values.put(OliveContentProvider.ConversationColumns.MIMETYPE, message.mMimetype);
                 values.put(OliveContentProvider.ConversationColumns.CONTEXT, message.mContext);
+                values.put(OliveContentProvider.ConversationColumns.MEDIAURL, message.mMediaURL);
                 values.put(OliveContentProvider.ConversationColumns.STATUS, message.mStatus);
                 values.put(OliveContentProvider.ConversationColumns.CREATED, message.mCreated);
                 Uri uri = context.getContentResolver().insert(OliveContentProvider.ConversationColumns.CONTENT_URI, values);
@@ -423,6 +432,7 @@ public class DatabaseHelper {
                         message.mAuthor = cursor.getString(cursor.getColumnIndex(OliveContentProvider.ConversationColumns.AUTHOR));
                         message.mMimetype = cursor.getString(cursor.getColumnIndex(OliveContentProvider.ConversationColumns.MIMETYPE));
                         message.mContext = cursor.getString(cursor.getColumnIndex(OliveContentProvider.ConversationColumns.CONTEXT));
+                        message.mMediaURL = cursor.getString(cursor.getColumnIndex(OliveContentProvider.ConversationColumns.MEDIAURL));
                         message.mStatus = cursor.getInt(cursor.getColumnIndex(OliveContentProvider.ConversationColumns.STATUS));
                         message.mCreated = cursor.getLong(cursor.getColumnIndex(OliveContentProvider.ConversationColumns.CREATED));
                     }
@@ -460,6 +470,7 @@ public class DatabaseHelper {
                         message.mAuthor = cursor.getString(cursor.getColumnIndex(OliveContentProvider.ConversationColumns.AUTHOR));
                         message.mMimetype = cursor.getString(cursor.getColumnIndex(OliveContentProvider.ConversationColumns.MIMETYPE));
                         message.mContext = cursor.getString(cursor.getColumnIndex(OliveContentProvider.ConversationColumns.CONTEXT));
+                        message.mMediaURL = cursor.getString(cursor.getColumnIndex(OliveContentProvider.ConversationColumns.MEDIAURL));
                         message.mStatus = cursor.getInt(cursor.getColumnIndex(OliveContentProvider.ConversationColumns.STATUS));
                         message.mCreated = cursor.getLong(cursor.getColumnIndex(OliveContentProvider.ConversationColumns.CREATED));
 

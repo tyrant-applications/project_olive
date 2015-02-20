@@ -74,6 +74,7 @@ public abstract class RESTApiManager {
         public static final String OLIVE_PROPERTY_USERNAME = "username";
         public static final String OLIVE_PROPERTY_PHONE = "phone";
         public static final String OLIVE_PROPERTY_PICTURE = "picture";
+        public static final String OLIVE_PROPERTY_MEDIAURL = "mediaurl";
         public static final String OLIVE_PROPERTY_MODIFIED = "update_date";
     }
 
@@ -83,6 +84,7 @@ public abstract class RESTApiManager {
         public static final String OLIVE_PROPERTY_AUTHOR = "author";
         public static final String OLIVE_PROPERTY_MSG_TYPE = "msg_type";
         public static final String OLIVE_PROPERTY_CONTENTS = "contents";
+        public static final String OLIVE_PROPERTY_MEDIAURL = "mediaurl";
         public static final String OLIVE_PROPERTY_REG_DATE = "reg_date";
     }
 
@@ -166,6 +168,7 @@ public abstract class RESTApiManager {
         public static final String OLIVE_PROPERTY_AUTHOR = appendProperty(OLIVE_PROPERTY_DATA, "author");
         public static final String OLIVE_PROPERTY_MSG_TYPE = appendProperty(OLIVE_PROPERTY_DATA, "msg_type");
         public static final String OLIVE_PROPERTY_CONTENTS = appendProperty(OLIVE_PROPERTY_DATA, "contents");
+        public static final String OLIVE_PROPERTY_MEDIAURL = appendProperty(OLIVE_PROPERTY_DATA, "mediaurl");
         public static final String OLIVE_PROPERTY_REG_DATE = appendProperty(OLIVE_PROPERTY_DATA, "reg_date");
     }
 
@@ -522,6 +525,7 @@ public abstract class RESTApiManager {
 	public abstract HashMap<String, String>             getUserProfile();   // <- 동작 안함
     public abstract int	                                updateUserPhonenumber(String phonenumber);
     public abstract int	                                updateUserPicture(InputStream stream);
+    public abstract int	                                updateUserPicture(Bitmap bitmap);
     public abstract int	                                changePassword(String oldPassword, String newPassword);
 
     public abstract int                                 addFriends(String[] usernames);

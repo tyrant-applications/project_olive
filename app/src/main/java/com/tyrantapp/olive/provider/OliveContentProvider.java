@@ -74,10 +74,9 @@ public class OliveContentProvider extends ContentProvider {
         public static final String 		USERNAME		= "username";
         public static final String      PASSWORD        = "password";
         public static final String      ACCESSTOKEN     = "accesstoken";
-        public static final String		PICTURE			= "picture";
         public static final String		MODIFIED		= "modified";
 
-        public static final String[] 	PROJECTIONS = new String[] { _ID, USERNAME, /*PASSWORD, ACCESSTOKEN,*/ PICTURE, MODIFIED, };
+        public static final String[] 	PROJECTIONS = new String[] { _ID, USERNAME, /*PASSWORD, ACCESSTOKEN,*/ MODIFIED, };
         public static final String 		ORDERBY = "LIMIT 1";
     }
 
@@ -89,9 +88,10 @@ public class OliveContentProvider extends ContentProvider {
         public static final String      DISPLAYNAME     = "displayname";
         public static final String		PHONENUMBER		= "phonenumber";
         public static final String		PICTURE			= "picture";
+        public static final String 		MEDIAURL 		= "mediaurl";
         public static final String		MODIFIED		= "modified";
 
-        public static final String[] 	PROJECTIONS = new String[] { _ID, USERNAME, DISPLAYNAME, PHONENUMBER, PICTURE, MODIFIED, };
+        public static final String[] 	PROJECTIONS = new String[] { _ID, USERNAME, DISPLAYNAME, PHONENUMBER, PICTURE, MEDIAURL, MODIFIED, };
         public static final String 		ORDERBY = _ID;
     }
 
@@ -132,10 +132,11 @@ public class OliveContentProvider extends ContentProvider {
         public static final String 		AUTHOR    	    = "author";
         public static final String 		MIMETYPE    	= "mimetype";
         public static final String 		CONTEXT 		= "context";
+        public static final String 		MEDIAURL 		= "mediaurl";
         public static final String 		STATUS			= "status";
         public static final String 		CREATED			= "created";
         
-        public static final String[] 	PROJECTIONS = new String[] { _ID, MESSAGE_ID, SPACE_ID, SENDER, AUTHOR, MIMETYPE, CONTEXT, STATUS, CREATED };
+        public static final String[] 	PROJECTIONS = new String[] { _ID, MESSAGE_ID, SPACE_ID, SENDER, AUTHOR, MIMETYPE, CONTEXT, MEDIAURL, STATUS, CREATED };
         public static final String 		ORDERBY = CREATED;
     }
 
@@ -214,7 +215,6 @@ public class OliveContentProvider extends ContentProvider {
         mapUserProjection.put(UserColumns.USERNAME, UserColumns.USERNAME);
         mapUserProjection.put(UserColumns.PASSWORD, UserColumns.PASSWORD);
         mapUserProjection.put(UserColumns.ACCESSTOKEN, UserColumns.ACCESSTOKEN);
-        mapUserProjection.put(UserColumns.PICTURE, UserColumns.PICTURE);
         mapUserProjection.put(UserColumns.MODIFIED, UserColumns.MODIFIED);
 
     	// Recipients
@@ -227,6 +227,7 @@ public class OliveContentProvider extends ContentProvider {
         mapRecipientsProjection.put(RecipientColumns.DISPLAYNAME, RecipientColumns.DISPLAYNAME);
         mapRecipientsProjection.put(RecipientColumns.PHONENUMBER, RecipientColumns.PHONENUMBER);
         mapRecipientsProjection.put(RecipientColumns.PICTURE, RecipientColumns.PICTURE);
+        mapRecipientsProjection.put(RecipientColumns.MEDIAURL, RecipientColumns.MEDIAURL);
         mapRecipientsProjection.put(RecipientColumns.MODIFIED, RecipientColumns.MODIFIED);
 
         // Spaces
@@ -258,6 +259,7 @@ public class OliveContentProvider extends ContentProvider {
         mapConversationsProjection.put(ConversationColumns.AUTHOR, ConversationColumns.AUTHOR);
         mapConversationsProjection.put(ConversationColumns.MIMETYPE, ConversationColumns.MIMETYPE);
         mapConversationsProjection.put(ConversationColumns.CONTEXT, ConversationColumns.CONTEXT);
+        mapConversationsProjection.put(ConversationColumns.MEDIAURL, ConversationColumns.MEDIAURL);
         mapConversationsProjection.put(ConversationColumns.STATUS, ConversationColumns.STATUS);
         mapConversationsProjection.put(ConversationColumns.CREATED, ConversationColumns.CREATED);
 
@@ -329,7 +331,6 @@ public class OliveContentProvider extends ContentProvider {
             		UserColumns.USERNAME + " VARCHAR(255) NOT NULL," +
             		UserColumns.PASSWORD + " VARCHAR(255)," +
             		UserColumns.ACCESSTOKEN + " VARCHAR(255)," +
-            		UserColumns.PICTURE + " VARCHAR(255)," +
             		UserColumns.MODIFIED + " DATETIME" +
             		");");
 
@@ -339,6 +340,7 @@ public class OliveContentProvider extends ContentProvider {
                     RecipientColumns.DISPLAYNAME + " VARCHAR(255) NOT NULL," +
                     RecipientColumns.PHONENUMBER + " VARCHAR(255) NOT NULL," +
                     RecipientColumns.PICTURE + " VARCHAR(255)," +
+                    RecipientColumns.MEDIAURL + " VARCHAR(255)," +
                     RecipientColumns.MODIFIED + " DATETIME" +
                     ");");
 
@@ -358,7 +360,8 @@ public class OliveContentProvider extends ContentProvider {
                     ConversationColumns.SENDER + " VARCHAR(255) NOT NULL," +
             		ConversationColumns.AUTHOR + " VARCHAR(255) NOT NULL," +
             		ConversationColumns.MIMETYPE + " VARCHAR(255) NOT NULL," +
-            		ConversationColumns.CONTEXT + " VARCHAR(255) NOT NULL," +
+                    ConversationColumns.CONTEXT + " VARCHAR(255) NOT NULL," +
+                    ConversationColumns.MEDIAURL + " VARCHAR(255)," +
             		ConversationColumns.STATUS + " INTEGER NOT NULL DEFAULT 0," +
             		ConversationColumns.CREATED + " DATETIME" +
             		");");

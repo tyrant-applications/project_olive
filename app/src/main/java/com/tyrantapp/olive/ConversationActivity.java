@@ -38,12 +38,17 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 public class ConversationActivity extends BaseActivity implements OnOliveKeypadListener {
 	final static private String			TAG = "ConversationActivity";
@@ -60,8 +65,9 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 
 	private ConversationRecyclerView	mConversationView;
 	private ConversationRecyclerAdapter	mConversationAdapter;
-	
-	private TextView					mLastOliveText;
+
+    private TextView					mLastOliveText;
+    private ImageView                   mLastOliveImage;
 	private View						mLastOliveExpander;
 	
 	private ViewFlipper					mInputMethodFlipper;
@@ -112,13 +118,8 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	
 	private OnClickListener	mOnGalleryClickListener = new OnClickListener() {
 		public void onClick(View view) {
-			//Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("image/*");
-
-			startActivityForResult(intent, RESULT_LOAD_IMAGE);
+            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intent, RESULT_LOAD_IMAGE);
 		}
 	};
 	
@@ -147,7 +148,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
             ConversationMessage message = new ConversationMessage();
             message.mMessageId = -1;
             message.mAuthor = "user";
-            message.mMimetype = "text/plain";
+            message.mMimetype = OliveHelper.MIMETYPE_TEXT;
             message.mContext = mTextEditor.getText().toString();
             message.mSpaceId = mSpaceId;
             message.mSender = DatabaseHelper.UserHelper.getUserProfile(getApplicationContext()).mUsername;
@@ -191,7 +192,8 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		//mConversationAdapter.registerDataSetObserver(mConversationObserver);
 		
 		// Last Olive (interaction mode)
-		mLastOliveText = (TextView) findViewById(R.id.conversation_last_olive_text);
+        mLastOliveText = (TextView) findViewById(R.id.conversation_last_olive_text);
+        mLastOliveImage = (ImageView) findViewById(R.id.conversation_last_olive_image);
 		mLastOliveExpander = (View) findViewById(R.id.conversation_last_olive_expander);
 		
 		// IME mode
@@ -314,32 +316,70 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	}	
 	
 	@Override
-	 protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-	     super.onActivityResult(requestCode, resultCode, data);
-	      
-	     if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
-	         Uri selectedImage = data.getData();
+	 protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+	    super.onActivityResult(requestCode, resultCode, intent);
 
-             InputStream input = null;
-             Bitmap bmp = null;
-             try {
-                 input = getContentResolver().openInputStream(selectedImage);
-                 bmp = BitmapFactory.decodeStream(input);
-             } catch (FileNotFoundException e) {
-                 e.printStackTrace();
-             }
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != intent) {
+            Uri selectedImage = intent.getData();
 
-	         // String picturePath contains the path of selected Image
-	         
-	         ignorePasscodeOnce();
-	     } else
-    	 if (requestCode == RESULT_TAKE_PICTURE && resultCode == RESULT_OK) {  
-             Bitmap bmpPicture = (Bitmap) data.getExtras().get("data"); 
-             //imageView.setImageBitmap(bmpPicture);
-             
-             ignorePasscodeOnce();
-         }
+            // String picturePath contains the path of selected Image
+            // first, upload picture
+            // second, obtain filename from server
+            // finally, copy original file to data folder by filename from server.
+
+            InputStream in = null;
+            try {
+                in = getContentResolver().openInputStream(selectedImage);
+                sendImage(BitmapFactory.decodeStream(in));
+            } catch (FileNotFoundException e1) {
+                e1.printStackTrace();
+            } catch (IOException e2) {
+                e2.printStackTrace();
+            } finally {
+                try {
+                    if (in != null) {
+                        in.close();
+                    }
+                } catch (IOException e2) {
+                    // NOOP
+                }
+            }
+
+            ignorePasscodeOnce();
+        } else
+        if (requestCode == RESULT_TAKE_PICTURE && resultCode == RESULT_OK) {
+            Bitmap bmpPicture = (Bitmap) intent.getExtras().get("data");
+            sendImage(bmpPicture);
+
+            ignorePasscodeOnce();
+        }
 	}
+
+    private boolean sendImage(Bitmap bitmap) {
+        boolean bRet = false;
+
+        ConversationMessage message = new ConversationMessage();
+        message.mMessageId = -1;
+        message.mAuthor = "user";
+        message.mSpaceId = mSpaceId;
+        message.mSender = DatabaseHelper.UserHelper.getUserProfile(this).mUsername;
+        message.mMimetype = OliveHelper.MIMETYPE_IMAGE;
+        message.mStatus = ConversationColumns.STATUS_PENDING;
+        message.mCreated = System.currentTimeMillis();
+
+        String filename = mSpaceInfo.mChatroomId + "_" + message.mCreated + ".png";
+        String filePath = OliveHelper.getMessageMediaDir(this) + filename;
+        if (OliveHelper.saveImage(bitmap, Bitmap.CompressFormat.PNG, 70, filePath)) {
+            message.mContext = filePath;
+            DatabaseHelper.ConversationHelper.addMessage(this, message);
+
+            Intent sendIntent = new Intent(this, SyncNetworkService.class)
+                    .setAction(SyncNetworkService.INTENT_ACTION_SEND_MESSAGE);
+            startService(sendIntent);
+        }
+
+        return bRet;
+    }
 
 	@Override
 	public void onBackPressed() {
@@ -443,10 +483,46 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	
 	public void updateLastOlive(Cursor cursor) {
 		if (cursor != null && cursor.getCount() > 0) {
-			String content = cursor.getString(cursor.getColumnIndex(ConversationColumns.CONTEXT));
-			mLastOliveText.setText(content);
+            String mimetype = cursor.getString(cursor.getColumnIndex(ConversationColumns.MIMETYPE));
+            String mediaURL = cursor.getString(cursor.getColumnIndex(ConversationColumns.MEDIAURL));
+            String content = cursor.getString(cursor.getColumnIndex(ConversationColumns.CONTEXT));
+            Bitmap bmpImage = null;
+            switch (OliveHelper.convertMimetype(mimetype)) {
+                case 0: //MIMETYPE_TEXT:
+                    mLastOliveText.setText(content);
+                    mLastOliveText.setVisibility(View.VISIBLE);
+                    mLastOliveImage.setVisibility(View.GONE);
+                    break;
+                case 1: //MIMETYPE_IMAGE:
+                    OliveHelper.downloadMedia(mediaURL, OliveHelper.getMessageMediaDir(this));
+                    bmpImage = OliveHelper.getCachedImage(content, 3);
+                    mLastOliveImage.setImageBitmap(bmpImage);
+                    mLastOliveText.setVisibility(View.GONE);
+                    mLastOliveImage.setVisibility(View.VISIBLE);
+                    break;
+                case 2: //MIMETYPE_VIDEO:
+                    mLastOliveText.setText(content);
+                    mLastOliveText.setVisibility(View.GONE);
+                    mLastOliveImage.setVisibility(View.VISIBLE);
+                    break;
+                case 3: //MIMETYPE_AUDIO:
+                    mLastOliveText.setText(content);
+                    mLastOliveText.setVisibility(View.GONE);
+                    mLastOliveImage.setVisibility(View.VISIBLE);
+                    break;
+                case 4: //MIMETYPE_GEOLOCATE:
+                    mLastOliveText.setText(content);
+                    mLastOliveText.setVisibility(View.GONE);
+                    mLastOliveImage.setVisibility(View.VISIBLE);
+                    break;
+                case 5: //MIMETYPE_EMOJI:
+                    mLastOliveText.setText(content);
+                    mLastOliveText.setVisibility(View.GONE);
+                    mLastOliveImage.setVisibility(View.VISIBLE);
+                    break;
+            }
 		} else {
-			mLastOliveText.setText("Hello?");
+			mLastOliveText.setText("No Conversation.");
 		}
 	}
 	

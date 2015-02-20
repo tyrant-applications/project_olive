@@ -1,5 +1,11 @@
 package com.tyrantapp.olive.helper;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -10,7 +16,9 @@ import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.SettingActivity;
 import com.tyrantapp.olive.SplashActivity;
 import com.tyrantapp.olive.configuration.Constants;
+import com.tyrantapp.olive.network.RESTApiManager;
 import com.tyrantapp.olive.service.GCMIntentService;
+import com.tyrantapp.olive.service.SyncNetworkService;
 import com.tyrantapp.olive.util.SharedVariables;
 
 import android.app.ActivityManager;
@@ -262,5 +270,154 @@ public class OliveHelper {
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
         canvas.drawBitmap(bitmap, inRect, outRect, paint);
         return output;
+    }
+
+    private static File getExternalFilesDir(Context context) {
+        File file = context.getExternalFilesDir(null);
+        if (file == null) file = context.getFilesDir(); // if no have external storage
+        return file;
+    }
+
+    public static String getProfileImageDir(Context context) {
+        return getExternalFilesDir(context) + "/media/profile/";
+    }
+
+    public static String getProfileImagePath(Context context) {
+        return getProfileImageDir(context) + "profile.jpg";
+    }
+
+    public static String getMessageMediaDir(Context context) {
+        return getExternalFilesDir(context) + "/media/messages/";
+    }
+
+    public static String getPathLastSegment(String filePath) {
+        String[] separatedPath = filePath.split("\\/");
+        return separatedPath[separatedPath.length - 1];
+    }
+
+    public static String getUpperPath(String filePath) {
+        return filePath.replace(getPathLastSegment(filePath), "").replace("//", "/").replace("\\\\", "\\");
+    }
+
+    public static String getSmallThumbFilename(String filePath) {
+        // 128 x 128
+        if (filePath != null) {
+            int dotPos = filePath.lastIndexOf(".");
+            String filename = filePath.substring(0, dotPos);
+            String extension = filePath.substring(dotPos);
+            return filename + "_s" + extension;
+        } return null;
+    }
+
+    public static String getMediumThumbFilename(String filePath) {
+        // 256 x 256
+        if (filePath != null) {
+            int dotPos = filePath.lastIndexOf(".");
+            String filename = filePath.substring(0, dotPos);
+            String extension = filePath.substring(dotPos);
+            return filename + "_m" + extension;
+        } return null;
+    }
+
+    public static String getLargeThumbFilename(String filePath) {
+        // 512 x 512
+        if (filePath != null) {
+            int dotPos = filePath.lastIndexOf(".");
+            String filename = filePath.substring(0, dotPos);
+            String extension = filePath.substring(dotPos);
+            return filename + "_l" + extension;
+        } return null;
+    }
+
+    public static String downloadCachedMedia(String URL, String basePath) {
+        if (URL != null) {
+            String filename = OliveHelper.getPathLastSegment(URL);
+            String filePath = basePath + filename;
+            if (!(new File(filePath).exists())) {
+                // thumbs
+                boolean bDownloaded = false;
+                if (downloadMedia(getSmallThumbFilename(URL), basePath) != null) bDownloaded = true;
+                if (downloadMedia(getMediumThumbFilename(URL), basePath) != null)
+                    bDownloaded = true;
+                if (downloadMedia(getLargeThumbFilename(URL), basePath) != null) bDownloaded = true;
+                if (!bDownloaded) {
+                    filePath = downloadMedia(URL, basePath);
+                }
+            }
+            return filePath;
+        }
+        return null;
+    }
+
+    public static String downloadMedia(String URL, String basePath) {
+        if (URL != null) {
+            try {
+                String filename = OliveHelper.getPathLastSegment(URL);
+                String filePath = basePath + filename;
+                if (!(new File(filePath).exists())) {
+                    InputStream is = (InputStream) new java.net.URL(URL).getContent();
+                    Bitmap bmpInfo = BitmapFactory.decodeStream(is);
+                    OliveHelper.saveImage(bmpInfo, Bitmap.CompressFormat.JPEG, 70, filePath);
+                }
+                return filePath;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public static Bitmap getCachedImage(String path) {
+        return getCachedImage(path, 0);
+    }
+
+    public static Bitmap getCachedImage(String path, int minLevel) {
+        String smallPath = getSmallThumbFilename(path);
+        String mediumPath = getMediumThumbFilename(path);
+        String largePath = getLargeThumbFilename(path);
+
+        Bitmap bmpRet = null;
+        switch (minLevel) {
+            case 0: // Small > Medium > Large > Original
+                if (bmpRet == null) bmpRet = BitmapFactory.decodeFile(smallPath);
+            case 1:
+                if (bmpRet == null) bmpRet = BitmapFactory.decodeFile(mediumPath);
+            case 2:
+                if (bmpRet == null) bmpRet = BitmapFactory.decodeFile(largePath);
+            case 3:
+                if (bmpRet == null) bmpRet = BitmapFactory.decodeFile(path);
+                break;
+            default:
+                return getCachedImage(path);
+        }
+        return bmpRet;
+    }
+
+    public static boolean saveImage(Bitmap bitmap, Bitmap.CompressFormat format, int quality, String outPath) {
+        boolean bRet = false;
+        OutputStream out = null;
+
+        try {
+            File outFile = new File(outPath);
+            if (!outFile.exists()) {
+                String outDir = getUpperPath(outPath);
+                new File(outDir).mkdirs();
+                outFile.createNewFile();
+            }
+
+            out = new FileOutputStream(outFile);
+
+            if (out != null) {
+                // copy
+                bitmap.compress(format, quality, out);
+                bRet = true;
+
+                out.close();
+                out = null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bRet;
     }
 }

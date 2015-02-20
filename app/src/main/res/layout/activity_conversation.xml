@@ -66,14 +66,34 @@
         android:layout_weight="1" 
         android:gravity="center"
         android:orientation="vertical" >
-        
-        <TextView 
-            android:id="@+id/conversation_last_olive_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="25dp"
-            android:textColor="@color/black"
-            android:text="OLIVE" />
+
+        <RelativeLayout
+            android:id="@+id/conversation_last_olive_interface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:longClickable="true">
+            <!-- 90dp -->
+
+            <TextView
+                android:id="@+id/conversation_last_olive_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textSize="25sp"
+                android:textColor="@color/black"
+                android:textAllCaps="false" />
+
+            <ImageView
+                android:id="@+id/conversation_last_olive_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:scaleType="centerCrop"
+                android:background="@color/transparent"/>
+
+        </RelativeLayout>
         
     </LinearLayout>
     

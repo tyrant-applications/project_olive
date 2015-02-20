@@ -6,7 +6,6 @@ import android.os.Parcelable;
 
 public class UserProfile implements Parcelable {
     public String	mUsername;
-	public String   mPicture;
     public long		mModified;
 
     public static final Creator<UserProfile> CREATOR = new Creator<UserProfile>() {
@@ -14,7 +13,6 @@ public class UserProfile implements Parcelable {
         	UserProfile oRet = new UserProfile();
         	
         	oRet.mUsername = in.readString();
-        	oRet.mPicture = in.readString();
         	oRet.mModified = in.readLong();
             
         	return oRet;
@@ -32,7 +30,6 @@ public class UserProfile implements Parcelable {
 
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mUsername);
-        dest.writeString(mPicture);
         dest.writeLong(mModified);
     }
 }

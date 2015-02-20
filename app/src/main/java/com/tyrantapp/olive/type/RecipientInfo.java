@@ -9,6 +9,7 @@ public class RecipientInfo implements Parcelable {
 	public String   mDisplayname;
 	public String	mPhoneNumber;
 	public String   mPicture;
+    public String   mMediaURL;
 	public long		mModified;	
 
     public static final Parcelable.Creator<RecipientInfo> CREATOR = new Parcelable.Creator<RecipientInfo>() {
@@ -20,6 +21,7 @@ public class RecipientInfo implements Parcelable {
         	oRet.mDisplayname = in.readString();
         	oRet.mPhoneNumber = in.readString();
             oRet.mPicture = in.readString();
+            oRet.mMediaURL = in.readString();
         	oRet.mModified = in.readLong();
             
         	return oRet;
@@ -41,6 +43,7 @@ public class RecipientInfo implements Parcelable {
         dest.writeString(mDisplayname);
         dest.writeString(mPhoneNumber);
         dest.writeString(mPicture);
+        dest.writeString(mMediaURL);
         dest.writeLong(mModified);
     }
 }

@@ -2,11 +2,14 @@ package com.tyrantapp.olive.adapter;
 
 import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.helper.DatabaseHelper;
+import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.provider.OliveContentProvider.ChatSpaceColumns;
 
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -72,6 +75,16 @@ public class RecipientsListAdapter extends CursorAdapter {
         		unreadView.setVisibility(View.INVISIBLE);
         		pltView.setBackgroundColor(mContext.getResources().getColor(R.color.white));
         	}
+
+            // Portrait
+            String path = cursor.getString(cursor.getColumnIndex(ChatSpaceColumns.PICTURE));
+            Bitmap bmpProfile = OliveHelper.getCachedImage(path);
+            if (bmpProfile != null) {
+                Bitmap bmpCircle = OliveHelper.makeCircleBitmap(bmpProfile);
+                picView.setImageBitmap(bmpCircle);
+            } else {
+                picView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_no_photo_login));
+            }
         	
         	// favorite (starred)
         	final long spaceId = cursor.getLong(cursor.getColumnIndex(ChatSpaceColumns._ID));

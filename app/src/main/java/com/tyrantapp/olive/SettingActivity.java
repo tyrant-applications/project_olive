@@ -14,6 +14,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.telephony.PhoneNumberUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 
 public class SettingActivity extends BaseActivity {
 	private final static String TAG = "SettingActivity";
@@ -67,22 +69,7 @@ public class SettingActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
 
-        ImageView iv = (ImageView) findViewById(R.id.pref_photo);
-        TextView ev = (TextView) findViewById(R.id.pref_email);
-        TextView pv = (TextView) findViewById(R.id.pref_phonenumber);
-
-        UserProfile profile = DatabaseHelper.UserHelper.getUserProfile(SettingActivity.this);
-
-        if (profile.mPicture != null) {
-            Bitmap bmpProfile = BitmapFactory.decodeFile(profile.mPicture);
-            Bitmap bmpCircle = OliveHelper.makeCircleBitmap(bmpProfile);
-            iv.setImageBitmap(bmpCircle);
-        }
-
-        ev.setText(profile.mUsername);
-        ev.setSelected(true);
-
-        pv.setText(OliveHelper.formatNumber(OliveHelper.getLineNumber(this)));
+        updateProfileInfo();
     }
 	
 //	@Override
@@ -104,10 +91,33 @@ public class SettingActivity extends BaseActivity {
 //		return super.onOptionsItemSelected(item);
 //	}
 
+    private void updateProfileInfo() {
+        ImageView iv = (ImageView) findViewById(R.id.pref_photo);
+        TextView ev = (TextView) findViewById(R.id.pref_email);
+        TextView pv = (TextView) findViewById(R.id.pref_phonenumber);
+
+        UserProfile profile = DatabaseHelper.UserHelper.getUserProfile(SettingActivity.this);
+
+        String path = OliveHelper.getProfileImagePath(SettingActivity.this);
+        Bitmap bmpProfile = OliveHelper.getCachedImage(path);
+        if (bmpProfile != null) {
+            Bitmap bmpCircle = OliveHelper.makeCircleBitmap(bmpProfile);
+            iv.setImageBitmap(bmpCircle);
+        } else {
+            iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_no_photo_login));
+        }
+
+        ev.setText(profile.mUsername);
+        ev.setSelected(true);
+
+        String phoneNumber = PhoneNumberUtils.formatNumber(OliveHelper.getLineNumber(this), Locale.getDefault().getCountry());
+        pv.setText(phoneNumber);
+    }
+
     public void onChangePortrait(View view) {
         // in onCreate or any event where your want the user to
         // select a file
-        final CharSequence[] chooseType = { "Take Picture", "Album" };
+        final CharSequence[] chooseType = { "Take Picture", "Album", "Remove"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         //builder.setTitle("Make your selection");
@@ -116,9 +126,13 @@ public class SettingActivity extends BaseActivity {
                 if (item == 0) {
                     Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                     startActivityForResult(intent, RESULT_TAKE_PICTURE);
-                } else {
+                } else
+                if (item == 1) {
                     Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     startActivityForResult(intent, RESULT_LOAD_IMAGE);
+                } else {
+                    new File(OliveHelper.getProfileImagePath(SettingActivity.this)).delete();
+                    updateProfileInfo();
                 }
             }
         });
@@ -195,10 +209,6 @@ public class SettingActivity extends BaseActivity {
             Uri selectedImage = intent.getData();
 
             // String picturePath contains the path of selected Image
-            // first, upload picture
-            // second, obtain filename from server
-            // finally, copy original file to data folder by filename from server.
-
             // first, copy file to data folder as profile.png? jpg?
             // second, upload picture.
 
@@ -210,9 +220,6 @@ public class SettingActivity extends BaseActivity {
                 mRESTApiManager.updateUserPicture(in);
             } catch (FileNotFoundException e1) {
                 e1.printStackTrace();
-            } catch (IOException e2) {
-                e2.printStackTrace();
-                android.util.Log.e("tag", "Failed to copy picture file: " + e2);
             } finally {
                 try {
                     if (in != null) {
@@ -227,7 +234,8 @@ public class SettingActivity extends BaseActivity {
         } else
         if (requestCode == RESULT_TAKE_PICTURE && resultCode == RESULT_OK) {
             Bitmap bmpPicture = (Bitmap) intent.getExtras().get("data");
-            //imageView.setImageBitmap(bmpPicture);
+
+            mRESTApiManager.updateUserPicture(bmpPicture);
 
             ignorePasscodeOnce();
         }

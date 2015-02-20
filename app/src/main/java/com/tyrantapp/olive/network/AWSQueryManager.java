@@ -2,6 +2,7 @@ package com.tyrantapp.olive.network;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import com.kth.baasio.Baas;
 import com.kth.baasio.entity.BaasioBaseEntity;
@@ -23,11 +24,11 @@ import com.tyrantapp.olive.type.SpaceInfo;
 import com.tyrantapp.olive.type.UserProfile;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,6 +39,7 @@ public class AWSQueryManager extends RESTApiManager {
 
     private static final String SERVER_URL = "http://ec2-54-64-210-165.ap-northeast-1.compute.amazonaws.com";
     private static final String SERVER_PORT = "8080";
+
     private static final String SERVER_PATH_USER_SIGNUP = "/user/signup";
     private static final String SERVER_PATH_USER_SIGNIN = "/oauth2/access_token";
     private static final String SERVER_PATH_USER_LEAVE = "/user/leave";
@@ -57,6 +59,8 @@ public class AWSQueryManager extends RESTApiManager {
     private static final String SERVER_PATH_MESSAGE_NEW = "/message/new";
     private static final String SERVER_PATH_MESSAGE_READ = "/message/read";
 
+
+    private static final String SERVER_URL_MEDIA_BASE = SERVER_URL + ":" + SERVER_PORT;
 
     private static final String SERVER_URL_USER_SIGNUP = SERVER_URL + ":" + SERVER_PORT + SERVER_PATH_USER_SIGNUP;
     private static final String SERVER_URL_USER_SIGNIN = SERVER_URL + ":" + SERVER_PORT + SERVER_PATH_USER_SIGNIN;
@@ -291,60 +295,26 @@ public class AWSQueryManager extends RESTApiManager {
     }
 
     public int updateUserPicture(InputStream stream) {
+        return updateUserPicture(BitmapFactory.decodeStream(stream));
+    }
+
+    public int updateUserPicture(Bitmap bitmap) {
         int eRet = OLIVE_FAIL_UNKNOWN;
 
         if (isAutoSignIn()) {
             RestClient restClient = new RestClient(SERVER_URL_USER_UPDATE);
 
             UserProfile profile = DatabaseHelper.UserHelper.getUserProfile(getContext());
-            OutputStream out = null;
-            try {
-                //String profileFilename = profile.mUsername.replace("@", "-").replace(".","-");
-                File outFile = new File(getContext().getExternalFilesDir(null), "/profile/profile.jpg");
-                if (!outFile.exists()) {
-                    if (new File(getContext().getExternalFilesDir(null), "/profile/").mkdir()) {
-                        outFile.createNewFile();
-                    }
-                }
 
-                out = new FileOutputStream(outFile);
+            String filePath = OliveHelper.getProfileImagePath(getContext());
+            OliveHelper.saveImage(bitmap, Bitmap.CompressFormat.JPEG, 70, filePath);
 
-                // copy
-                byte[] buffer = new byte[1024];
-                int read;
-                while ((read = stream.read(buffer)) != -1) {
-                    out.write(buffer, 0, read);
-                }
-                try {
-                    if (out != null) {
-                        out.close();
-                    }
-                } catch (IOException e2) {
-                    e2.printStackTrace();
-                } finally {
-                    out = null;
-                }
+            // Upload
+            restClient.AddParam("new_picture", "file://" + filePath);
+            eRet = sendByHttpWithAuthenticate(RestClient.POST, restClient, null);
 
-                profile.mPicture = getContext().getExternalFilesDir(null) + "/profile/profile.jpg";
-
-                // Upload
-                restClient.AddParam("new_picture", "file://" + profile.mPicture);
-                eRet = sendByHttpWithAuthenticate(RestClient.POST, restClient, null);
-
-                // Update Database
-                if (eRet == OLIVE_SUCCESS) DatabaseHelper.UserHelper.updateUserProfile(getContext(), profile);
-            } catch (IOException e1) {
-                profile.mPicture = "";
-                e1.printStackTrace();
-            } finally {
-                try {
-                    if (out != null) {
-                        out.close();
-                    }
-                } catch (IOException e2) {
-                    e2.printStackTrace();
-                }
-            }
+            // Update Database
+            if (eRet != OLIVE_SUCCESS) new File(OliveHelper.getProfileImagePath(getContext())).delete();
         }
         return eRet;
     }
@@ -440,6 +410,14 @@ public class AWSQueryManager extends RESTApiManager {
                     arrRet.add(friend);
                 }
             }
+
+            // download portrait picture
+            for (HashMap<String, String> info : arrRet) {
+                String URL = SERVER_URL_MEDIA_BASE + info.get(OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PICTURE);
+                String path = OliveHelper.downloadCachedMedia(URL, OliveHelper.getProfileImageDir(getContext()));
+                info.put(OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_MEDIAURL, URL);
+                info.put(OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PICTURE, path);
+            }
         }
         return arrRet;
     }
@@ -452,6 +430,13 @@ public class AWSQueryManager extends RESTApiManager {
             HashMap<String, String> mapRecv = new HashMap<String, String>();
             if (sendByHttp(RestClient.POST, restClient, mapRecv) == OLIVE_SUCCESS) {
                 arrRet = JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_FRIENDS_PROFILE.OLIVE_PROPERTY_PROFILE_LIST));
+
+                for (HashMap<String, String> info : arrRet) {
+                    String URL = SERVER_URL_MEDIA_BASE + info.get(OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PICTURE);
+                    String path = OliveHelper.downloadCachedMedia(URL, OliveHelper.getProfileImageDir(getContext()));
+                    info.put(OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_MEDIAURL, URL);
+                    info.put(OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PICTURE, path);
+                }
             }
         }
 
@@ -472,6 +457,13 @@ public class AWSQueryManager extends RESTApiManager {
             HashMap<String, String> mapRecv = new HashMap<String, String>();
             if (sendByHttp(RestClient.POST, restClient, mapRecv) == OLIVE_SUCCESS) {
                 arrRet = JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_FRIENDS_PROFILE.OLIVE_PROPERTY_PROFILE_LIST));
+
+                for (HashMap<String, String> info : arrRet) {
+                    String URL = SERVER_URL_MEDIA_BASE + info.get(OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PICTURE);
+                    String path = OliveHelper.downloadCachedMedia(URL, OliveHelper.getProfileImageDir(getContext()));
+                    info.put(OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_MEDIAURL, URL);
+                    info.put(OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PICTURE, path);
+                }
             }
         }
 
@@ -584,8 +576,19 @@ public class AWSQueryManager extends RESTApiManager {
         if (isAutoSignIn()) {
             RestClient restClient = new RestClient(SERVER_URL_MESSAGE_POST);
             restClient.AddParam("room_id", String.valueOf(idRoom));
-            restClient.AddParam("msg_type", String.valueOf(OliveHelper.convertMimetype(mimetype)));
-            restClient.AddParam("contents", context);
+            int msg_type = OliveHelper.convertMimetype(mimetype);
+            restClient.AddParam("msg_type", String.valueOf(msg_type));
+
+            switch (msg_type) {
+                case 1:
+                case 2:
+                case 3:
+                    restClient.AddParam("contents", "file://" + context);
+                    break;
+                default:
+                    restClient.AddParam("contents", context);
+                    break;
+            }
 
             mapRet = new HashMap<String, String>();
             int eRet = sendByHttp(RestClient.POST, restClient, mapRet);
@@ -626,6 +629,16 @@ public class AWSQueryManager extends RESTApiManager {
             HashMap<String, String> mapRecv = new HashMap<String, String>();
             if (sendByHttp(RestClient.POST, restClient, mapRecv) == OLIVE_SUCCESS) {
                 arrRet = JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_MESSAGES_LIST.OLIVE_PROPERTY_MESSAGE_LIST));
+
+                for (HashMap<String, String> info : arrRet) {
+                    String msgType = info.get(OLIVE_PROPERTY_MESSAGE_LIST_ITEM.OLIVE_PROPERTY_MSG_TYPE);
+                    if ("1".equals(msgType) || "2".equals(msgType) || "3".equals(msgType)) {
+                        String URL = SERVER_URL_MEDIA_BASE + info.get(OLIVE_PROPERTY_MESSAGE_LIST_ITEM.OLIVE_PROPERTY_CONTENTS);
+                        String path = OliveHelper.downloadCachedMedia(URL, OliveHelper.getMessageMediaDir(getContext()));
+                        info.put(OLIVE_PROPERTY_MESSAGE_LIST_ITEM.OLIVE_PROPERTY_MEDIAURL, URL);
+                        info.put(OLIVE_PROPERTY_MESSAGE_LIST_ITEM.OLIVE_PROPERTY_CONTENTS, path);
+                    }
+                }
             }
         }
         return arrRet;
@@ -800,4 +813,5 @@ public class AWSQueryManager extends RESTApiManager {
         }
         return idSpace;
     }
+
 }
