@@ -45,6 +45,7 @@ import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
@@ -282,9 +283,8 @@ public class OliveHelper {
 
     private static File getExternalFilesDir(Context context) {
         File file = context.getExternalFilesDir(null);
-        if (file == null) file = context.getFilesDir(); // if no have external storage
-        if (!file.exists())
-            file = new File("/storage/emulated/legacy/Android/data/" + context.getPackageName() + "/files");
+        if (!file.exists()) file = new File("/storage/emulated/legacy/Android/data/" + context.getPackageName() + "/files"); // can not get valid-storage path. (like galaxy)
+        if (!file.exists()) file = context.getFilesDir(); // if no have external storage
         return file;
     }
 
@@ -410,7 +410,6 @@ public class OliveHelper {
         String largePath = getLargeThumbFilename(path);
 
         Bitmap bmpRet = null;
-
         if (path != null) {
             switch (minLevel) {
                 case 0: // Small > Medium > Large > Original

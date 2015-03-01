@@ -222,11 +222,11 @@ public class AWSQueryManager extends RESTApiManager {
             DatabaseHelper.RecipientHelper.removeRecipient(getContext(), -1);
             DatabaseHelper.SpaceHelper.removeSpace(getContext(), -1);
             DatabaseHelper.ConversationHelper.removeMessage(getContext(), -1);
-
             BaasioUser.signOut(getContext());
         } else {
             eRet = OLIVE_FAIL_UNKNOWN;
         }
+
         // clear preference
         PreferenceHelper.removeAllPreferences(getContext());
 
