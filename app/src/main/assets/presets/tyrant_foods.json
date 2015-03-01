@@ -1,0 +1,20 @@
+{
+    "tag" : "tyrant_foods",
+    "alternative" : "Foods",
+    "version" : "1",
+    "keys" : [
+        { "id" : "20000", "mimetype" : "application/x-emoji"   , "context" : "tyrant_foods;Smile"},
+        { "id" : "20001", "mimetype" : "application/x-location", "context" : "tyrant_foods;11111.111,22222.222"},
+        { "id" : "20002", "mimetype" : "application/x-emoji"   , "context" : "tyrant_foods;Smile"},
+        { "id" : "20003", "mimetype" : "application/x-emoji"   , "context" : "tyrant_foods;Smile"},
+        { "id" : "20004", "mimetype" : "application/x-emoji"   , "context" : "tyrant_foods;Smile"},
+        { "id" : "20005", "mimetype" : "application/x-emoji"   , "context" : "tyrant_foods;Smile"},
+        { "id" : "20006", "mimetype" : "application/x-emoji"   , "context" : "tyrant_foods;Smile"},
+        { "id" : "20007", "mimetype" : "application/x-emoji"   , "context" : "tyrant_foods;Smile"},
+        { "id" : "20008", "mimetype" : "application/x-emoji"   , "context" : "tyrant_foods;Smile"},
+        { "id" : "20009", "mimetype" : "application/x-emoji"   , "context" : "tyrant_foods;Smile"},
+        { "id" : "20010", "mimetype" : "application/x-emoji"   , "context" : "tyrant_foods;Smile"},
+        { "id" : "20011", "mimetype" : "application/x-emoji"   , "context" : "tyrant_foods;Smile"},
+        { "id" : "20012", "mimetype" : "application/x-emoji"   , "context" : "tyrant_foods;Smile"},
+    ]
+}

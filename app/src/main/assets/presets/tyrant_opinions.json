@@ -1,0 +1,20 @@
+{
+    "tag" : "tyrant_opinions",
+    "alternative" : "Opinions",
+    "version" : "1",
+    "keys" : [
+        { "id" : "00000", "mimetype" : "application/x-emoji"   , "context" : "tyrant_opinions;Smile"},
+        { "id" : "00001", "mimetype" : "application/x-location", "context" : "tyrant_opinions;11111.111,22222.222"},
+        { "id" : "00002", "mimetype" : "application/x-emoji"   , "context" : "tyrant_opinions;Smile"},
+        { "id" : "00003", "mimetype" : "application/x-emoji"   , "context" : "tyrant_opinions;Smile"},
+        { "id" : "00004", "mimetype" : "application/x-emoji"   , "context" : "tyrant_opinions;Smile"},
+        { "id" : "00005", "mimetype" : "application/x-emoji"   , "context" : "tyrant_opinions;Smile"},
+        { "id" : "00006", "mimetype" : "application/x-emoji"   , "context" : "tyrant_opinions;Smile"},
+        { "id" : "00007", "mimetype" : "application/x-emoji"   , "context" : "tyrant_opinions;Smile"},
+        { "id" : "00008", "mimetype" : "application/x-emoji"   , "context" : "tyrant_opinions;Smile"},
+        { "id" : "00009", "mimetype" : "application/x-emoji"   , "context" : "tyrant_opinions;Smile"},
+        { "id" : "00010", "mimetype" : "application/x-emoji"   , "context" : "tyrant_opinions;Smile"},
+        { "id" : "00011", "mimetype" : "application/x-emoji"   , "context" : "tyrant_opinions;Smile"},
+        { "id" : "00012", "mimetype" : "application/x-emoji"   , "context" : "tyrant_opinions;Smile"},
+    ]
+}

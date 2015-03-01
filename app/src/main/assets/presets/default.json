@@ -1,0 +1,8 @@
+{
+    "default" : [
+        { "index" : "0", "tag" : "tyrant_opinions" },
+        { "index" : "1", "tag" : "tyrant_foods" },
+        { "index" : "2", "tag" : "tyrant_transfers" },
+        { "index" : "3", "tag" : "tyrant_shoppings" },
+    ]
+}

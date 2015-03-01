@@ -422,95 +422,6 @@ public abstract class RESTApiManager {
     }
     */
 
-    /**
-     * 받은 JSON 객체를 파싱하는 메소드
-     * @param page
-     * @return
-     */
-    protected HashMap<String, String> JSONParser(String jsonString) {
-        HashMap<String, String> mapParsed = new HashMap<String, String>();
-
-        android.util.Log.i("서버에서 받은 전체 내용 : ", jsonString);
-
-        ArrayList<String> dequeKeys = new ArrayList<String>();
-        ArrayList<String> stackName = new ArrayList<String>();
-        ArrayList<JSONObject> stackObj = new ArrayList<JSONObject>();
-        ArrayList<Integer> stackCount = new ArrayList<Integer>();
-        try {
-            JSONObject obj = new JSONObject(jsonString);
-            stackObj.add(obj);
-            stackCount.add(obj.length());
-
-            Iterator<String> keys = obj.keys();
-            while (keys.hasNext()) dequeKeys.add(keys.next());
-
-            while (!dequeKeys.isEmpty()) {
-                int idxLast = dequeKeys.size() - 1;
-                String key = dequeKeys.get(idxLast);
-
-                if (stackCount.get(stackCount.size() - 1) > 0) {
-                    dequeKeys.remove(idxLast);
-                    stackCount.set(stackCount.size() - 1, stackCount.get(stackCount.size() - 1) - 1);
-
-                    obj = stackObj.get(stackObj.size() - 1);
-                    JSONObject subObj = obj.optJSONObject(key);
-
-                    if (subObj != null) {
-                        stackName.add(key);
-                        stackObj.add(subObj);
-                        stackCount.add(subObj.length());
-
-                        Iterator<String> subKeys = subObj.keys();
-                        while (subKeys.hasNext()) dequeKeys.add(subKeys.next());
-                    } else {
-                        String fullname = new String();
-                        for (String name : stackName) fullname += name + "::";
-                        mapParsed.put(fullname + key, obj.getString(key));
-                    }
-                } else {
-                    stackName.remove(stackName.size() - 1);
-                    stackObj.remove(stackObj.size() - 1);
-                    stackCount.remove(stackCount.size() - 1);
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return mapParsed;
-    }
-
-    protected ArrayList<HashMap<String, String>> JSONArrayParser(String jsonString) {
-        if (jsonString.startsWith("[") && jsonString.endsWith("]")) {
-            ArrayList<HashMap<String, String>> arrayParsed = new ArrayList<HashMap<String, String>>();
-            boolean bFind = true;
-            int start = 0;
-            do {
-                int begin = jsonString.indexOf("{", start);
-                if (begin > 0) {
-                    int stackCount = 1;
-                    int end = begin + 1;
-                    while(stackCount > 0) {
-                        int candidate01 = jsonString.indexOf("{", end);
-                        int candidate02 = jsonString.indexOf("}", end);
-                        if ((candidate01 >= 0) && (candidate01 < candidate02)) {
-                            stackCount++;
-                            end = candidate01 + 1;
-                        } else {
-                            stackCount--;
-                            end = candidate02 + 1;
-                        }
-                    }
-                    String separate = jsonString.substring(begin, end);
-                    arrayParsed.add(JSONParser(separate));
-                    //jsonString = jsonString.replace(separate, "");
-                    start = end;
-                } else bFind = false;
-            } while (bFind);
-            return arrayParsed;
-        } else return null;
-    }
-
     private static String appendProperty(String author, String options) {
         return author + "::" + options;
     }
@@ -524,7 +435,6 @@ public abstract class RESTApiManager {
 
 	public abstract HashMap<String, String>             getUserProfile();   // <- 동작 안함
     public abstract int	                                updateUserPhonenumber(String phonenumber);
-    public abstract int	                                updateUserPicture(InputStream stream);
     public abstract int	                                updateUserPicture(Bitmap bitmap);
     public abstract int	                                changePassword(String oldPassword, String newPassword);
 

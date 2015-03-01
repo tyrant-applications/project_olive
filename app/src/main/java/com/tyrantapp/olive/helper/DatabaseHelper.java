@@ -180,7 +180,8 @@ public class DatabaseHelper {
 
         public static boolean removeRecipient(Context context, long recipientId) {
             boolean bRet = false;
-            Uri uri = Uri.withAppendedPath(OliveContentProvider.RecipientColumns.CONTENT_URI, String.valueOf(recipientId));
+            Uri uri = OliveContentProvider.RecipientColumns.CONTENT_URI;
+            if (recipientId >= 0) uri = Uri.withAppendedPath(OliveContentProvider.RecipientColumns.CONTENT_URI, String.valueOf(recipientId));
             if (context.getContentResolver().delete(uri, null, null) > 0) {
                 bRet = true;
             }
@@ -275,7 +276,8 @@ public class DatabaseHelper {
 
         public static boolean removeSpace(Context context, long spaceId) {
             boolean bRet = false;
-            Uri uri = Uri.withAppendedPath(OliveContentProvider.SpaceColumns.CONTENT_URI, String.valueOf(spaceId));
+            Uri uri = OliveContentProvider.SpaceColumns.CONTENT_URI;
+            if (spaceId >= 0) uri = Uri.withAppendedPath(OliveContentProvider.SpaceColumns.CONTENT_URI, String.valueOf(spaceId));
             if (context.getContentResolver().delete(uri, null, null) > 0) {
                 bRet = true;
             }
@@ -409,7 +411,8 @@ public class DatabaseHelper {
 
         public static boolean removeMessage(Context context, long conversationId) {
             boolean bRet = false;
-            Uri uri = Uri.withAppendedPath(OliveContentProvider.ConversationColumns.CONTENT_URI, String.valueOf(conversationId));
+            Uri uri = OliveContentProvider.ConversationColumns.CONTENT_URI;
+            if (conversationId >= 0) uri = Uri.withAppendedPath(OliveContentProvider.ConversationColumns.CONTENT_URI, String.valueOf(conversationId));
             if (context.getContentResolver().delete(uri, null, null) > 0) {
                 bRet = true;
             }
@@ -661,7 +664,7 @@ public class DatabaseHelper {
                     values.put(OliveContentProvider.PresetButtonColumns.INDEX,      (Integer)def[0]);
                     values.put(OliveContentProvider.PresetButtonColumns.AUTHOR,     (String) def[1]);
                     values.put(OliveContentProvider.PresetButtonColumns.MIMETYPE,   (String) def[2]);
-                    values.put(OliveContentProvider.PresetButtonColumns.EXTRA_ID,   (Long)   def[3]);
+                    values.put(OliveContentProvider.PresetButtonColumns.BUTTON_ID,   (Long)   def[3]);
                     values.put(OliveContentProvider.PresetButtonColumns.CONTEXT,    (String) def[4]);
                     cr.insert(OliveContentProvider.PresetButtonColumns.CONTENT_URI, values);
                 }
@@ -696,7 +699,7 @@ public class DatabaseHelper {
                 ContentValues values = new ContentValues();
                 values.put(OliveContentProvider.PresetButtonColumns.AUTHOR,     info.mAuthor);
                 values.put(OliveContentProvider.PresetButtonColumns.MIMETYPE,   info.mMimetype);
-                values.put(OliveContentProvider.PresetButtonColumns.EXTRA_ID,   info.mExtraId);
+                values.put(OliveContentProvider.PresetButtonColumns.BUTTON_ID,   info.mExtraId);
                 values.put(OliveContentProvider.PresetButtonColumns.CONTEXT,    info.mContext);
 
                 if (cr.update(updateUri, values, null, null) > 0) {
@@ -773,7 +776,7 @@ public class DatabaseHelper {
                 info.mIndex         = c.getInt(c.getColumnIndex(OliveContentProvider.PresetButtonColumns.INDEX));
                 info.mAuthor        = c.getString(c.getColumnIndex(OliveContentProvider.PresetButtonColumns.AUTHOR));
                 info.mMimetype      = c.getString(c.getColumnIndex(OliveContentProvider.PresetButtonColumns.MIMETYPE));
-                info.mExtraId       = c.getInt(c.getColumnIndex(OliveContentProvider.PresetButtonColumns.EXTRA_ID));
+                info.mExtraId       = c.getInt(c.getColumnIndex(OliveContentProvider.PresetButtonColumns.BUTTON_ID));
                 info.mContext       = c.getString(c.getColumnIndex(OliveContentProvider.PresetButtonColumns.CONTEXT));
             }
 

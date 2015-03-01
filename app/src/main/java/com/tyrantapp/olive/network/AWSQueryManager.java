@@ -15,6 +15,7 @@ import com.kth.baasio.query.BaasioQuery;
 import com.kth.baasio.query.BaasioQuery.ORDER_BY;
 import com.kth.baasio.response.BaasioResponse;
 import com.tyrantapp.olive.configuration.BaasioConfig;
+import com.tyrantapp.olive.configuration.Constants;
 import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.helper.PreferenceHelper;
@@ -97,7 +98,7 @@ public class AWSQueryManager extends RESTApiManager {
             try {
                 restClient.Execute(RestClient.POST);
                 if (isValidNetwork(restClient)) {
-                    HashMap<String, String> mapRecv = JSONParser(restClient.getResponse());
+                    HashMap<String, String> mapRecv = OliveHelper.JSONParser(restClient.getResponse());
                     if (isSucceed(mapRecv)) {
                         eRet = OLIVE_SUCCESS;
 
@@ -150,7 +151,7 @@ public class AWSQueryManager extends RESTApiManager {
             try {
                 restClient.Execute(RestClient.POST);
                 if (isValidNetwork(restClient)) {
-                    HashMap<String, String> mapRecv = JSONParser(restClient.getResponse());
+                    HashMap<String, String> mapRecv = OliveHelper.JSONParser(restClient.getResponse());
                     String error = mapRecv.get("error");
                     if (error == null) {
                         String accessToken = mapRecv.get("access_token");
@@ -164,6 +165,15 @@ public class AWSQueryManager extends RESTApiManager {
                         DatabaseHelper.UserHelper.updateUserProfile(getContext(), profile);
                         DatabaseHelper.UserHelper.updateUserPassword(getContext(), password);
                         DatabaseHelper.UserHelper.updateAccessToken(getContext(), /*tokenType + " " + */accessToken);
+
+                        // download previous profile picture
+                        if (!new File(OliveHelper.getProfileImagePath(getContext())).exists()) {
+                            String profilePath = getUserProfile().get(RESTApiManager.OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PICTURE);
+                            if (profilePath != null) {
+                                String URL = SERVER_URL_MEDIA_BASE + profilePath;
+                                OliveHelper.downloadUserProfile(getContext(), URL);
+                            }
+                        }
 
                         android.util.Log.d(TAG, "access_token = " + accessToken + " / tokenType = " + tokenType + " / expiresIn = " + expiresIn + " / scope = " + scope);
                         eRet = OLIVE_SUCCESS;
@@ -204,7 +214,15 @@ public class AWSQueryManager extends RESTApiManager {
 
     public int signOut() {
         int eRet = OLIVE_SUCCESS;
+
+        // remove phone number from server
+        updateUserPhonenumber("");
+
         if (DatabaseHelper.UserHelper.removeUserProfile(getContext())) {
+            DatabaseHelper.RecipientHelper.removeRecipient(getContext(), -1);
+            DatabaseHelper.SpaceHelper.removeSpace(getContext(), -1);
+            DatabaseHelper.ConversationHelper.removeMessage(getContext(), -1);
+
             BaasioUser.signOut(getContext());
         } else {
             eRet = OLIVE_FAIL_UNKNOWN;
@@ -265,13 +283,13 @@ public class AWSQueryManager extends RESTApiManager {
         // 새로 로그인 했을 때, 서버로부터 사진 정도는 가져올 수 있어야 함.
         // 일단 friends/profile을 이용하여 가져옴
         if (isAutoSignIn()) {
-            RestClient restClient = new RestClient(SERVER_URL_FRIENDS_ADD);
+            RestClient restClient = new RestClient(SERVER_URL_FRIENDS_PROFILE);
             restClient.AddParam("friends_id", DatabaseHelper.UserHelper.getUserProfile(getContext()).mUsername);
 
             HashMap<String, String> mapRecv = new HashMap<String, String>();
             int eRet = sendByHttp(RestClient.POST, restClient, mapRecv);
             if (eRet == OLIVE_SUCCESS) {
-                ArrayList<HashMap<String, String>> arrayData = JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_USER_PROFILE.OLIVE_PROPERTY_PROFILE_LIST));
+                ArrayList<HashMap<String, String>> arrayData = OliveHelper.JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_USER_PROFILE.OLIVE_PROPERTY_PROFILE_LIST));
                 if (arrayData.size() > 0) {
                     mapRet = new HashMap<String, String>();
                     mapRet.putAll(arrayData.get(0));
@@ -292,10 +310,6 @@ public class AWSQueryManager extends RESTApiManager {
             eRet = sendByHttpWithAuthenticate(RestClient.POST, restClient, null);
         }
         return eRet;
-    }
-
-    public int updateUserPicture(InputStream stream) {
-        return updateUserPicture(BitmapFactory.decodeStream(stream));
     }
 
     public int updateUserPicture(Bitmap bitmap) {
@@ -398,8 +412,8 @@ public class AWSQueryManager extends RESTApiManager {
             if (sendByHttp(RestClient.POST, restClient, mapRecv) == OLIVE_SUCCESS) {
                 arrRet = new ArrayList<HashMap<String, String>>();
                 arrFriends = new ArrayList<HashMap<String, String>>();
-                arrFriends.addAll(JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_FRIENDS_FIND.OLIVE_PROPERTY_EMAILS_LIST)));
-                arrFriends.addAll(JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_FRIENDS_FIND.OLIVE_PROPERTY_CONTACTS_LIST)));
+                arrFriends.addAll(OliveHelper.JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_FRIENDS_FIND.OLIVE_PROPERTY_EMAILS_LIST)));
+                arrFriends.addAll(OliveHelper.JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_FRIENDS_FIND.OLIVE_PROPERTY_CONTACTS_LIST)));
             }
 
             HashSet<String> setReduceDuplicate = new HashSet<String>();
@@ -429,7 +443,7 @@ public class AWSQueryManager extends RESTApiManager {
             RestClient restClient = new RestClient(SERVER_URL_FRIENDS_LIST);
             HashMap<String, String> mapRecv = new HashMap<String, String>();
             if (sendByHttp(RestClient.POST, restClient, mapRecv) == OLIVE_SUCCESS) {
-                arrRet = JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_FRIENDS_PROFILE.OLIVE_PROPERTY_PROFILE_LIST));
+                arrRet = OliveHelper.JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_FRIENDS_PROFILE.OLIVE_PROPERTY_PROFILE_LIST));
 
                 for (HashMap<String, String> info : arrRet) {
                     String URL = SERVER_URL_MEDIA_BASE + info.get(OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PICTURE);
@@ -456,7 +470,7 @@ public class AWSQueryManager extends RESTApiManager {
 
             HashMap<String, String> mapRecv = new HashMap<String, String>();
             if (sendByHttp(RestClient.POST, restClient, mapRecv) == OLIVE_SUCCESS) {
-                arrRet = JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_FRIENDS_PROFILE.OLIVE_PROPERTY_PROFILE_LIST));
+                arrRet = OliveHelper.JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_FRIENDS_PROFILE.OLIVE_PROPERTY_PROFILE_LIST));
 
                 for (HashMap<String, String> info : arrRet) {
                     String URL = SERVER_URL_MEDIA_BASE + info.get(OLIVE_PROPERTY_PROFILE_LIST_ITEM.OLIVE_PROPERTY_PICTURE);
@@ -538,7 +552,7 @@ public class AWSQueryManager extends RESTApiManager {
             HashMap<String, String> mapRecv = new HashMap<String, String>();
             int eRet = sendByHttp(RestClient.POST, restClient, mapRecv);
             if (eRet == OLIVE_SUCCESS) {
-                arrRet = JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_ROOMS_LIST.OLIVE_PROPERTY_ROOM_LIST));
+                arrRet = OliveHelper.JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_ROOMS_LIST.OLIVE_PROPERTY_ROOM_LIST));
             } else
             if (eRet == OLIVE_FAIL_BAD_NETWORK) {
                 arrRet = null;
@@ -559,7 +573,7 @@ public class AWSQueryManager extends RESTApiManager {
             int eRet = sendByHttp(RestClient.POST, restClient, mapRet);
             if (eRet == OLIVE_SUCCESS) {
                 if (participants != null) {
-                    participants.addAll(JSONArrayParser(mapRet.get(OLIVE_PROPERTY_ROOM_INFO.OLIVE_PROPERTY_ROOM_ATTENDANTS_LIST)));
+                    participants.addAll(OliveHelper.JSONArrayParser(mapRet.get(OLIVE_PROPERTY_ROOM_INFO.OLIVE_PROPERTY_ROOM_ATTENDANTS_LIST)));
                 }
             } else
             if (eRet == OLIVE_FAIL_BAD_NETWORK) {
@@ -628,7 +642,7 @@ public class AWSQueryManager extends RESTApiManager {
 
             HashMap<String, String> mapRecv = new HashMap<String, String>();
             if (sendByHttp(RestClient.POST, restClient, mapRecv) == OLIVE_SUCCESS) {
-                arrRet = JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_MESSAGES_LIST.OLIVE_PROPERTY_MESSAGE_LIST));
+                arrRet = OliveHelper.JSONArrayParser(mapRecv.get(OLIVE_PROPERTY_MESSAGES_LIST.OLIVE_PROPERTY_MESSAGE_LIST));
 
                 for (HashMap<String, String> info : arrRet) {
                     String msgType = info.get(OLIVE_PROPERTY_MESSAGE_LIST_ITEM.OLIVE_PROPERTY_MSG_TYPE);
@@ -686,7 +700,7 @@ public class AWSQueryManager extends RESTApiManager {
                 client.Execute(execution);
                 if (isValidNetwork(client)) {
                     if (mapRecv == null) mapRecv = new HashMap<String, String>();
-                    mapRecv.putAll(JSONParser(client.getResponse()));
+                    mapRecv.putAll(OliveHelper.JSONParser(client.getResponse()));
                     if (isSucceed(mapRecv)) {
                         eRet = OLIVE_SUCCESS;
                     }

@@ -1,5 +1,6 @@
 package com.tyrantapp.olive;
 
+import com.tyrantapp.olive.configuration.Constants;
 import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.helper.PreferenceHelper;
@@ -124,7 +125,8 @@ public class SettingActivity extends BaseActivity {
         builder.setItems(chooseType, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 if (item == 0) {
-                    Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                    Uri outputUri = Uri.fromFile(new File(OliveHelper.getProfileImageDir(SettingActivity.this) + "temporary.jpg"));
+                    Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE).putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
                     startActivityForResult(intent, RESULT_TAKE_PICTURE);
                 } else
                 if (item == 1) {
@@ -205,37 +207,51 @@ public class SettingActivity extends BaseActivity {
         ToggleButton btnPasscodeLock = (ToggleButton) findViewById(R.id.pref_passcode_lock_switch);
         btnPasscodeLock.setChecked(PreferenceHelper.getBooleanPreferences(this, OLIVE_PREF_PASSCODE_LOCK, false));
 
+        String selectedFile = null;
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != intent) {
             Uri selectedImage = intent.getData();
 
             // String picturePath contains the path of selected Image
             // first, copy file to data folder as profile.png? jpg?
             // second, upload picture.
-
             InputStream in = null;
             try {
                 in = getContentResolver().openInputStream(selectedImage);
 
-                // Make bitmap
-                mRESTApiManager.updateUserPicture(in);
-            } catch (FileNotFoundException e1) {
-                e1.printStackTrace();
+                if (OliveHelper.saveFile(in, OliveHelper.getProfileImageDir(this) + "temporary.jpg")) {
+                    selectedFile = OliveHelper.getProfileImageDir(this) + "temporary.jpg";
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             } finally {
                 try {
-                    if (in != null) {
-                        in.close();
-                    }
-                } catch (IOException e2) {
-                    // NOOP
+                    if (in != null) in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-
-            ignorePasscodeOnce();
         } else
         if (requestCode == RESULT_TAKE_PICTURE && resultCode == RESULT_OK) {
-            Bitmap bmpPicture = (Bitmap) intent.getExtras().get("data");
+            // String picturePath contains the path of selected Image
+            // first, copy file to data folder as profile.png? jpg?
+            // second, upload picture.
 
-            mRESTApiManager.updateUserPicture(bmpPicture);
+            selectedFile = OliveHelper.getProfileImageDir(this) + "temporary.jpg";
+        }
+
+        if (selectedFile != null) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            options.inSampleSize = 0;
+
+            int nSize = 0;
+            do {
+                options.inSampleSize++;
+                BitmapFactory.decodeFile(selectedFile, options);
+            } while ((options.outWidth * options.outHeight) > Constants.Configuration.MAX_IMAGE_RESOLUTION * Constants.Configuration.MAX_IMAGE_RESOLUTION);
+
+            options.inJustDecodeBounds = false;
+            mRESTApiManager.updateUserPicture(BitmapFactory.decodeFile(selectedFile, options));
 
             ignorePasscodeOnce();
         }

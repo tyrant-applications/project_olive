@@ -1,9 +1,7 @@
 package com.tyrantapp.olive.adapter;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +13,6 @@ import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.provider.OliveContentProvider;
-import com.tyrantapp.olive.type.UserProfile;
 
 public class ButtonBoardRecyclerAdapter extends CursorRecyclerAdapter<ButtonBoardRecyclerAdapter.ButtonBoardItemViewHolder> {
 	final static private String 		TAG	= ButtonBoardRecyclerAdapter.class.getSimpleName();
@@ -44,7 +41,7 @@ public class ButtonBoardRecyclerAdapter extends CursorRecyclerAdapter<ButtonBoar
 		if (cursor != null) {
             String author = cursor.getString(cursor.getColumnIndex(OliveContentProvider.PresetButtonColumns.AUTHOR));
             String mimetype = cursor.getString(cursor.getColumnIndex(OliveContentProvider.PresetButtonColumns.MIMETYPE));
-            Long idExtra = cursor.getLong(cursor.getColumnIndex(OliveContentProvider.PresetButtonColumns.EXTRA_ID));
+            Long idExtra = cursor.getLong(cursor.getColumnIndex(OliveContentProvider.PresetButtonColumns.BUTTON_ID));
             String context = cursor.getString(cursor.getColumnIndex(OliveContentProvider.PresetButtonColumns.CONTEXT));
 
             boolean bShowImage = true;

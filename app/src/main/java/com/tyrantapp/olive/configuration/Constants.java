@@ -23,4 +23,8 @@ public class Constants {
         public static final String SHARED_SPACE_INFO = "space_info";
     }
 
+    public static class Configuration {
+        public static final int MAX_IMAGE_RESOLUTION = 1920;
+    }
+
 }

@@ -44,6 +44,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -125,7 +126,8 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	
 	private OnClickListener	mOnCameraClickListener = new OnClickListener() {
 		public void onClick(View view) {
-			Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            Uri outputUri = Uri.fromFile(new File(OliveHelper.getMessageMediaDir(ConversationActivity.this), "temporary.jpg"));
+			Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE).putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
 			startActivityForResult(intent, RESULT_TAKE_PICTURE);
 		}
 	};
@@ -319,41 +321,55 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	 protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 	    super.onActivityResult(requestCode, resultCode, intent);
 
+        String selectedImage = null;
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != intent) {
-            Uri selectedImage = intent.getData();
+            Uri selectedImageUri = intent.getData();
 
             // String picturePath contains the path of selected Image
-            // first, upload picture
-            // second, obtain filename from server
-            // finally, copy original file to data folder by filename from server.
-
+            // first, copy file to data folder as profile.png? jpg?
+            // second, upload picture.
             InputStream in = null;
             try {
-                in = getContentResolver().openInputStream(selectedImage);
-                sendImage(BitmapFactory.decodeStream(in));
-            } catch (FileNotFoundException e1) {
-                e1.printStackTrace();
-            } catch (IOException e2) {
-                e2.printStackTrace();
+                in = getContentResolver().openInputStream(selectedImageUri);
+
+                if (OliveHelper.saveFile(in, OliveHelper.getMessageMediaDir(this) + "temporary.jpg")) {
+                    selectedImage = OliveHelper.getMessageMediaDir(this) + "temporary.jpg";
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             } finally {
                 try {
-                    if (in != null) {
-                        in.close();
-                    }
-                } catch (IOException e2) {
-                    // NOOP
+                    if (in != null) in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-
-            ignorePasscodeOnce();
         } else
         if (requestCode == RESULT_TAKE_PICTURE && resultCode == RESULT_OK) {
-            Bitmap bmpPicture = (Bitmap) intent.getExtras().get("data");
-            sendImage(bmpPicture);
+            // String picturePath contains the path of selected Image
+            // first, copy file to data folder as profile.png? jpg?
+            // second, upload picture.
+
+            selectedImage = OliveHelper.getMessageMediaDir(this) + "temporary.jpg";
+        }
+
+        if (selectedImage != null) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            options.inSampleSize = 0;
+
+            int nSize = 0;
+            do {
+                options.inSampleSize++;
+                BitmapFactory.decodeFile(selectedImage, options);
+            } while ((options.outWidth * options.outHeight) > Constants.Configuration.MAX_IMAGE_RESOLUTION * Constants.Configuration.MAX_IMAGE_RESOLUTION);
+
+            options.inJustDecodeBounds = false;
+            sendImage(BitmapFactory.decodeFile(selectedImage, options));
 
             ignorePasscodeOnce();
         }
-	}
+    }
 
     private boolean sendImage(Bitmap bitmap) {
         boolean bRet = false;
@@ -367,9 +383,9 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
         message.mStatus = ConversationColumns.STATUS_PENDING;
         message.mCreated = System.currentTimeMillis();
 
-        String filename = mSpaceInfo.mChatroomId + "_" + message.mCreated + ".png";
+        String filename = mSpaceInfo.mChatroomId + "_" + message.mCreated + ".jpg";
         String filePath = OliveHelper.getMessageMediaDir(this) + filename;
-        if (OliveHelper.saveImage(bitmap, Bitmap.CompressFormat.PNG, 70, filePath)) {
+        if (OliveHelper.saveImage(bitmap, Bitmap.CompressFormat.JPEG, 70, filePath)) {
             message.mContext = filePath;
             DatabaseHelper.ConversationHelper.addMessage(this, message);
 

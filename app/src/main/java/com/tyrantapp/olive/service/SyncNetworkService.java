@@ -1,5 +1,6 @@
 package com.tyrantapp.olive.service;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import com.tyrantapp.olive.provider.OliveContentProvider;
 import com.tyrantapp.olive.type.ConversationMessage;
 import com.tyrantapp.olive.type.RecipientInfo;
 import com.tyrantapp.olive.type.SpaceInfo;
+import com.tyrantapp.olive.type.UserProfile;
 
 public class SyncNetworkService extends Service {
 	public static final String TAG = "OliveService";
@@ -269,8 +271,6 @@ public class SyncNetworkService extends Service {
         RESTApiManager helper = RESTApiManager.getInstance();
         String phoneNumber = OliveHelper.formatNumber(OliveHelper.getLineNumber(this));
         if (phoneNumber != null) helper.updateUserPhonenumber(phoneNumber);
-        //InputStream is = this.getContentResolver().openInputStream();
-        //helper.updateUserPicture();
     }
 
     private void onSendMessage() {
