@@ -204,11 +204,19 @@ public class AWSQueryManager extends RESTApiManager {
 
     public int signOut() {
         int eRet = OLIVE_SUCCESS;
+
+        // remove phone number to server
+        updateUserPhonenumber("");
+
         if (DatabaseHelper.UserHelper.removeUserProfile(getContext())) {
+            DatabaseHelper.RecipientHelper.removeRecipient(getContext(), -1);
+            DatabaseHelper.SpaceHelper.removeSpace(getContext(), -1);
+            DatabaseHelper.ConversationHelper.removeMessage(getContext(), -1);
             BaasioUser.signOut(getContext());
         } else {
             eRet = OLIVE_FAIL_UNKNOWN;
         }
+
         // clear preference
         PreferenceHelper.removeAllPreferences(getContext());
 

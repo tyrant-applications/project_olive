@@ -1,0 +1,20 @@
+{
+    "tag" : "tyrant_transfers",
+    "alternative" : "Transfers",
+    "version" : "1",
+    "keys" : [
+        { "id" : "10000", "mimetype" : "application/x-emoji"   , "context" : "tyrant_transfers;Smile"},
+        { "id" : "10001", "mimetype" : "application/x-location", "context" : "tyrant_transfers;11111.111,22222.222"},
+        { "id" : "10002", "mimetype" : "application/x-emoji"   , "context" : "tyrant_transfers;Smile"},
+        { "id" : "10003", "mimetype" : "application/x-emoji"   , "context" : "tyrant_transfers;Smile"},
+        { "id" : "10004", "mimetype" : "application/x-emoji"   , "context" : "tyrant_transfers;Smile"},
+        { "id" : "10005", "mimetype" : "application/x-emoji"   , "context" : "tyrant_transfers;Smile"},
+        { "id" : "10006", "mimetype" : "application/x-emoji"   , "context" : "tyrant_transfers;Smile"},
+        { "id" : "10007", "mimetype" : "application/x-emoji"   , "context" : "tyrant_transfers;Smile"},
+        { "id" : "10008", "mimetype" : "application/x-emoji"   , "context" : "tyrant_transfers;Smile"},
+        { "id" : "10009", "mimetype" : "application/x-emoji"   , "context" : "tyrant_transfers;Smile"},
+        { "id" : "10010", "mimetype" : "application/x-emoji"   , "context" : "tyrant_transfers;Smile"},
+        { "id" : "10011", "mimetype" : "application/x-emoji"   , "context" : "tyrant_transfers;Smile"},
+        { "id" : "10012", "mimetype" : "application/x-emoji"   , "context" : "tyrant_transfers;Smile"},
+    ]
+}

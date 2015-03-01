@@ -180,7 +180,8 @@ public class DatabaseHelper {
 
         public static boolean removeRecipient(Context context, long recipientId) {
             boolean bRet = false;
-            Uri uri = Uri.withAppendedPath(OliveContentProvider.RecipientColumns.CONTENT_URI, String.valueOf(recipientId));
+            Uri uri = OliveContentProvider.RecipientColumns.CONTENT_URI;
+            if (recipientId >= 0) uri = Uri.withAppendedPath(OliveContentProvider.RecipientColumns.CONTENT_URI, String.valueOf(recipientId));
             if (context.getContentResolver().delete(uri, null, null) > 0) {
                 bRet = true;
             }
@@ -275,7 +276,8 @@ public class DatabaseHelper {
 
         public static boolean removeSpace(Context context, long spaceId) {
             boolean bRet = false;
-            Uri uri = Uri.withAppendedPath(OliveContentProvider.SpaceColumns.CONTENT_URI, String.valueOf(spaceId));
+            Uri uri = OliveContentProvider.SpaceColumns.CONTENT_URI;
+            if (spaceId >= 0) uri = Uri.withAppendedPath(OliveContentProvider.SpaceColumns.CONTENT_URI, String.valueOf(spaceId));
             if (context.getContentResolver().delete(uri, null, null) > 0) {
                 bRet = true;
             }
@@ -409,7 +411,8 @@ public class DatabaseHelper {
 
         public static boolean removeMessage(Context context, long conversationId) {
             boolean bRet = false;
-            Uri uri = Uri.withAppendedPath(OliveContentProvider.ConversationColumns.CONTENT_URI, String.valueOf(conversationId));
+            Uri uri = OliveContentProvider.ConversationColumns.CONTENT_URI;
+            if (conversationId >= 0) uri = Uri.withAppendedPath(OliveContentProvider.ConversationColumns.CONTENT_URI, String.valueOf(conversationId));
             if (context.getContentResolver().delete(uri, null, null) > 0) {
                 bRet = true;
             }

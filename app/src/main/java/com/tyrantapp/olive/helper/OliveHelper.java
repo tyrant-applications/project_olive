@@ -40,6 +40,7 @@ import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
@@ -274,7 +275,8 @@ public class OliveHelper {
 
     private static File getExternalFilesDir(Context context) {
         File file = context.getExternalFilesDir(null);
-        if (file == null) file = context.getFilesDir(); // if no have external storage
+        if (!file.exists()) file = new File("/storage/emulated/legacy/Android/data/" + context.getPackageName() + "/files"); // can not get valid-storage path. (like galaxy)
+        if (!file.exists()) file = context.getFilesDir(); // if no have external storage
         return file;
     }
 
@@ -291,8 +293,11 @@ public class OliveHelper {
     }
 
     public static String getPathLastSegment(String filePath) {
-        String[] separatedPath = filePath.split("\\/");
-        return separatedPath[separatedPath.length - 1];
+        if (filePath != null) {
+            String[] separatedPath = filePath.split("\\/");
+            return separatedPath[separatedPath.length - 1];
+        }
+        return null;
     }
 
     public static String getUpperPath(String filePath) {
@@ -385,7 +390,16 @@ public class OliveHelper {
             case 2:
                 if (bmpRet == null) bmpRet = BitmapFactory.decodeFile(largePath);
             case 3:
-                if (bmpRet == null) bmpRet = BitmapFactory.decodeFile(path);
+                if (bmpRet == null) {
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(path, options);
+                    if (options.outWidth > 2048 || options.outHeight > 2048) {
+                        options.inSampleSize = 2;
+                    }
+                    options.inJustDecodeBounds = false;
+                    bmpRet = BitmapFactory.decodeFile(path, options);
+                }
                 break;
             default:
                 return getCachedImage(path);
