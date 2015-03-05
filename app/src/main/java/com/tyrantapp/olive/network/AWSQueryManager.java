@@ -767,7 +767,8 @@ public class AWSQueryManager extends RESTApiManager {
     private static int getErrorCode(HashMap<String, String> mapRecv) {
         if (!isSucceed(mapRecv)) {
             android.util.Log.d(TAG, "Error Code = " + mapRecv.get("error_code") + " / message = " + mapRecv.get("message") + " / data = " + mapRecv.get("data"));
-            return Integer.parseInt(mapRecv.get(OLIVE_PROPERTY_ERROR.OLIVE_PROPERTY_ERROR_CODE));
+            String error = mapRecv.get(OLIVE_PROPERTY_ERROR.OLIVE_PROPERTY_ERROR_CODE).replace("#","");
+            return Integer.parseInt(error);
         }
         android.util.Log.d(TAG, "Received data is not occured error.");
         return -1;

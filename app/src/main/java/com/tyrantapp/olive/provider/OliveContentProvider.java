@@ -183,10 +183,11 @@ public class OliveContentProvider extends ContentProvider {
         public static final String 		CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tyrantapp.olive.downloadsets";
 
         public static final String 		INDEX		    = "_index";
+        public static final String      DISPLAYNAME     = "displayname";
         public static final String 		AUTHOR		    = "author";
         public static final String      VERSION         = "version";
 
-        public static final String[] 	PROJECTIONS = new String[] { _ID, INDEX, AUTHOR, VERSION, };
+        public static final String[] 	PROJECTIONS = new String[] { _ID, INDEX, DISPLAYNAME, AUTHOR, VERSION, };
         public static final String 		ORDERBY = INDEX;
     }
 
@@ -303,6 +304,7 @@ public class OliveContentProvider extends ContentProvider {
         mapDownloadSetsProjection = new HashMap<String, String>();
         mapDownloadSetsProjection.put(DownloadSetColumns._ID, DownloadSetColumns._ID);
         mapDownloadSetsProjection.put(DownloadSetColumns.INDEX, DownloadSetColumns.INDEX);
+        mapDownloadSetsProjection.put(DownloadSetColumns.DISPLAYNAME, DownloadSetColumns.DISPLAYNAME);
         mapDownloadSetsProjection.put(DownloadSetColumns.AUTHOR, DownloadSetColumns.AUTHOR);
         mapDownloadSetsProjection.put(DownloadSetColumns.VERSION, DownloadSetColumns.VERSION);
 
@@ -404,7 +406,7 @@ public class OliveContentProvider extends ContentProvider {
 
             db.execSQL("CREATE TABLE IF NOT EXISTS " + PRESETBUTTONS_TABLE_NAME + " (" +
                     PresetButtonColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    PresetButtonColumns.INDEX + " INTEGER," +
+                    PresetButtonColumns.INDEX + " INTEGER AUTOINCREMENT," +
                     PresetButtonColumns.MIMETYPE + " VARCHAR(255) NOT NULL," +
                     PresetButtonColumns.CONTEXT + " VARCHAR(255) NOT NULL," +
                     PresetButtonColumns.BUTTON_ID + " LONG," +
@@ -414,7 +416,8 @@ public class OliveContentProvider extends ContentProvider {
 
             db.execSQL("CREATE TABLE IF NOT EXISTS " + DOWNLOADSETS_TABLE_NAME + " (" +
                     DownloadSetColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    DownloadSetColumns.INDEX + " INTEGER," +
+                    DownloadSetColumns.INDEX + " INTEGER AUTOINCREMENT," +
+                    DownloadSetColumns.DISPLAYNAME + " VARCHAR(255) NOT NULL," +
                     DownloadSetColumns.AUTHOR + " VARCHAR(255) NOT NULL," +
                     DownloadSetColumns.VERSION + " VARCHAR(255)" +
                     ");");

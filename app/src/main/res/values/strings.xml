@@ -17,6 +17,7 @@
 
     <string name="title_activity_splash">Olive</string>
     <string name="title_activity_main">Olive</string>
+    <string name="title_activity_maps">Map</string>
     <string name="title_sectionNum">Olive Keyboard Preset Number</string>
     <string name="title_sectionOlive00">Olive Keyboard Preset #0</string>
     <string name="title_sectionOlive01">Olive Keyboard Preset #1</string>

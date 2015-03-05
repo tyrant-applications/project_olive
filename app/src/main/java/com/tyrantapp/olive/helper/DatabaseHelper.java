@@ -611,44 +611,44 @@ public class DatabaseHelper {
         };
         private static final Object[][] DEFAULT_PRESET = new Object[][] {
                 // IDX, AUTH, M_TYPE, X_ID, CXT
-                {  0, "user", "text/plain", (long)-1, "Eat"},
-                {  1, "user", "text/plain", (long)-1, "Can We Meet?"},
-                {  2, "user", "text/plain", (long)-1, "Yes"},
-                {  3, "user", "text/plain", (long)-1, "Where?"},
-                {  4, "user", "text/plain", (long)-1, "Coffee"},
-                {  5, "user", "text/plain", (long)-1, "Can We Talk?"},
-                {  6, "user", "text/plain", (long)-1, "No"},
-                {  7, "user", "text/plain", (long)-1, "When?"},
-                {  8, "user", "text/plain", (long)-1, "Pub"},
-                {  9, "user", "text/plain", (long)-1, "Wanna Do Something?"},
-                { 10, "user", "text/plain", (long)-1, "Busy"},
-                { 11, "user", "text/plain", (long)-1, "With?"},
+                {  0, "text/plain", "Eat",                   (long)-1, "user", (int)0, (long)-1},
+                {  1, "text/plain", "Can We Meet?",          (long)-1, "user", (int)0, (long)-1},
+                {  2, "text/plain", "Yes",                   (long)-1, "user", (int)0, (long)-1},
+                {  3, "text/plain", "Where?",                (long)-1, "user", (int)0, (long)-1},
+                {  4, "text/plain", "Coffee",                (long)-1, "user", (int)0, (long)-1},
+                {  5, "text/plain", "Can We Talk?",          (long)-1, "user", (int)0, (long)-1},
+                {  6, "text/plain", "No",                    (long)-1, "user", (int)0, (long)-1},
+                {  7, "text/plain", "When?",                 (long)-1, "user", (int)0, (long)-1},
+                {  8, "text/plain", "Pub",                   (long)-1, "user", (int)0, (long)-1},
+                {  9, "text/plain", "Wanna Do Something?",   (long)-1, "user", (int)0, (long)-1},
+                { 10, "text/plain", "Busy",                  (long)-1, "user", (int)0, (long)-1},
+                { 11, "text/plain", "With?",                 (long)-1, "user", (int)0, (long)-1},
 
-                { 12, "user", "text/plain", (long)-1, "(Food?)"},
-                { 13, "user", "text/plain", (long)-1, "(Yes)"},
-                { 14, "user", "text/plain", (long)-1, "Where?"},
-                { 15, "user", "text/plain", (long)-1, "Make your own button."},
-                { 16, "user", "text/plain", (long)-1, "(Coffee?)"},
-                { 17, "user", "text/plain", (long)-1, "(No)"},
-                { 18, "user", "text/plain", (long)-1, "When?"},
-                { 19, "user", "text/plain", (long)-1, "Make your own button."},
-                { 20, "user", "text/plain", (long)-1, "(Drink?)"},
-                { 21, "user", "text/plain", (long)-1, "(Maybe)"},
-                { 22, "user", "text/plain", (long)-1, "(Busy)"},
-                { 23, "user", "text/plain", (long)-1, "Make your own button."},
+                { 12, "text/plain", "(Food?)",               (long)-1, "user", (int)0, (long)-1},
+                { 13, "text/plain", "(Yes)",                 (long)-1, "user", (int)0, (long)-1},
+                { 14, "text/plain", "Where?",                (long)-1, "user", (int)0, (long)-1},
+                { 15, "text/plain", "Make your own button.", (long)-1, "user", (int)0, (long)-1},
+                { 16, "text/plain", "(Coffee?)",             (long)-1, "user", (int)0, (long)-1},
+                { 17, "text/plain", "(No)",                  (long)-1, "user", (int)0, (long)-1},
+                { 18, "text/plain", "When?",                 (long)-1, "user", (int)0, (long)-1},
+                { 19, "text/plain", "Make your own button.", (long)-1, "user", (int)0, (long)-1},
+                { 20, "text/plain", "(Drink?)",              (long)-1, "user", (int)0, (long)-1},
+                { 21, "text/plain", "(Maybe)",               (long)-1, "user", (int)0, (long)-1},
+                { 22, "text/plain", "(Busy)",                (long)-1, "user", (int)0, (long)-1},
+                { 23, "text/plain", "Make your own button.", (long)-1, "user", (int)0, (long)-1},
 
-                { 24, "user", "text/plain", (long)-1, "Happy Hour"},
-                { 25, "user", "text/plain", (long)-1, "Uris"},
-                { 26, "user", "text/plain", (long)-1, "(Mel's)"},
-                { 27, "user", "text/plain", (long)-1, "In class"},
-                { 28, "user", "text/plain", (long)-1, "Rugby HH"},
-                { 29, "user", "text/plain", (long)-1, "Watson"},
-                { 30, "user", "text/plain", (long)-1, "(Pourhouse)"},
-                { 31, "user", "text/plain", (long)-1, "CBS Matters"},
-                { 32, "user", "text/plain", (long)-1, "Afterparty"},
-                { 33, "user", "text/plain", (long)-1, "Warren"},
-                { 34, "user", "text/plain", (long)-1, "(Parlour)"},
-                { 35, "user", "text/plain", (long)-1, "Make your own button."},
+                { 24, "text/plain", "Happy Hour",            (long)-1, "user", (int)0, (long)-1},
+                { 25, "text/plain", "Uris",                  (long)-1, "user", (int)0, (long)-1},
+                { 26, "text/plain", "(Mel's)",               (long)-1, "user", (int)0, (long)-1},
+                { 27, "text/plain", "In class",              (long)-1, "user", (int)0, (long)-1},
+                { 28, "text/plain", "Rugby HH",              (long)-1, "user", (int)0, (long)-1},
+                { 29, "text/plain", "Watson",                (long)-1, "user", (int)0, (long)-1},
+                { 30, "text/plain", "(Pourhouse)",           (long)-1, "user", (int)0, (long)-1},
+                { 31, "text/plain", "CBS Matters",           (long)-1, "user", (int)0, (long)-1},
+                { 32, "text/plain", "Afterparty",            (long)-1, "user", (int)0, (long)-1},
+                { 33, "text/plain", "Warren",                (long)-1, "user", (int)0, (long)-1},
+                { 34, "text/plain", "(Parlour)",             (long)-1, "user", (int)0, (long)-1},
+                { 35, "text/plain", "Make your own button.", (long)-1, "user", (int)0, (long)-1},
         };
 
         public static boolean initialize(Context context) {
@@ -662,10 +662,11 @@ public class DatabaseHelper {
                 for (Object[] def : DEFAULT_PRESET) {
                     ContentValues values = new ContentValues();
                     values.put(OliveContentProvider.PresetButtonColumns.INDEX,      (Integer)def[0]);
-                    values.put(OliveContentProvider.PresetButtonColumns.AUTHOR,     (String) def[1]);
-                    values.put(OliveContentProvider.PresetButtonColumns.MIMETYPE,   (String) def[2]);
-                    values.put(OliveContentProvider.PresetButtonColumns.BUTTON_ID,   (Long)   def[3]);
-                    values.put(OliveContentProvider.PresetButtonColumns.CONTEXT,    (String) def[4]);
+                    values.put(OliveContentProvider.PresetButtonColumns.MIMETYPE,   (String) def[1]);
+                    values.put(OliveContentProvider.PresetButtonColumns.CONTEXT,    (String) def[2]);
+                    values.put(OliveContentProvider.PresetButtonColumns.BUTTON_ID,  (Long)   def[3]);
+                    values.put(OliveContentProvider.PresetButtonColumns.AUTHOR,     (String) def[4]);
+                    values.put(OliveContentProvider.PresetButtonColumns.VERSION,    (Integer)def[5]);
                     cr.insert(OliveContentProvider.PresetButtonColumns.CONTENT_URI, values);
                 }
                 bRet = true;
@@ -697,10 +698,11 @@ public class DatabaseHelper {
             if (c != null && c.getCount() > 0) {
                 c.moveToFirst();
                 ContentValues values = new ContentValues();
-                values.put(OliveContentProvider.PresetButtonColumns.AUTHOR,     info.mAuthor);
                 values.put(OliveContentProvider.PresetButtonColumns.MIMETYPE,   info.mMimetype);
-                values.put(OliveContentProvider.PresetButtonColumns.BUTTON_ID,   info.mExtraId);
                 values.put(OliveContentProvider.PresetButtonColumns.CONTEXT,    info.mContext);
+                values.put(OliveContentProvider.PresetButtonColumns.BUTTON_ID,  info.mButtonId);
+                values.put(OliveContentProvider.PresetButtonColumns.AUTHOR,     info.mAuthor);
+                values.put(OliveContentProvider.PresetButtonColumns.VERSION,    info.mVersion);
 
                 if (cr.update(updateUri, values, null, null) > 0) {
                     bRet = true;
@@ -721,7 +723,7 @@ public class DatabaseHelper {
             return nRet;
         }
 
-        public static boolean swapButton(Context context, long srcId, long dstId) {
+        public static boolean swapIndex(Context context, long srcId, long dstId) {
             boolean bRet = false;
             ContentResolver cr = context.getContentResolver();
             Uri srcUri = Uri.withAppendedPath(OliveContentProvider.PresetButtonColumns.CONTENT_URI, String.valueOf(srcId));
@@ -774,10 +776,11 @@ public class DatabaseHelper {
 
                 info.mId            = c.getLong(c.getColumnIndex(OliveContentProvider.PresetButtonColumns._ID));
                 info.mIndex         = c.getInt(c.getColumnIndex(OliveContentProvider.PresetButtonColumns.INDEX));
-                info.mAuthor        = c.getString(c.getColumnIndex(OliveContentProvider.PresetButtonColumns.AUTHOR));
                 info.mMimetype      = c.getString(c.getColumnIndex(OliveContentProvider.PresetButtonColumns.MIMETYPE));
-                info.mExtraId       = c.getInt(c.getColumnIndex(OliveContentProvider.PresetButtonColumns.BUTTON_ID));
                 info.mContext       = c.getString(c.getColumnIndex(OliveContentProvider.PresetButtonColumns.CONTEXT));
+                info.mButtonId      = c.getLong(c.getColumnIndex(OliveContentProvider.PresetButtonColumns.BUTTON_ID));
+                info.mAuthor        = c.getString(c.getColumnIndex(OliveContentProvider.PresetButtonColumns.AUTHOR));
+                info.mVersion       = c.getInt(c.getColumnIndex(OliveContentProvider.PresetButtonColumns.VERSION));
             }
 
             if (c != null) c.close();
@@ -834,29 +837,250 @@ public class DatabaseHelper {
     }
 
     public static class DownloadSetHelper {
+        public static long addDownloadSet(Context context, String displayname, String author, int version) {
+            ContentResolver cr = context.getContentResolver();
+            ContentValues values = new ContentValues();
+            values.put(OliveContentProvider.DownloadSetColumns.AUTHOR, author);
+            values.put(OliveContentProvider.DownloadSetColumns.DISPLAYNAME, displayname);
+            values.put(OliveContentProvider.DownloadSetColumns.VERSION, version);
+            Uri uri = cr.insert(OliveContentProvider.DownloadSetColumns.CONTENT_URI, values);
+            return Long.valueOf(uri.getLastPathSegment());
+        }
 
+        public static boolean removeDownloadSet(Context context, long id) {
+            ContentResolver cr = context.getContentResolver();
+            Uri uri = Uri.withAppendedPath(OliveContentProvider.DownloadSetColumns.CONTENT_URI, String.valueOf(id));
+            if (cr.delete(uri, null, null) > 0) {
+                return true;
+            }
+            return false;
+        }
+
+        public static boolean updateDownloadSet(Context context, long id, int newVersion, String displayname, String author) {
+            ContentResolver cr = context.getContentResolver();
+            ContentValues values = new ContentValues();
+            values.put(OliveContentProvider.DownloadSetColumns.AUTHOR, author);
+            values.put(OliveContentProvider.DownloadSetColumns.DISPLAYNAME, displayname);
+            values.put(OliveContentProvider.DownloadSetColumns.VERSION, newVersion);
+            Uri uri = Uri.withAppendedPath(OliveContentProvider.DownloadSetColumns.CONTENT_URI, String.valueOf(id));
+            if (cr.update(uri, values, null, null) > 0) {
+                return true;
+            }
+            return false;
+        }
+
+        public static boolean swapIndex(Context context, long srcId, long dstId) {
+            ContentResolver cr = context.getContentResolver();
+
+            Uri srcUri = Uri.withAppendedPath(OliveContentProvider.DownloadSetColumns.CONTENT_URI, String.valueOf(srcId));
+            Uri dstUri = Uri.withAppendedPath(OliveContentProvider.DownloadSetColumns.CONTENT_URI, String.valueOf(dstId));
+
+            Cursor cSrc = cr.query(srcUri, new String[] {OliveContentProvider.DownloadSetColumns.INDEX, }, null, null, null);
+            Cursor cDst = cr.query(dstUri, new String[] {OliveContentProvider.DownloadSetColumns.INDEX, }, null, null, null);
+            cSrc.moveToFirst();
+            cDst.moveToFirst();
+            int srcIndex = cSrc.getInt(0);
+            int dstIndex = cDst.getInt(0);
+            cSrc.close();
+            cDst.close();
+
+            ContentValues srcValues = new ContentValues();
+            ContentValues dstValues = new ContentValues();
+            srcValues.put(OliveContentProvider.DownloadSetColumns.INDEX, dstIndex);
+            dstValues.put(OliveContentProvider.DownloadSetColumns.INDEX, srcIndex);
+            if (cr.update(srcUri, srcValues, null, null) > 0 && cr.update(dstUri, dstValues, null, null) > 0) {
+                return true;
+            }
+            return false;
+        }
+
+        public static String getAuthor(Context context, long id) {
+            String pszRet = new String();
+
+            ContentResolver cr = context.getContentResolver();
+            Uri uri = Uri.withAppendedPath(OliveContentProvider.DownloadSetColumns.CONTENT_URI, String.valueOf(id));
+            Cursor c = cr.query(uri, OliveContentProvider.DownloadSetColumns.PROJECTIONS, null, null, null);
+            if (c != null && c.getCount() > 0) {
+                c.moveToFirst();
+                pszRet = c.getString(c.getColumnIndex(OliveContentProvider.DownloadSetColumns.AUTHOR));
+            }
+
+            if (c != null) c.close();
+
+            return pszRet;
+        }
+
+        public static String getDisplayname(Context context, long id) {
+            String pszRet = new String();
+
+            ContentResolver cr = context.getContentResolver();
+            Uri uri = Uri.withAppendedPath(OliveContentProvider.DownloadSetColumns.CONTENT_URI, String.valueOf(id));
+            Cursor c = cr.query(uri, OliveContentProvider.DownloadSetColumns.PROJECTIONS, null, null, null);
+            if (c != null && c.getCount() > 0) {
+                c.moveToFirst();
+                pszRet = c.getString(c.getColumnIndex(OliveContentProvider.DownloadSetColumns.DISPLAYNAME));
+            }
+
+            if (c != null) c.close();
+
+            return pszRet;
+        }
+
+        public static int    getVersion(Context context, long id) {
+            int nRet = -1;
+
+            ContentResolver cr = context.getContentResolver();
+            Uri uri = Uri.withAppendedPath(OliveContentProvider.DownloadSetColumns.CONTENT_URI, String.valueOf(id));
+            Cursor c = cr.query(uri, OliveContentProvider.DownloadSetColumns.PROJECTIONS, null, null, null);
+            if (c != null && c.getCount() > 0) {
+                c.moveToFirst();
+                nRet = c.getInt(c.getColumnIndex(OliveContentProvider.DownloadSetColumns.VERSION));
+            }
+
+            if (c != null) c.close();
+
+            return nRet;
+        }
+
+        public static long getIdByAuthor(Context context, String author) {
+            long lRet = -1;
+            ContentResolver cr = context.getContentResolver();
+            Cursor c = cr.query(
+                    OliveContentProvider.DownloadSetColumns.CONTENT_URI,
+                    OliveContentProvider.DownloadSetColumns.PROJECTIONS,
+                    OliveContentProvider.DownloadSetColumns.AUTHOR + " LIKE ?",
+                    new String[] { author, },
+                    null);
+
+            if (c != null && c.getCount() > 0) {
+                c.moveToFirst();
+                lRet = c.getLong(c.getColumnIndex(OliveContentProvider.DownloadSetColumns._ID));
+            }
+
+            if (c != null) c.close();
+
+            return lRet;
+        }
+
+        public static Cursor getCursor(Context context) {
+            ContentResolver cr = context.getContentResolver();
+            Cursor c = cr.query(OliveContentProvider.DownloadSetColumns.CONTENT_URI,
+                    OliveContentProvider.DownloadSetColumns.PROJECTIONS,
+                    null, null,
+                    OliveContentProvider.DownloadSetColumns.ORDERBY);
+            return c;
+        }
     }
 
     public static class DownloadButtonHelper {
 
-        public static long addPreset(String author, String mimetype, int index, String context) {
-            return -1;
+        public static long addButton(Context context, String mimetype, String contexts, long buttonId, String author, int version) {
+            ContentResolver cr = context.getContentResolver();
+            ContentValues values = new ContentValues();
+            values.put(OliveContentProvider.DownloadButtonColumns.MIMETYPE, mimetype);
+            values.put(OliveContentProvider.DownloadButtonColumns.CONTEXT, contexts);
+            values.put(OliveContentProvider.DownloadButtonColumns.BUTTON_ID, buttonId);
+            values.put(OliveContentProvider.DownloadButtonColumns.AUTHOR, author);
+            values.put(OliveContentProvider.DownloadButtonColumns.VERSION, version);
+            Uri uri = cr.insert(OliveContentProvider.DownloadButtonColumns.CONTENT_URI, values);
+            return Long.valueOf(uri.getLastPathSegment());
         }
 
-        public static boolean removePreset(String author) {
+        public static boolean removeButton(Context context, long id) {
+            ContentResolver cr = context.getContentResolver();
+            Uri uri = Uri.withAppendedPath(OliveContentProvider.DownloadButtonColumns.CONTENT_URI, String.valueOf(id));
+            if (cr.delete(uri, null, null) > 0) {
+                return true;
+            }
             return false;
         }
 
-        public static int updateButtons(long idSection, int idxSection, ButtonInfo info) {
-            return -1;
+        public static boolean removeButtons(Context context, String author) {
+            ContentResolver cr = context.getContentResolver();
+            if (cr.delete(OliveContentProvider.DownloadButtonColumns.CONTENT_URI,
+                    OliveContentProvider.DownloadButtonColumns.AUTHOR + "=?",
+                    new String[] { author, }) > 0) {
+                return true;
+            }
+            return false;
         }
 
-        public static ButtonInfo getButtonInfo(long idSection, int idxSection) {
-            return null;
+        public static boolean updateButton(Context context, long id, String mimetype, String contexts, long buttonId, String author, int version) {
+            ContentResolver cr = context.getContentResolver();
+            ContentValues values = new ContentValues();
+            values.put(OliveContentProvider.DownloadButtonColumns.MIMETYPE, mimetype);
+            values.put(OliveContentProvider.DownloadButtonColumns.CONTEXT, contexts);
+            values.put(OliveContentProvider.DownloadButtonColumns.BUTTON_ID, buttonId);
+            values.put(OliveContentProvider.DownloadButtonColumns.AUTHOR, author);
+            values.put(OliveContentProvider.DownloadButtonColumns.VERSION, version);
+            Uri uri = Uri.withAppendedPath(OliveContentProvider.DownloadButtonColumns.CONTENT_URI, String.valueOf(id));
+            if (cr.update(uri, values, null, null) > 0) {
+                return true;
+            }
+            return false;
         }
 
-        public static Cursor getCursor() {
-            return null;
+        public static ButtonInfo getButtonInfo(Context context, long id) {
+            ButtonInfo info = null;
+            ContentResolver cr = context.getContentResolver();
+            Uri uri = Uri.withAppendedPath(OliveContentProvider.DownloadButtonColumns.CONTENT_URI, String.valueOf(id));
+            Cursor c = cr.query(uri, OliveContentProvider.DownloadButtonColumns.PROJECTIONS, null, null, null);
+            if (c != null && c.getCount() > 0) {
+                c.moveToFirst();
+
+                info = new ButtonInfo();
+
+                info.mId            = c.getLong(c.getColumnIndex(OliveContentProvider.DownloadButtonColumns._ID));
+                info.mIndex         = -1;
+                info.mMimetype      = c.getString(c.getColumnIndex(OliveContentProvider.DownloadButtonColumns.MIMETYPE));
+                info.mContext       = c.getString(c.getColumnIndex(OliveContentProvider.DownloadButtonColumns.CONTEXT));
+                info.mButtonId      = c.getLong(c.getColumnIndex(OliveContentProvider.DownloadButtonColumns.BUTTON_ID));
+                info.mAuthor        = c.getString(c.getColumnIndex(OliveContentProvider.DownloadButtonColumns.AUTHOR));
+                info.mVersion       = c.getInt(c.getColumnIndex(OliveContentProvider.DownloadButtonColumns.VERSION));
+            }
+
+            if (c != null) c.close();
+
+            return info;
+        }
+
+        public static long getIdByButtonId(Context context, int buttonId) {
+            long lRet = -1;
+            ContentResolver cr = context.getContentResolver();
+            Cursor c = cr.query(
+                    OliveContentProvider.DownloadButtonColumns.CONTENT_URI,
+                    OliveContentProvider.DownloadButtonColumns.PROJECTIONS,
+                    OliveContentProvider.DownloadButtonColumns.BUTTON_ID + "=?",
+                    new String[] { String.valueOf(buttonId), },
+                    null);
+
+            if (c != null && c.getCount() > 0) {
+                c.moveToFirst();
+                lRet = c.getLong(c.getColumnIndex(OliveContentProvider.DownloadButtonColumns._ID));
+            }
+
+            if (c != null) c.close();
+
+            return lRet;
+        }
+
+        public static Cursor getCursor(Context context) {
+            ContentResolver cr = context.getContentResolver();
+            Cursor c = cr.query(OliveContentProvider.DownloadButtonColumns.CONTENT_URI,
+                    OliveContentProvider.DownloadButtonColumns.PROJECTIONS,
+                    null, null,
+                    OliveContentProvider.DownloadButtonColumns.ORDERBY);
+            return c;
+        }
+
+        public static Cursor getCursorByAuthor(Context context, String author) {
+            ContentResolver cr = context.getContentResolver();
+            Cursor c = cr.query(OliveContentProvider.DownloadButtonColumns.CONTENT_URI,
+                    OliveContentProvider.DownloadButtonColumns.PROJECTIONS,
+                    OliveContentProvider.DownloadButtonColumns.AUTHOR + "=?",
+                    new String[] { author, },
+                    OliveContentProvider.DownloadButtonColumns.ORDERBY);
+            return c;
         }
     }
 

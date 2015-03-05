@@ -7,8 +7,10 @@ import com.kth.baasio.entity.push.BaasioDevice;
 import com.kth.baasio.exception.BaasioException;
 import com.kth.common.utils.LogUtils;
 import com.tyrantapp.olive.configuration.BaasioConfig;
+import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.network.AWSQueryManager;
+import com.tyrantapp.olive.provider.OliveContentProvider;
 
 import android.app.Application;
 import android.os.AsyncTask;
@@ -73,12 +75,50 @@ public class OliveApplication extends Application {
                 }
                 HashMap<String, String> mapDefault = OliveHelper.JSONParser(builder.toString());
                 ArrayList<HashMap<String, String>> arrDefault = OliveHelper.JSONArrayParser(mapDefault.get("default"));
+
+                // add to database
+                for (HashMap<String, String> valueSet : arrDefault) {
+                    String author = valueSet.get("author");
+
+                    File subFile = new File(getExternalFilesDir(null), "presets/" + author + ".json");
+                    try {
+                        BufferedReader subReader = new BufferedReader(new FileReader(subFile));
+                        StringBuilder subBuilder = new StringBuilder();
+                        while (true) {
+                            String line = subReader.readLine();
+                            if (line != null) {
+                                builder.append(line);
+                            } else {
+                                break;
+                            }
+                        }
+                        HashMap<String, String> mapSub = OliveHelper.JSONParser(builder.toString());
+                        String displayName = mapSub.get("displayname");
+                        int version = Integer.parseInt(mapSub.get("version"));
+                        ArrayList<HashMap<String, String>> arrKeys = OliveHelper.JSONArrayParser(mapSub.get("Keys"));
+
+                        if (DatabaseHelper.DownloadSetHelper.addDownloadSet(this, displayName, author, version) >= 0) {
+                            for (HashMap<String, String> key : arrKeys) {
+                                String mimetype = key.get("mimetype");
+                                String contexts = key.get("context");
+                                long idButton = Long.parseLong(key.get("id"));
+
+                                DatabaseHelper.DownloadButtonHelper.addButton(this, mimetype, contexts, idButton, author, version);
+                            }
+                        }
+                    } catch (FileNotFoundException se1) {
+                        se1.printStackTrace();
+                    } catch (IOException se2) {
+                        se2.printStackTrace();
+                    }
+                }
             } catch (FileNotFoundException e1) {
                 e1.printStackTrace();
             } catch (IOException e2) {
                 e2.printStackTrace();
             }
         }
+
     }
 
     @Override

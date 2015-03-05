@@ -91,7 +91,22 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:scaleType="centerCrop"
-                android:background="@color/transparent"/>
+                android:background="@color/transparent"
+                android:visibility="gone"/>
+
+            <RelativeLayout
+                android:id="@+id/conversation_last_olive_googlemap_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone">
+
+                <fragment
+                    android:id="@+id/conversation_last_olive_googlemap"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"/>
+
+            </RelativeLayout>
 
         </RelativeLayout>
         
@@ -112,32 +127,33 @@
         
         <RelativeLayout 
             android:layout_width="match_parent"
-            android:layout_height="283dp" >
-        
-		    <android.support.v4.view.ViewPager
+            android:layout_height="240dp" >
+            <!--android:layout_height="283dp"-->
+
+            <android.support.v4.view.ViewPager
 			    android:id="@+id/olive_keypad_pager"
 			    android:layout_width="match_parent"
-			    android:layout_height="240dp"
-			    android:layout_marginTop="43dp" />
-		    
-		    <LinearLayout
+			    android:layout_height="240dp" />
+            <!--android:layout_marginTop="43dp"-->
+
+            <LinearLayout
 			    android:id="@+id/conversation_last_olive_expander"
 		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content" 
+		        android:layout_height="wrap_content"
 		        android:orientation="vertical" >
-		        
-		        <ImageButton 
-			        android:layout_width="match_parent"
-			        android:layout_height="43dp"
-			        android:src="@drawable/bg_btn_expand_currentplace" 
-			        android:background="@color/transparent"
-			        android:onClick="onExpand" />
-			    
-			    <ImageView 
+
+		        <!--<ImageButton -->
+			        <!--android:layout_width="match_parent"-->
+			        <!--android:layout_height="43dp"-->
+			        <!--android:src="@drawable/bg_btn_expand_currentplace" -->
+			        <!--android:background="@color/transparent"-->
+			        <!--android:onClick="onExpand" />-->
+
+			    <ImageView
 			        android:layout_width="match_parent"
 			        android:layout_height="wrap_content"
 			        android:background="@drawable/bg_btn_keypad_expand" />
-		    
+
 		    </LinearLayout>
 		        
 		</RelativeLayout>

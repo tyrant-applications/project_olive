@@ -1,5 +1,12 @@
 package com.tyrantapp.olive;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.tyrantapp.olive.adapter.ConversationRecyclerAdapter;
 import com.tyrantapp.olive.adapter.KeypadPagerAdapter;
 import com.tyrantapp.olive.component.ConversationRecyclerView;
@@ -20,8 +27,15 @@ import com.tyrantapp.olive.type.UserProfile;
 import com.tyrantapp.olive.util.FileUtils;
 import com.tyrantapp.olive.util.SharedVariables;
 
+import android.app.FragmentManager;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.content.Context;
@@ -39,6 +53,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -69,6 +84,9 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 
     private TextView					mLastOliveText;
     private ImageView                   mLastOliveImage;
+    private GoogleMap                   mLastOliveMap;
+    //private Fragment                    mLastOliveMapWrapper;
+    private RelativeLayout              mLastOliveMapWrapper;
 	private View						mLastOliveExpander;
 	
 	private ViewFlipper					mInputMethodFlipper;
@@ -139,6 +157,8 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	
 	private OnClickListener	mOnLocationClickListener = new OnClickListener() {
 		public void onClick(View view) {
+            Intent intent = new Intent(ConversationActivity.this, MapsActivity.class);
+            startActivityForResult(intent, RESULT_GET_LOCATION);
 		}
 	};
 	
@@ -196,9 +216,17 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		// Last Olive (interaction mode)
         mLastOliveText = (TextView) findViewById(R.id.conversation_last_olive_text);
         mLastOliveImage = (ImageView) findViewById(R.id.conversation_last_olive_image);
+        mLastOliveMapWrapper = (RelativeLayout) findViewById(R.id.conversation_last_olive_googlemap_wrapper);
+        //mLastOliveMapWrapper = getSupportFragmentManager().findFragmentById(R.id.conversation_last_olive_googlemap);
+        mLastOliveMap = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.conversation_last_olive_googlemap)).getMap();
 		mLastOliveExpander = (View) findViewById(R.id.conversation_last_olive_expander);
-		
-		// IME mode
+
+        // default setting for map
+        // Zoom in the Google Map
+        //mLastOliveMap.getUiSettings().setMapToolbarEnabled(false);
+        mLastOliveMap.getUiSettings().setAllGesturesEnabled(false);
+
+        // IME mode
 		mTypingMode = false;
 		mInputMethodFlipper = (ViewFlipper) findViewById(R.id.input_method_flipper);
 		mInputMethodKeypad = (View) findViewById(R.id.input_method_keypad);
@@ -351,6 +379,9 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
             // second, upload picture.
 
             selectedImage = OliveHelper.getMessageMediaDir(this) + "temporary.jpg";
+        } else
+        if (requestCode == RESULT_GET_LOCATION && resultCode == MapsActivity.RESULT_SUCCESS) {
+            sendGeoLocation(intent.getDoubleExtra("latitude", 0), intent.getDoubleExtra("longitude", 0));
         }
 
         if (selectedImage != null) {
@@ -369,6 +400,26 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 
             ignorePasscodeOnce();
         }
+    }
+
+    private boolean sendGeoLocation(double latitude, double longitude) {
+        ConversationMessage message = new ConversationMessage();
+        message.mMessageId = -1;
+        message.mAuthor = "user";
+        message.mSpaceId = mSpaceId;
+        message.mSender = DatabaseHelper.UserHelper.getUserProfile(this).mUsername;
+        message.mMimetype = OliveHelper.MIMETYPE_GEOLOCATE;
+        message.mStatus = ConversationColumns.STATUS_PENDING;
+        message.mCreated = System.currentTimeMillis();
+        message.mContext = latitude + "," + longitude;
+
+        DatabaseHelper.ConversationHelper.addMessage(this, message);
+
+        Intent sendIntent = new Intent(this, SyncNetworkService.class)
+                .setAction(SyncNetworkService.INTENT_ACTION_SEND_MESSAGE);
+        startService(sendIntent);
+
+        return true;
     }
 
     private boolean sendImage(Bitmap bitmap) {
@@ -392,6 +443,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
             Intent sendIntent = new Intent(this, SyncNetworkService.class)
                     .setAction(SyncNetworkService.INTENT_ACTION_SEND_MESSAGE);
             startService(sendIntent);
+            bRet = true;
         }
 
         return bRet;
@@ -499,15 +551,21 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	
 	public void updateLastOlive(Cursor cursor) {
 		if (cursor != null && cursor.getCount() > 0) {
+            //android.support.v4.app.FragmentManager fm = getSupportFragmentManager();//getFragmentManager();
+            //fm.beginTransaction().hide(mLastOliveMapWrapper).commit();
+
             String mimetype = cursor.getString(cursor.getColumnIndex(ConversationColumns.MIMETYPE));
             String mediaURL = cursor.getString(cursor.getColumnIndex(ConversationColumns.MEDIAURL));
             String content = cursor.getString(cursor.getColumnIndex(ConversationColumns.CONTEXT));
             Bitmap bmpImage = null;
+            double latitude = 0;
+            double longitude = 0;
             switch (OliveHelper.convertMimetype(mimetype)) {
                 case 0: //MIMETYPE_TEXT:
                     mLastOliveText.setText(content);
                     mLastOliveText.setVisibility(View.VISIBLE);
                     mLastOliveImage.setVisibility(View.GONE);
+                    mLastOliveMapWrapper.setVisibility(View.GONE);
                     break;
                 case 1: //MIMETYPE_IMAGE:
                     OliveHelper.downloadMedia(mediaURL, OliveHelper.getMessageMediaDir(this));
@@ -515,26 +573,46 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
                     mLastOliveImage.setImageBitmap(bmpImage);
                     mLastOliveText.setVisibility(View.GONE);
                     mLastOliveImage.setVisibility(View.VISIBLE);
+                    mLastOliveMapWrapper.setVisibility(View.GONE);
                     break;
                 case 2: //MIMETYPE_VIDEO:
                     mLastOliveText.setText(content);
                     mLastOliveText.setVisibility(View.GONE);
                     mLastOliveImage.setVisibility(View.VISIBLE);
+                    mLastOliveMapWrapper.setVisibility(View.GONE);
                     break;
                 case 3: //MIMETYPE_AUDIO:
                     mLastOliveText.setText(content);
                     mLastOliveText.setVisibility(View.GONE);
                     mLastOliveImage.setVisibility(View.VISIBLE);
+                    mLastOliveMapWrapper.setVisibility(View.GONE);
                     break;
                 case 4: //MIMETYPE_GEOLOCATE:
-                    mLastOliveText.setText(content);
+                    latitude = Double.parseDouble(content.substring(0, content.indexOf(",")));
+                    longitude = Double.parseDouble(content.substring(content.indexOf(",") + 1));
+
+                    try {
+                        String addressName = "HERE";
+                        Geocoder geocoder = new Geocoder(this);
+                        for (Address address : geocoder.getFromLocation(latitude, longitude, 1)) {
+                            addressName = address.getAddressLine(0);
+                        }
+                        mLastOliveMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title(addressName)).showInfoWindow();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    // Showing the current location in Google Map
+                    mLastOliveMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude + 0.0015, longitude), 15));
+
                     mLastOliveText.setVisibility(View.GONE);
-                    mLastOliveImage.setVisibility(View.VISIBLE);
+                    mLastOliveImage.setVisibility(View.GONE);
+                    mLastOliveMapWrapper.setVisibility(View.VISIBLE);
                     break;
                 case 5: //MIMETYPE_EMOJI:
                     mLastOliveText.setText(content);
                     mLastOliveText.setVisibility(View.GONE);
                     mLastOliveImage.setVisibility(View.VISIBLE);
+                    mLastOliveMapWrapper.setVisibility(View.GONE);
                     break;
             }
 		} else {

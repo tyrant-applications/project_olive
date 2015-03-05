@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,28 +62,32 @@ public class ConversationRecyclerAdapter extends CursorRecyclerAdapter<Conversat
                     holder.mButtonImage.setVisibility(View.GONE);
                     break;
                 case 1: //MIMETYPE_IMAGE:
-                    bmpImage = OliveHelper.getCachedImage(content, 1);
+                    bmpImage = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_image_filter_black_48dp);//OliveHelper.getCachedImage(content, 1);
                     holder.mButtonImage.setImageBitmap(bmpImage);
                     holder.mButtonText.setVisibility(View.GONE);
                     holder.mButtonImage.setVisibility(View.VISIBLE);
                     break;
                 case 2: //MIMETYPE_VIDEO:
-                    holder.mButtonText.setText(content);
+                    bmpImage = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_video_black_48dp);
+                    holder.mButtonImage.setImageBitmap(bmpImage);
                     holder.mButtonText.setVisibility(View.GONE);
                     holder.mButtonImage.setVisibility(View.VISIBLE);
                     break;
                 case 3: //MIMETYPE_AUDIO:
-                    holder.mButtonText.setText(content);
+                    bmpImage = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_microphone_outline_black_48dp);
+                    holder.mButtonImage.setImageBitmap(bmpImage);
                     holder.mButtonText.setVisibility(View.GONE);
                     holder.mButtonImage.setVisibility(View.VISIBLE);
                     break;
                 case 4: //MIMETYPE_GEOLOCATE:
-                    holder.mButtonText.setText(content);
+                    bmpImage = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_map_marker_black_48dp);
+                    holder.mButtonImage.setImageBitmap(bmpImage);
                     holder.mButtonText.setVisibility(View.GONE);
                     holder.mButtonImage.setVisibility(View.VISIBLE);
                     break;
                 case 5: //MIMETYPE_EMOJI:
-                    holder.mButtonText.setText(content);
+                    bmpImage = OliveHelper.getCachedImage(content, 1);
+                    holder.mButtonImage.setImageBitmap(bmpImage);
                     holder.mButtonText.setVisibility(View.GONE);
                     holder.mButtonImage.setVisibility(View.VISIBLE);
                     break;
@@ -110,6 +115,7 @@ public class ConversationRecyclerAdapter extends CursorRecyclerAdapter<Conversat
             mButtonHolder = (RelativeLayout) itemView.findViewById(R.id.conversation_interface);
             mButtonText = (TextView) itemView.findViewById(R.id.conversation_text);
             mButtonImage = (ImageView) itemView.findViewById(R.id.conversation_image);
+            mButtonImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 		}
 	}
 }
