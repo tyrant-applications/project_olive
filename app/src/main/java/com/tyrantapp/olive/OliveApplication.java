@@ -87,15 +87,15 @@ public class OliveApplication extends Application {
                         while (true) {
                             String line = subReader.readLine();
                             if (line != null) {
-                                builder.append(line);
+                                subBuilder.append(line);
                             } else {
                                 break;
                             }
                         }
-                        HashMap<String, String> mapSub = OliveHelper.JSONParser(builder.toString());
+                        HashMap<String, String> mapSub = OliveHelper.JSONParser(subBuilder.toString());
                         String displayName = mapSub.get("displayname");
                         int version = Integer.parseInt(mapSub.get("version"));
-                        ArrayList<HashMap<String, String>> arrKeys = OliveHelper.JSONArrayParser(mapSub.get("Keys"));
+                        ArrayList<HashMap<String, String>> arrKeys = OliveHelper.JSONArrayParser(mapSub.get("keys"));
 
                         if (DatabaseHelper.DownloadSetHelper.addDownloadSet(this, displayName, author, version) >= 0) {
                             for (HashMap<String, String> key : arrKeys) {

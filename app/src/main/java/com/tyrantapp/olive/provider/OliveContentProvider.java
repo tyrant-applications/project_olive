@@ -406,7 +406,7 @@ public class OliveContentProvider extends ContentProvider {
 
             db.execSQL("CREATE TABLE IF NOT EXISTS " + PRESETBUTTONS_TABLE_NAME + " (" +
                     PresetButtonColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    PresetButtonColumns.INDEX + " INTEGER AUTOINCREMENT," +
+                    PresetButtonColumns.INDEX + " INTEGER," +
                     PresetButtonColumns.MIMETYPE + " VARCHAR(255) NOT NULL," +
                     PresetButtonColumns.CONTEXT + " VARCHAR(255) NOT NULL," +
                     PresetButtonColumns.BUTTON_ID + " LONG," +
@@ -416,7 +416,7 @@ public class OliveContentProvider extends ContentProvider {
 
             db.execSQL("CREATE TABLE IF NOT EXISTS " + DOWNLOADSETS_TABLE_NAME + " (" +
                     DownloadSetColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    DownloadSetColumns.INDEX + " INTEGER AUTOINCREMENT," +
+                    DownloadSetColumns.INDEX + " INTEGER," +
                     DownloadSetColumns.DISPLAYNAME + " VARCHAR(255) NOT NULL," +
                     DownloadSetColumns.AUTHOR + " VARCHAR(255) NOT NULL," +
                     DownloadSetColumns.VERSION + " VARCHAR(255)" +

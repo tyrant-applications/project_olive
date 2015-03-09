@@ -840,6 +840,7 @@ public class DatabaseHelper {
         public static long addDownloadSet(Context context, String displayname, String author, int version) {
             ContentResolver cr = context.getContentResolver();
             ContentValues values = new ContentValues();
+            // Need to calculate and add index
             values.put(OliveContentProvider.DownloadSetColumns.AUTHOR, author);
             values.put(OliveContentProvider.DownloadSetColumns.DISPLAYNAME, displayname);
             values.put(OliveContentProvider.DownloadSetColumns.VERSION, version);
@@ -926,7 +927,7 @@ public class DatabaseHelper {
             return pszRet;
         }
 
-        public static int    getVersion(Context context, long id) {
+        public static int getVersion(Context context, long id) {
             int nRet = -1;
 
             ContentResolver cr = context.getContentResolver();
