@@ -444,22 +444,19 @@ public class OliveHelper {
             }
 
             OutputStream os = new FileOutputStream(file);
-            try {
-                final byte[] buffer = new byte[1024];
-                int read;
 
-                while ((read = is.read(buffer)) != -1) os.write(buffer, 0, read);
-                os.flush();
-                os.close();
+            final byte[] buffer = new byte[1024];
+            int read;
 
-                bRet = true;
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+            while ((read = is.read(buffer)) != -1) os.write(buffer, 0, read);
+            os.flush();
+            os.close();
+
+            bRet = true;
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
         } catch (IOException e2) {
             e2.printStackTrace();
-        } catch (FileNotFoundException e3) {
-            e3.printStackTrace();
         }
 
         return bRet;
