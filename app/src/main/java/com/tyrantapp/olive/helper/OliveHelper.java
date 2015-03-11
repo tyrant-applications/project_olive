@@ -434,9 +434,16 @@ public class OliveHelper {
 
     public static boolean saveFile(InputStream is, String outFilePath) {
         boolean bRet = false;
+
         try {
-            final File file = new File(outFilePath);
-            final OutputStream os = new FileOutputStream(file);
+            File file = new File(outFilePath);
+            if (!file.exists()) {
+                String outDir = getUpperPath(outFilePath);
+                new File(outDir).mkdirs();
+                file.createNewFile();
+            }
+
+            OutputStream os = new FileOutputStream(file);
             try {
                 final byte[] buffer = new byte[1024];
                 int read;
@@ -449,8 +456,10 @@ public class OliveHelper {
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
-        } catch (FileNotFoundException e2) {
+        } catch (IOException e2) {
             e2.printStackTrace();
+        } catch (FileNotFoundException e3) {
+            e3.printStackTrace();
         }
 
         return bRet;
