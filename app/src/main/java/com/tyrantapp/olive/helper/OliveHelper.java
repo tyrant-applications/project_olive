@@ -282,8 +282,8 @@ public class OliveHelper {
     }
 
     private static File getExternalFilesDir(Context context) {
-        File file = context.getExternalFilesDir(null);
-        if (!file.exists()) file = new File("/storage/emulated/legacy/Android/data/" + context.getPackageName() + "/files"); // can not get valid-storage path. (like galaxy)
+        File file = new File("/storage/emulated/legacy/Android/data/" + context.getPackageName() + "/files"); // can not get valid-storage path. (like galaxy)
+        if (!file.exists()) file = context.getExternalFilesDir(null);
         if (!file.exists()) file = context.getFilesDir(); // if no have external storage
         return file;
     }
