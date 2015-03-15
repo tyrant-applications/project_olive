@@ -7,39 +7,65 @@
     android:orientation="horizontal"
     android:background="@color/oliveblue" >
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center">
     <Button
      android:id="@+id/olive_extend_text"
-     android:layout_width="match_parent"
-     android:layout_height="match_parent"
-     android:layout_weight="1"
+     android:layout_width="72dp"
+     android:layout_height="wrap_content"
      android:background="@drawable/bg_keypad_text"/>
+    </RelativeLayout>
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center">
     <Button
      android:id="@+id/olive_extend_camera"
-     android:layout_width="match_parent"
-     android:layout_height="match_parent"
-     android:layout_weight="1"
+     android:layout_width="72dp"
+     android:layout_height="wrap_content"
      android:background="@drawable/bg_keypad_camera"/>
-        
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center">
     <Button
      android:id="@+id/olive_extend_gallery"
-     android:layout_width="match_parent"
-     android:layout_height="match_parent"
-     android:layout_weight="1"
+     android:layout_width="72dp"
+     android:layout_height="wrap_content"
      android:background="@drawable/bg_keypad_gallery"/>
-    
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:visibility="gone">
     <Button
      android:id="@+id/olive_extend_voice"
-     android:layout_width="match_parent"
-     android:layout_height="match_parent"
-     android:layout_weight="1"
+     android:layout_width="72dp"
+     android:layout_height="wrap_content"
      android:background="@drawable/bg_keypad_voice"/>
-    
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center">
     <Button
      android:id="@+id/olive_extend_location"
-     android:layout_width="match_parent"
-     android:layout_height="match_parent"
-     android:layout_weight="1"
+     android:layout_width="72dp"
+     android:layout_height="wrap_content"
      android:background="@drawable/bg_keypad_locate"/>
-        
+    </RelativeLayout>
+
 </LinearLayout>

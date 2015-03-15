@@ -12,6 +12,7 @@ public class BaasioConfig {
 
     // GCM(google cloud messaging service) sender ID
     public static final String GCM_SENDER_ID = "153865653898";
+    //static final String GOOGLE_SENDER_ID = "1028073397160";  // Place here your Google project id
 
     // for AWS Server
     public static final String BAASIO_PASSWORD = "$PASSWORD4PUSH$";
