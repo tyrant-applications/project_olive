@@ -5,8 +5,11 @@ import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -17,6 +20,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
+import static android.provider.Settings.*;
 
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWindowClickListener {
     private final static String TAG = MapsActivity.class.getSimpleName();
@@ -76,14 +83,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         Location location = null;
         Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         Location locationNet = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
         long GPSLocationTime = 0;
-        if (null != locationGPS) { GPSLocationTime = locationGPS.getTime(); }
+        if (null != locationGPS) {
+            GPSLocationTime = locationGPS.getTime();
+        }
 
         long NetLocationTime = 0;
 
@@ -91,13 +100,43 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
             NetLocationTime = locationNet.getTime();
         }
 
-        if ( 0 < GPSLocationTime - NetLocationTime ) {
+        if (0 < GPSLocationTime - NetLocationTime) {
             location = locationGPS;
-        }
-        else {
+        } else {
             location = locationNet;
         }
 
+        if (location != null) {
+            updateLocation(location);
+        } else {
+            LocationListener locationListener = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    updateLocation(location);
+                }
+
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+                @Override
+                public void onProviderEnabled(String provider) {}
+
+                @Override
+                public void onProviderDisabled(String provider) {}
+            };
+
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+
+            updateLocation(new Location(LocationManager.NETWORK_PROVIDER));
+        }
+
+        mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+        mMap.setOnInfoWindowClickListener(this);
+    }
+
+    private void updateLocation(Location location) {
         String addressName = "HERE";
         try {
             for (Address address : mGeocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1)) {
@@ -107,19 +146,35 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
             e.printStackTrace();
         }
 
-        mMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())).title(addressName));
+        if (mMarker == null) mMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())).title(addressName));
+        else mMarker.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
 
         // Showing the current location in Google Map
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
 
         // Zoom in the Google Map
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-        mMap.setMyLocationEnabled(true);
-        mMap.getUiSettings().setMapToolbarEnabled(false);
-        mMap.setOnInfoWindowClickListener(this);
+        if (location.getLatitude() * location.getLongitude() > 0) mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
 
         mMarker.setDraggable(true);
         mMarker.showInfoWindow();
+
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                String addressName = "HERE";
+                try {
+                    for (Address address : mGeocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)) {
+                        addressName = address.getAddressLine(0);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                mMarker.setPosition(latLng);
+                mMarker.setTitle(addressName);
+                mMarker.showInfoWindow();
+            }
+        });
 
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override

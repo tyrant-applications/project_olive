@@ -224,7 +224,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
         // default setting for map
         // Zoom in the Google Map
         //mLastOliveMap.getUiSettings().setMapToolbarEnabled(false);
-        mLastOliveMap.getUiSettings().setAllGesturesEnabled(false);
+        if (mLastOliveMap != null) mLastOliveMap.getUiSettings().setAllGesturesEnabled(false);
 
         // IME mode
 		mTypingMode = false;
@@ -597,12 +597,14 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
                         for (Address address : geocoder.getFromLocation(latitude, longitude, 1)) {
                             addressName = address.getAddressLine(0);
                         }
-                        mLastOliveMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title(addressName)).showInfoWindow();
+                        if (mLastOliveMap != null)
+                            mLastOliveMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title(addressName)).showInfoWindow();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     // Showing the current location in Google Map
-                    mLastOliveMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude + 0.0015, longitude), 15));
+                    if (mLastOliveMap != null)
+                        mLastOliveMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude + 0.0015, longitude), 15));
 
                     mLastOliveText.setVisibility(View.GONE);
                     mLastOliveImage.setVisibility(View.GONE);
