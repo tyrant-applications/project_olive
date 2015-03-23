@@ -17,7 +17,7 @@
 package com.tyrantapp.olive.receiver;
 
 import com.google.android.gcm.GCMBroadcastReceiver;
-import com.tyrantapp.olive.service.GCMIntentService;
+import com.tyrantapp.olive.GCMIntentService;
 
 import android.content.Context;
 

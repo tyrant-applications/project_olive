@@ -1,5 +1,6 @@
 package com.tyrantapp.olive;
 
+import com.google.android.gcm.GCMRegistrar;
 import com.tyrantapp.olive.configuration.Constants;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.service.SyncNetworkService;
@@ -60,15 +61,51 @@ public class SplashActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_splash);
-	}
+
+        try {
+            // Make sure the device has the proper dependencies.
+            GCMRegistrar.checkDevice(this);
+
+            // Make sure the manifest permissions was properly set
+            GCMRegistrar.checkManifest(this);
+
+            // Get GCM registration id
+            final String regId = GCMRegistrar.getRegistrationId(this);
+
+            // Check if regid already presents
+            if (regId.equals("")) {
+
+                // Register with GCM
+                GCMRegistrar.register(this, Constants.Configuration.GOOGLE_SENDER_ID);
+
+            } else {
+
+                // Device is already registered on GCM Server
+                if (GCMRegistrar.isRegisteredOnServer(this)) {
+
+                    // Skips registration.
+                    android.util.Log.d(TAG, "Already registered with GCM Server");
+                    android.util.Log.d(TAG, "Registration ID : " + regId);
+                } else {
+                    android.util.Log.d(TAG, "Failed to register with GCM Server");
+                }
+            }
+        } catch (UnsupportedOperationException e) {
+            android.util.Log.e(TAG, "Google play service is not available.");
+            e.printStackTrace();
+        }
+    }
 	
 	@Override
 	protected void onStart() {
 		super.onStart();
 
         if (mRESTApiManager.isAutoSignIn()) {
-            if (!OliveHelper.isNetworkAvailable(this) || mRESTApiManager.verifyDevice()) {
-
+            if (OliveHelper.isNetworkAvailable(this) && !mRESTApiManager.verifyDevice()) {
+                // Notification reason and logout
+                mRESTApiManager.signOut();
+                mFinishHandler.sendEmptyMessageDelayed(FinishHandler.SPLASH_TO_LOGIN, LONG_SHOWING_TIME);
+            } else {
                 // check intent
                 Intent intent = getIntent();
                 long idRoom = -1;
@@ -89,10 +126,6 @@ public class SplashActivity extends BaseActivity {
                 Intent syncIntent = null;
                 syncIntent = new Intent(this, SyncNetworkService.class).setAction(SyncNetworkService.INTENT_ACTION_SYNC_ALL);
                 startService(syncIntent);
-            } else {
-                // Notification reason and logout
-                mRESTApiManager.signOut();
-                mFinishHandler.sendEmptyMessageDelayed(FinishHandler.SPLASH_TO_LOGIN, LONG_SHOWING_TIME);
             }
         } else {
         	mFinishHandler.sendEmptyMessageDelayed(FinishHandler.SPLASH_TO_LOGIN, LONG_SHOWING_TIME);

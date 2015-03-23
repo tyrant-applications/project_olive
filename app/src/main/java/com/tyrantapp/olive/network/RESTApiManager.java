@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.StrictMode;
 
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.ContentType;
@@ -327,6 +328,13 @@ public abstract class RESTApiManager {
             client.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
 
             HttpResponse httpResponse;
+
+            if(android.os.Build.VERSION.SDK_INT > 9) {
+                android.util.Log.d(TAG, "Network Strict Mode On!");
+
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+            }
 
             try {
                 httpResponse = client.execute(request);

@@ -23,8 +23,19 @@
         android:name="com.kth.baasio.startup.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
     -->
-    <uses-permission android:name="com.kth.baasio.startup.permission.C2D_MESSAGE" />
+    <!--<uses-permission android:name="com.kth.baasio.startup.permission.C2D_MESSAGE" />-->
+    <!--<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />-->
+
+    <!-- Creates a custom permission so only this app can receive its messages. -->
+    <permission
+        android:name="com.tyrantapp.olive.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.tyrantapp.olive.permission.C2D_MESSAGE" />
+
+    <!-- This app has permission to register and receive data message. -->
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
     <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
@@ -158,19 +169,19 @@
           The com.google.android.c2dm.permission.SEND permission is necessary
           so only GCM services can send data messages for the app.
         -->
-        <receiver
-            android:name=".receiver.GCMRedirectedBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND" >
-            <intent-filter>
+        <!--<receiver-->
+            <!--android:name=".receiver.GCMRedirectedBroadcastReceiver"-->
+            <!--android:permission="com.google.android.c2dm.permission.SEND" >-->
+            <!--<intent-filter>-->
 
-                <!-- Receives the actual messages. -->
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <!-- Receives the registration id. -->
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <!--&lt;!&ndash; Receives the actual messages. &ndash;&gt;-->
+                <!--<action android:name="com.google.android.c2dm.intent.RECEIVE" />-->
+                <!--&lt;!&ndash; Receives the registration id. &ndash;&gt;-->
+                <!--<action android:name="com.google.android.c2dm.intent.REGISTRATION" />-->
 
-                <category android:name="com.tyrantapp.olive" />
-            </intent-filter>
-        </receiver>
+                <!--<category android:name="com.tyrantapp.olive" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
         <receiver
             android:name=".receiver.BootCompleteBroadcastReceiver"
             android:enabled="true"
@@ -193,7 +204,21 @@
           By default, it must be named .GCMIntentService, unless the
           application uses a custom BroadcastReceiver that redefines its name.
         -->
-        <service android:name=".service.GCMIntentService" />
+        <receiver
+            android:name="com.google.android.gcm.GCMBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+
+                 Receives the actual messages.
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                 Receives the registration id.
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="com.tyrantapp.olive" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".GCMIntentService" />
 
     </application>
 

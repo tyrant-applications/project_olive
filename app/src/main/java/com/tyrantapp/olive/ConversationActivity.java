@@ -3,9 +3,7 @@ package com.tyrantapp.olive;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.tyrantapp.olive.adapter.ConversationRecyclerAdapter;
 import com.tyrantapp.olive.adapter.KeypadPagerAdapter;
@@ -17,25 +15,17 @@ import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.listener.OnOliveKeypadListener;
 import com.tyrantapp.olive.network.AWSQueryManager;
-import com.tyrantapp.olive.provider.OliveContentProvider;
 import com.tyrantapp.olive.provider.OliveContentProvider.ConversationColumns;
 import com.tyrantapp.olive.service.SyncNetworkService;
 import com.tyrantapp.olive.type.ButtonInfo;
 import com.tyrantapp.olive.type.ChatSpaceInfo;
 import com.tyrantapp.olive.type.ConversationMessage;
 import com.tyrantapp.olive.type.UserProfile;
-import com.tyrantapp.olive.util.FileUtils;
 import com.tyrantapp.olive.util.SharedVariables;
 
-import android.app.FragmentManager;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
-import android.os.Build;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.content.Context;
@@ -59,12 +49,9 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 public class ConversationActivity extends BaseActivity implements OnOliveKeypadListener {
 	final static private String			TAG = "ConversationActivity";
@@ -91,9 +78,11 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	
 	private ViewFlipper					mInputMethodFlipper;
 	private View						mInputMethodKeypad;
-	private View						mInputMethodText;
-	private boolean						mTypingMode;
-	
+    private View						mInputMethodText;
+    private View                        mOliveKeypad;
+    private boolean						mTypingMode;
+    private boolean                     mExpandingMode;
+
 	private KeypadPagerAdapter			mKeypadPagerAdapter;
 	private ViewPager					mKeypadPager;
 	
@@ -228,9 +217,11 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 
         // IME mode
 		mTypingMode = false;
+        mExpandingMode = false;
 		mInputMethodFlipper = (ViewFlipper) findViewById(R.id.input_method_flipper);
 		mInputMethodKeypad = (View) findViewById(R.id.input_method_keypad);
 		mInputMethodText = (View) findViewById(R.id.input_method_text);
+        mOliveKeypad = (View) findViewById(R.id.olive_keypad);
 
 		// Fragment for Olive Keyboard
 		// Create the adapter that will return a fragment for each of the three
@@ -451,7 +442,7 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 
 	@Override
 	public void onBackPressed() {
-		if (mTypingMode) {
+		if (mTypingMode || mExpandingMode) {
 			changeNormalMode();
 		} else {
 			super.onBackPressed();
@@ -548,7 +539,11 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		android.util.Log.d(TAG, "Not supported yet.");
 		Toast.makeText(this, R.string.error_not_supported_yet, Toast.LENGTH_SHORT).show();
 	}
-	
+
+    public void onLastMessage(View view) {
+        changeExpandingMode();
+    }
+
 	public void updateLastOlive(Cursor cursor) {
 		if (cursor != null && cursor.getCount() > 0) {
             //android.support.v4.app.FragmentManager fm = getSupportFragmentManager();//getFragmentManager();
@@ -625,28 +620,41 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	public boolean isTypingMode() {
 		return mTypingMode;
 	}
-	
+
+    public boolean isExpandingMode() { return mExpandingMode; }
+
+    public void changeExpandingMode() {
+        if (!mExpandingMode) {
+            mExpandingMode = true;
+            //mInputMethodFlipper.showNext();
+            mOliveKeypad.setVisibility(View.GONE);
+            hideSoftInputMethod(mTextEditor);
+        }
+    }
+
 	public void changeTypingMode() {
 		if (!mTypingMode) {
 			mTypingMode = true;
 			//mInputMethodFlipper.showNext();
 			mInputMethodKeypad.setVisibility(View.GONE);
 			mInputMethodText.setVisibility(View.VISIBLE);
-			showSoftImputMethod(mTextEditor);
+			showSoftInputMethod(mTextEditor);
 		}
 	}
 	
 	public void changeNormalMode() {
-		if (mTypingMode) {
+		if (mTypingMode || mExpandingMode) {
 			mTypingMode = false;
+            mExpandingMode = false;
 			//mInputMethodFlipper.showPrevious();
 			mInputMethodKeypad.setVisibility(View.VISIBLE);
-			mInputMethodText.setVisibility(View.GONE);
+            mOliveKeypad.setVisibility(View.VISIBLE);
+            mInputMethodText.setVisibility(View.GONE);
 			hideSoftInputMethod(mTextEditor);
 		}
 	}
 	
-	public void showSoftImputMethod(final EditText focusView) {
+	public void showSoftInputMethod(final EditText focusView) {
 		if (focusView != null) {
 			focusView.requestFocus();
 			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);

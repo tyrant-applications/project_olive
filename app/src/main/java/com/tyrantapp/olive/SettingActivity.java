@@ -4,6 +4,7 @@ import com.tyrantapp.olive.configuration.Constants;
 import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.helper.PreferenceHelper;
+import com.tyrantapp.olive.network.RESTApiManager;
 import com.tyrantapp.olive.type.UserProfile;
 
 import android.app.AlertDialog;
@@ -152,14 +153,7 @@ public class SettingActivity extends BaseActivity {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // 'YES'
-                        // db 삭제
-                        //DatabaseHelper.RecipientHelper.removeRecipients(SettingActivity.this);
-                        //DatabaseHelper.SpaceHelper.removeSpaces(SettingActivity.this);
-                        //DatabaseHelper.ConversationHelper.removeConversations(SettingActivity.this);
-                        //DatabaseHelper.ButtonBoardHelper.removeButtonBoards(SettingActivity.this);
-                        // user정보 삭제
-                        if (DatabaseHelper.UserHelper.removeUserProfile(SettingActivity.this)) {
+                        if (mRESTApiManager.signOut() == RESTApiManager.OLIVE_SUCCESS) {
                             Intent intent = new Intent(getApplicationContext(), SignInActivity.class)
                                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);

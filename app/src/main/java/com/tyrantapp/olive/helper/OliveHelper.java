@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,9 +19,6 @@ import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.SettingActivity;
 import com.tyrantapp.olive.SplashActivity;
 import com.tyrantapp.olive.configuration.Constants;
-import com.tyrantapp.olive.network.RESTApiManager;
-import com.tyrantapp.olive.service.GCMIntentService;
-import com.tyrantapp.olive.service.SyncNetworkService;
 import com.tyrantapp.olive.util.SharedVariables;
 
 import android.app.ActivityManager;
@@ -34,7 +30,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -44,9 +39,6 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
@@ -121,7 +113,7 @@ public class OliveHelper {
         }
 
         Notification notification = builder.getNotification();
-        notificationManager.notify(GCMIntentService.NOTIFICATION_ID, notification);
+        notificationManager.notify(Constants.Configuration.NOTIFICATION_ID, notification);
 
         SharedVariables.put(Constants.Notification.SHARED_NOTIFICATION_ROOM_ID, idRoom);
     }
@@ -131,7 +123,7 @@ public class OliveHelper {
         SharedVariables.remove(Constants.Notification.SHARED_NOTIFICATION_ROOM_ID);
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(GCMIntentService.NOTIFICATION_ID);
+        notificationManager.cancel(Constants.Configuration.NOTIFICATION_ID);
     }
 
     public static boolean isEmailAddress(Context context, String email) {

@@ -71,9 +71,7 @@
             android:id="@+id/conversation_last_olive_interface"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:longClickable="true">
+            android:layout_weight="1">
             <!-- 90dp -->
 
             <TextView
@@ -108,6 +106,13 @@
 
             </RelativeLayout>
 
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:longClickable="true"
+                android:onClick="onLastMessage" />
+
         </RelativeLayout>
         
     </LinearLayout>
@@ -125,7 +130,8 @@
         android:layout_height="wrap_content" 
         android:orientation="vertical" >
         
-        <RelativeLayout 
+        <RelativeLayout
+            android:id="@+id/olive_keypad"
             android:layout_width="match_parent"
             android:layout_height="240dp" >
             <!--android:layout_height="283dp"-->

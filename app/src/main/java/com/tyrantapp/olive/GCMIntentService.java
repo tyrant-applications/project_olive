@@ -14,74 +14,74 @@
  * limitations under the License.
  */
 
-package com.tyrantapp.olive.service;
+package com.tyrantapp.olive;
 
 import com.google.android.gcm.GCMBaseIntentService;
-import com.kth.baasio.entity.push.BaasioPayload;
-import com.kth.baasio.entity.push.BaasioPush;
-import com.kth.baasio.exception.BaasioException;
-import com.kth.baasio.utils.JsonUtils;
-import com.kth.baasio.utils.ObjectUtils;
+import com.google.android.gcm.GCMRegistrar;
 import com.kth.common.utils.LogUtils;
-import com.tyrantapp.olive.ConversationActivity;
-import com.tyrantapp.olive.OliveApplication;
-import com.tyrantapp.olive.R;
-import com.tyrantapp.olive.SplashActivity;
-import com.tyrantapp.olive.configuration.BaasioConfig;
 import com.tyrantapp.olive.configuration.Constants;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.network.AWSQueryManager;
 import com.tyrantapp.olive.network.RESTApiManager;
+import com.tyrantapp.olive.service.SyncNetworkService;
 import com.tyrantapp.olive.type.ChatSpaceInfo;
 import com.tyrantapp.olive.util.SharedVariables;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 /**
  * {@link android.app.IntentService} responsible for handling GCM messages.
  */
 public class GCMIntentService extends GCMBaseIntentService {
-
-    private static final String TAG = LogUtils.makeLogTag("GCM");
-    
-    public static final int NOTIFICATION_ID = 10000;
+    private static final String TAG = GCMIntentService.class.getSimpleName();
 
     public GCMIntentService() {
-        super(BaasioConfig.GCM_SENDER_ID);
+        super(Constants.Configuration.GOOGLE_SENDER_ID);
     }
 
     @Override
     protected void onRegistered(Context context, String regId) {
-        LogUtils.LOGI(TAG, "Device registered: regId=" + regId);
-        
-        try {
-            BaasioPush.register(context, regId);
-        } catch (BaasioException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        Log.i(TAG, "Device registered: regId = " + regId);
+
+        GCMRegistrar.setRegisteredOnServer(getApplicationContext(), true);
+//        try {
+//            BaasioPush.register(context, regId);
+//        } catch (BaasioException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
     }
 
     @Override
     protected void onUnregistered(Context context, String regId) {
-        LogUtils.LOGI(TAG, "Device unregistered");
+        Log.i(TAG, "evice unregistered");
 
-        try {
-            BaasioPush.unregister(context);
-        } catch (BaasioException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        GCMRegistrar.setRegisteredOnServer(getApplicationContext(), false);
+//        try {
+//            BaasioPush.unregister(context);
+//        } catch (BaasioException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
     }
 
     @Override
     protected void onMessage(Context context, Intent intent) {
-        String announcement = intent.getStringExtra("message");
-        if (announcement != null) {
-            generateNotification(context, announcement);
-            return;
+//        String announcement = intent.getStringExtra("message");
+//        if (announcement != null) {
+//            generateNotification(context, announcement);
+//            return;
+//        }
+        Log.i(TAG, "Received message");
+
+        RESTApiManager helper = RESTApiManager.getInstance();
+        if (helper.isAutoSignIn()) {
+            // notifies user
+            generateNotification(context, intent.getExtras());
         }
     }
 
@@ -89,44 +89,24 @@ public class GCMIntentService extends GCMBaseIntentService {
      * Issues a notification to inform the user that server has sent a message.
      */
     // This method do not used * depressed *
-    private static void generateNotification(Context context, String message) {
-        BaasioPayload msg = JsonUtils.parse(message, BaasioPayload.class);
-        if (ObjectUtils.isEmpty(msg)) {
-            return;
-        }
+    private static void generateNotification(Context context, Bundle message) {
+//        BaasioPayload msg = JsonUtils.parse(message, BaasioPayload.class);
+//        if (ObjectUtils.isEmpty(msg)) {
+//            return;
+//        }
+//
+//        String alert = "";
+//        if (!ObjectUtils.isEmpty(msg.getAlert())) {
+//            alert = msg.getAlert().replace("\\r\\n", "\n");
+//        }
 
-        String alert = "";
-        if (!ObjectUtils.isEmpty(msg.getAlert())) {
-            alert = msg.getAlert().replace("\\r\\n", "\n");
-        }
-
-        // ROOM ID
-        // SENDER
-        // MESSAGE
-
-        String pushType = msg.getProperty(RESTApiManager.OLIVE_PUSH_PROPERTY_PUSH_TYPE).asText();
-        if (RESTApiManager.OLIVE_PUSH_PROPERTY_PUSH_TYPE_CREATE.equals(pushType)) {
-            Intent syncIntent = new Intent(context, SyncNetworkService.class)
-                    .setAction(SyncNetworkService.INTENT_ACTION_SYNC_ROOMS_LIST);
-            context.startService(syncIntent);
-        } else
-        if (RESTApiManager.OLIVE_PUSH_PROPERTY_PUSH_TYPE_LEAVE.equals(pushType)) {
-            Intent syncIntent = new Intent(context, SyncNetworkService.class)
-                    .setAction(SyncNetworkService.INTENT_ACTION_SYNC_ROOMS_LIST);
-            context.startService(syncIntent);
-        } else
-        if (RESTApiManager.OLIVE_PUSH_PROPERTY_PUSH_TYPE_SIGNOUT.equals(pushType)) {
-            RESTApiManager restManager = AWSQueryManager.getInstance();
-            if (!restManager.verifyDevice()) {
-                restManager.signOut();
-                Toast.makeText(context, R.string.toast_failed_to_sign_in, Toast.LENGTH_SHORT).show();
-                Intent newIntent = new Intent(context, SplashActivity.class);
-                newIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            }
-        } else
-        if (RESTApiManager.OLIVE_PUSH_PROPERTY_PUSH_TYPE_POST.equals(pushType)) {
-            Long idRoom = msg.getProperty(RESTApiManager.OLIVE_PUSH_PROPERTY_ROOM_ID).asLong();
-            String sender = msg.getProperty(RESTApiManager.OLIVE_PUSH_PROPERTY_SENDER).asText();
+        int pushType = Integer.parseInt(message.getString("push_type"));
+        if (pushType == 1) {
+//            1: New Message
+//            {"msg_type": "0", "author": "ujlikes@naver.com", "push_type": 1, "reg_date": "2015-03-20 15:14:03.215582+00:00", "room_id": 23, "message_id": 85, "contents": "Yes"}
+            Long idRoom = Long.parseLong(message.getString("room_id"));
+            String sender = message.getString("author");
+            String alert = message.getString("contents");
 
             // Notification?!
             String foregroundActivity = OliveHelper.getForegroundActivityName(context);
@@ -160,7 +140,42 @@ public class GCMIntentService extends GCMBaseIntentService {
 
             if (bNotifiy)
                 OliveHelper.generateMessageNotification(context, idRoom, sender, alert, 1);
+        } else
+        if (pushType == 2) {
+//            2: new room created
+//            {"create_date": "2015-03-21 15:37:26.414544+00:00", "last_msg": "", "creator": {"username": "ujlikes@naver.com", "phone": "01057106299", "update_date": "2015-03-21 15:36:39+00:00", "picture": "/media/profile/IMG_0329_2_3.jpg"}, "push_type": 2, "room_attendants": "ujlikes5@naver.com,ujlikes@naver.com", "id": 25}
+            Intent syncIntent = new Intent(context, SyncNetworkService.class)
+                    .setAction(SyncNetworkService.INTENT_ACTION_SYNC_ROOMS_LIST);
+            context.startService(syncIntent);
+        } else
+        if (pushType == 3) {
+//            3: someone left room
+//            {"push_type": 3, "room_id": 24, "user": {"username": "ujlikes@naver.com", "phone": "01057106299", "update_date": "2015-03-21 07:29:14+00:00", "picture": "/media/profile/IMG_0329_2_3.jpg"}}
+            Intent syncIntent = new Intent(context, SyncNetworkService.class)
+                    .setAction(SyncNetworkService.INTENT_ACTION_SYNC_ROOMS_LIST);
+            context.startService(syncIntent);
+        } else
+        if (pushType == 4) {
+//            4: 중복 로그인
+//            -> 아직 미구현
+            RESTApiManager restManager = AWSQueryManager.getInstance();
+            if (!restManager.verifyDevice()) {
+                restManager.signOut();
+                Toast.makeText(context, R.string.toast_failed_to_sign_in, Toast.LENGTH_SHORT).show();
+                Intent newIntent = new Intent(context, SplashActivity.class);
+                newIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            }
+        } else
+        if (pushType == 5) {
+//            5: profile update
+//            {"username": "ujlikes@naver.com", "phone": "01057106299", "push_type": 5, "update_date": "2015-03-21 15:36:39+00:00", "picture": "/media/profile/IMG_0329_2_3.jpg"}
+            Intent syncIntent = new Intent(context, SyncNetworkService.class)
+                    .setAction(SyncNetworkService.INTENT_ACTION_SYNC_FRIENDS_LIST);
+            context.startService(syncIntent);
+        } else {
+            throw new IllegalArgumentException("Invalid push messag");
         }
+
 
 //        int icon = R.drawable.ic_launcher;
 //        long when = System.currentTimeMillis();

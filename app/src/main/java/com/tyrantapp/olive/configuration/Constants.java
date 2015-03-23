@@ -23,8 +23,16 @@ public class Constants {
         public static final String SHARED_SPACE_INFO = "space_info";
     }
 
+    public static class System {
+        public static final String  DEVICE_ID_KEY = "device_id";
+    }
+
     public static class Configuration {
-        public static final int MAX_IMAGE_RESOLUTION = 1920;
+        public static final String  GOOGLE_SENDER_ID = "1028073397160";  // Place here your Google project id
+        public static final String  CLIENT_ID = "2472266904a9452d7e30";
+        public static final String  CLIENT_SECRET = "26e82a650178634867d59a54404913bcbc175265";
+        public static final int     NOTIFICATION_ID = 10000;
+        public static final int     MAX_IMAGE_RESOLUTION = 1920;
     }
 
 }

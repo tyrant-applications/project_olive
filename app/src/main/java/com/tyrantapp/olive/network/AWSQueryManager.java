@@ -4,17 +4,19 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.kth.baasio.Baas;
-import com.kth.baasio.entity.BaasioBaseEntity;
-import com.kth.baasio.entity.push.BaasioMessage;
-import com.kth.baasio.entity.push.BaasioPayload;
-import com.kth.baasio.entity.push.BaasioPush;
-import com.kth.baasio.entity.user.BaasioUser;
-import com.kth.baasio.exception.BaasioException;
-import com.kth.baasio.query.BaasioQuery;
-import com.kth.baasio.query.BaasioQuery.ORDER_BY;
-import com.kth.baasio.response.BaasioResponse;
-import com.tyrantapp.olive.configuration.BaasioConfig;
+//import com.kth.baasio.Baas;
+//import com.kth.baasio.entity.BaasioBaseEntity;
+//import com.kth.baasio.entity.push.BaasioMessage;
+//import com.kth.baasio.entity.push.BaasioPayload;
+//import com.kth.baasio.entity.push.BaasioPush;
+//import com.kth.baasio.entity.user.BaasioUser;
+//import com.kth.baasio.exception.BaasioException;
+//import com.kth.baasio.query.BaasioQuery;
+//import com.kth.baasio.query.BaasioQuery.ORDER_BY;
+//import com.kth.baasio.response.BaasioResponse;
+//import com.tyrantapp.olive.configuration.BaasioConfig;
+
+import com.google.android.gcm.GCMRegistrar;
 import com.tyrantapp.olive.configuration.Constants;
 import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
@@ -42,7 +44,7 @@ public class AWSQueryManager extends RESTApiManager {
     private static final String SERVER_PORT = "8080";
 
     private static final String SERVER_PATH_USER_SIGNUP = "/user/signup";
-    private static final String SERVER_PATH_USER_SIGNIN = "/oauth2/access_token";
+    private static final String SERVER_PATH_USER_SIGNIN = "/access_token";
     private static final String SERVER_PATH_USER_LEAVE = "/user/leave";
     private static final String SERVER_PATH_USER_UPDATE = "/user/update";
     //private static final String SERVER_PATH_USER_INFO = "/user/info";       // input : friends_id : id list // 내 프로필 (id / photo / timestamp)
@@ -60,6 +62,7 @@ public class AWSQueryManager extends RESTApiManager {
     private static final String SERVER_PATH_MESSAGE_NEW = "/message/new";
     private static final String SERVER_PATH_MESSAGE_READ = "/message/read";
 
+    private static final String SERVER_PATH_DEVICE_CHECK = "/device/check";
 
     private static final String SERVER_URL_MEDIA_BASE = SERVER_URL + ":" + SERVER_PORT;
 
@@ -80,6 +83,7 @@ public class AWSQueryManager extends RESTApiManager {
     private static final String SERVER_URL_MESSAGE_POST = SERVER_URL + ":" + SERVER_PORT + SERVER_PATH_MESSAGE_POST;
     private static final String SERVER_URL_MESSAGE_NEW = SERVER_URL + ":" + SERVER_PORT + SERVER_PATH_MESSAGE_NEW;
     private static final String SERVER_URL_MESSAGE_READ = SERVER_URL + ":" + SERVER_PORT + SERVER_PATH_MESSAGE_READ;
+    private static final String SERVER_URL_DEVICE_CHECK = SERVER_URL + ":" + SERVER_PORT + SERVER_PATH_DEVICE_CHECK;
 
 
     public static void initialize(Context context) {
@@ -103,13 +107,13 @@ public class AWSQueryManager extends RESTApiManager {
                         eRet = OLIVE_SUCCESS;
 
                         // for push
-                        BaasioUser user = null;
-                        try {
-                            user = BaasioUser.signUp(username/*username*/, username/*name*/, username/*email*/, BaasioConfig.BAASIO_PASSWORD);
-                            android.util.Log.d(TAG, "Success to sign up [" + user.getUsername() + "]");
-                        } catch (BaasioException e) {
-                            e.printStackTrace();
-                        }
+//                        BaasioUser user = null;
+//                        try {
+//                            user = BaasioUser.signUp(username/*username*/, username/*name*/, username/*email*/, BaasioConfig.BAASIO_PASSWORD);
+//                            android.util.Log.d(TAG, "Success to sign up [" + user.getUsername() + "]");
+//                        } catch (BaasioException e) {
+//                            e.printStackTrace();
+//                        }
                     } else {
                         switch (getErrorCode(mapRecv)) {
                             case 3:
@@ -140,13 +144,13 @@ public class AWSQueryManager extends RESTApiManager {
 
         if (OliveHelper.isEmailAddress(getContext(), username)) {
             RestClient restClient = new RestClient(SERVER_URL_USER_SIGNIN);
-            restClient.AddParam("client_id", BaasioConfig.CLIENT_ID);
-            restClient.AddParam("client_secret", BaasioConfig.CLIENT_SECRET);
+            restClient.AddParam("client_id", Constants.Configuration.CLIENT_ID);
+            restClient.AddParam("client_secret", Constants.Configuration.CLIENT_SECRET);
             restClient.AddParam("grant_type", "password");
             restClient.AddParam("username", username);
             restClient.AddParam("password", password);
-            restClient.AddParam("device_type", "android");
-            restClient.AddParam("device_id", OliveHelper.getIMEINumber(getContext()));
+            restClient.AddParam("device_type", "1");
+            restClient.AddParam("device_id", GCMRegistrar.getRegistrationId(getContext()));
 
             try {
                 restClient.Execute(RestClient.POST);
@@ -165,6 +169,8 @@ public class AWSQueryManager extends RESTApiManager {
                         DatabaseHelper.UserHelper.updateUserProfile(getContext(), profile);
                         DatabaseHelper.UserHelper.updateUserPassword(getContext(), password);
                         DatabaseHelper.UserHelper.updateAccessToken(getContext(), /*tokenType + " " + */accessToken);
+
+                        PreferenceHelper.saveStringPreferences(getContext(), Constants.System.DEVICE_ID_KEY, GCMRegistrar.getRegistrationId(getContext()));
 
                         // download previous profile picture
                         if (!new File(OliveHelper.getProfileImagePath(getContext())).exists()) {
@@ -188,23 +194,23 @@ public class AWSQueryManager extends RESTApiManager {
             }
 
             // Baas for push
-            if (eRet == OLIVE_SUCCESS) {
-                BaasioUser user = null;
-                try {
-                    // connect to baasio server
-                    user = BaasioUser.signIn(getContext(), username, BaasioConfig.BAASIO_PASSWORD);
-                    android.util.Log.d(TAG, "Connect to Baasio for pushed [" + user.getUsername() + "]");
-
-                    // push message for sign out other device
-                    HashMap<String, String> mapParams = new HashMap<String, String>();
-                    mapParams.put(OLIVE_PUSH_PROPERTY_PUSH_TYPE, OLIVE_PUSH_PROPERTY_PUSH_TYPE_SIGNOUT);
-                    pushMessage(username, mapParams, null);
-
-                    eRet = OLIVE_SUCCESS;
-                } catch (BaasioException e) {
-                    e.printStackTrace();
-                }
-            }
+//            if (eRet == OLIVE_SUCCESS) {
+//                BaasioUser user = null;
+//                try {
+//                    // connect to baasio server
+//                    user = BaasioUser.signIn(getContext(), username, BaasioConfig.BAASIO_PASSWORD);
+//                    android.util.Log.d(TAG, "Connect to Baasio for pushed [" + user.getUsername() + "]");
+//
+//                    // push message for sign out other device
+//                    HashMap<String, String> mapParams = new HashMap<String, String>();
+//                    mapParams.put(OLIVE_PUSH_PROPERTY_PUSH_TYPE, OLIVE_PUSH_PROPERTY_PUSH_TYPE_SIGNOUT);
+//                    pushMessage(username, mapParams, null);
+//
+//                    eRet = OLIVE_SUCCESS;
+//                } catch (BaasioException e) {
+//                    e.printStackTrace();
+//                }
+//            }
         } else {
             eRet = this.OLIVE_FAIL_INVALID_ID_PW;
         }
@@ -222,7 +228,8 @@ public class AWSQueryManager extends RESTApiManager {
             DatabaseHelper.RecipientHelper.removeRecipient(getContext(), -1);
             DatabaseHelper.SpaceHelper.removeSpace(getContext(), -1);
             DatabaseHelper.ConversationHelper.removeMessage(getContext(), -1);
-            BaasioUser.signOut(getContext());
+
+//            BaasioUser.signOut(getContext());
         } else {
             eRet = OLIVE_FAIL_UNKNOWN;
         }
@@ -240,19 +247,19 @@ public class AWSQueryManager extends RESTApiManager {
         RestClient restClient = new RestClient(SERVER_URL_USER_LEAVE);
         eRet = sendByHttpWithAuthenticate(RestClient.POST, restClient, mapRecv);
 
-        if (eRet == OLIVE_SUCCESS) {// for push
-            BaasioUser user = null;
-            try {
-                user = Baas.io().getSignedInUser();
-                user = user.unsubscribe(getContext());
-
-                android.util.Log.d(TAG, "Success to unsubscribe.");
-
-                eRet = OLIVE_SUCCESS;
-            } catch (BaasioException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (eRet == OLIVE_SUCCESS) {// for push
+//            BaasioUser user = null;
+//            try {
+//                user = Baas.io().getSignedInUser();
+//                user = user.unsubscribe(getContext());
+//
+//                android.util.Log.d(TAG, "Success to unsubscribe.");
+//
+//                eRet = OLIVE_SUCCESS;
+//            } catch (BaasioException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
         return eRet;
     }
@@ -260,9 +267,25 @@ public class AWSQueryManager extends RESTApiManager {
     public boolean verifyDevice() {
         boolean bRet = false;
 
-        // Accesstoken이 유효한지, 혹시 타기기에 의해 로그아웃이 되진 않았는지 확인 필요.
-        bRet = true;//(getUserProfile() != null);
+        // 새로 로그인 했을 때, 서버로부터 사진 정도는 가져올 수 있어야 함.
+        // 일단 friends/profile을 이용하여 가져옴
+        if (isAutoSignIn()) {
+            String deviceId = PreferenceHelper.getStringPreferences(getContext(), Constants.System.DEVICE_ID_KEY, "");
+            RestClient restClient = new RestClient(SERVER_URL_DEVICE_CHECK);
+            restClient.AddParam("device_type", "1");
+            restClient.AddParam("device_id", deviceId);
 
+            int eRet = sendByHttp(RestClient.POST, restClient, null);
+            if (eRet == OLIVE_SUCCESS) {
+                String newDeviceId = GCMRegistrar.getRegistrationId(getContext());
+                if (!newDeviceId.equals(deviceId)) {
+                    String username = DatabaseHelper.UserHelper.getUserProfile(getContext()).mUsername;
+                    String password = DatabaseHelper.UserHelper.UserPrivateHelper.getUserPassword(getContext());
+                    signIn(username, password);
+                }
+                bRet = true;
+            }
+        }
         return bRet;
     }
 
@@ -502,7 +525,7 @@ public class AWSQueryManager extends RESTApiManager {
                     HashMap<String, String> mapParams = new HashMap<String, String>();
                     mapParams.put(OLIVE_PUSH_PROPERTY_PUSH_TYPE, OLIVE_PUSH_PROPERTY_PUSH_TYPE_CREATE);
                     mapParams.put(OLIVE_PUSH_PROPERTY_ROOM_ID, String.valueOf(mapRet.get(OLIVE_PROPERTY_ROOM_BUNDLE_ITEM.OLIVE_PROPERTY_ROOM_ID)));
-                    pushMessage(friend, mapParams, null);
+//                    pushMessage(friend, mapParams, null);
                 }
             } else
             if (eRet == OLIVE_FAIL_BAD_NETWORK) {
@@ -535,7 +558,7 @@ public class AWSQueryManager extends RESTApiManager {
                         HashMap<String, String> mapParams = new HashMap<String, String>();
                         mapParams.put(OLIVE_PUSH_PROPERTY_PUSH_TYPE, OLIVE_PUSH_PROPERTY_PUSH_TYPE_LEAVE);
                         mapParams.put(OLIVE_PUSH_PROPERTY_ROOM_ID, String.valueOf(idRoom));
-                        pushMessage(friend, mapParams, null);
+//                        pushMessage(friend, mapParams, null);
                     }
                 }
             }
@@ -619,7 +642,7 @@ public class AWSQueryManager extends RESTApiManager {
                         mapParams.put(OLIVE_PUSH_PROPERTY_PUSH_TYPE, OLIVE_PUSH_PROPERTY_PUSH_TYPE_POST);
                         mapParams.put(OLIVE_PUSH_PROPERTY_SENDER, profile.mUsername);
                         mapParams.put(OLIVE_PUSH_PROPERTY_ROOM_ID, String.valueOf(idRoom));
-                        pushMessage(participant, mapParams, context);
+//                        pushMessage(participant, mapParams, context);
                     }
                 }
             } else
@@ -717,42 +740,42 @@ public class AWSQueryManager extends RESTApiManager {
         return eRet;
     }
 
-    private boolean pushMessage(String recipientId, HashMap<String, String> params, String msg) {
-        boolean bRet = false;
-        // Push!
-        try {
-            BaasioQuery mQuery = new BaasioQuery();
-            mQuery.setType(BaasioUser.ENTITY_TYPE + "/" + recipientId);
-            mQuery.setOrderBy(BaasioBaseEntity.PROPERTY_MODIFIED, ORDER_BY.DESCENDING);
-
-            BaasioResponse reponse = mQuery.query();
-            BaasioUser recipient = BaasioBaseEntity.toType(reponse.getFirstEntity(), BaasioUser.class);
-
-            BaasioPayload payload = new BaasioPayload();
-            payload.setAlert(msg);      // 전송할 메시지
-            if (params != null) {
-                for (String key : params.keySet()) {
-                    payload.setProperty(key, params.get(key));
-                }
-            }
-            payload.setSound("homerun.caf");    // iOS APNS의 sound
-            payload.setBadge(1);                // iOS APNS badge 갯수
-
-            BaasioMessage message = new BaasioMessage();
-            message.setPayload(payload);
-            message.setTarget(BaasioMessage.TARGET_TYPE_USER);  // 회원 개별 발송
-            message.setPlatform(BaasioMessage.PLATFORM_FLAG_TYPE_GCM);
-            message.setTo(recipient.getUuid().toString());
-
-            BaasioPush.sendPush(message);
-
-            android.util.Log.d(TAG, "Pushed to " + recipientId);
-            bRet = true;
-        } catch (BaasioException e) {
-            e.printStackTrace();
-        }
-        return bRet;
-    }
+//    private boolean pushMessage(String recipientId, HashMap<String, String> params, String msg) {
+//        boolean bRet = false;
+//        // Push!
+//        try {
+//            BaasioQuery mQuery = new BaasioQuery();
+//            mQuery.setType(BaasioUser.ENTITY_TYPE + "/" + recipientId);
+//            mQuery.setOrderBy(BaasioBaseEntity.PROPERTY_MODIFIED, ORDER_BY.DESCENDING);
+//
+//            BaasioResponse reponse = mQuery.query();
+//            BaasioUser recipient = BaasioBaseEntity.toType(reponse.getFirstEntity(), BaasioUser.class);
+//
+//            BaasioPayload payload = new BaasioPayload();
+//            payload.setAlert(msg);      // 전송할 메시지
+//            if (params != null) {
+//                for (String key : params.keySet()) {
+//                    payload.setProperty(key, params.get(key));
+//                }
+//            }
+//            payload.setSound("homerun.caf");    // iOS APNS의 sound
+//            payload.setBadge(1);                // iOS APNS badge 갯수
+//
+//            BaasioMessage message = new BaasioMessage();
+//            message.setPayload(payload);
+//            message.setTarget(BaasioMessage.TARGET_TYPE_USER);  // 회원 개별 발송
+//            message.setPlatform(BaasioMessage.PLATFORM_FLAG_TYPE_GCM);
+//            message.setTo(recipient.getUuid().toString());
+//
+//            BaasioPush.sendPush(message);
+//
+//            android.util.Log.d(TAG, "Pushed to " + recipientId);
+//            bRet = true;
+//        } catch (BaasioException e) {
+//            e.printStackTrace();
+//        }
+//        return bRet;
+//    }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // private static function
     private static boolean isValidNetwork(RestClient client) {
