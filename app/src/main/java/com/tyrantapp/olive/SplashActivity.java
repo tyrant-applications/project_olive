@@ -121,6 +121,7 @@ public class SplashActivity extends BaseActivity {
                     mFinishHandler.removeMessages(FinishHandler.SPLASH_TO_LOGIN);
                     mFinishHandler.sendEmptyMessageDelayed(FinishHandler.SPLASH_TO_MAIN, SHORT_SHOWING_TIME);
                 }
+                getIntent().removeExtra(Constants.Intent.EXTRA_ROOM_ID);
 
                 // 1. sync all (room -> conversation -> friends -> user)
                 Intent syncIntent = null;

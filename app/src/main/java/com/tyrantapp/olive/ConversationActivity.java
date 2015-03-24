@@ -183,6 +183,8 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		
 		// Initialize
         long idRoom = getIntent().getLongExtra(Constants.Intent.EXTRA_ROOM_ID, -1);
+        getIntent().removeExtra(Constants.Intent.EXTRA_ROOM_ID);
+
         mSpaceId = AWSQueryManager.obtainSpaceIdByRoomId(this, idRoom);
 		if (mSpaceId >= 0) {
             mUserProfile = DatabaseHelper.UserHelper.getUserProfile(this);

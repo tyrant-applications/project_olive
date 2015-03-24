@@ -5,9 +5,9 @@
         AppBaseTheme from res/values/styles.xml on API 11+ devices.
     -->
     <!-- <style name="AppBaseTheme" parent="Theme.AppCompat.Light"> -->
-    <style name="AppBaseTheme">
-        <!-- API 11 theme customizations can go here. -->
-    </style>
+    <!--<style name="AppBaseTheme">-->
+        <!--&lt;!&ndash; API 11 theme customizations can go here. &ndash;&gt;-->
+    <!--</style>-->
     
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->

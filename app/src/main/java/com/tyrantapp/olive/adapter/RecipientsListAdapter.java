@@ -10,9 +10,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Vibrator;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -25,8 +28,9 @@ public class RecipientsListAdapter extends CursorAdapter {
 	
 	// member variables
 	private Context				mContext;
-	
-	public RecipientsListAdapter(Context context) {
+    private Runnable            mAction = null;
+
+    public RecipientsListAdapter(Context context) {
         super(
         	context,
             DatabaseHelper.ChatSpaceHelper.getCursor(context)
@@ -50,7 +54,7 @@ public class RecipientsListAdapter extends CursorAdapter {
     	TextView unreadView = (TextView) view.findViewById(R.id.recipient_unread);
         TextView nameView = (TextView) view.findViewById(R.id.recipient_name);
         TextView timeView = (TextView) view.findViewById(R.id.recipient_last_recv);
-        
+
         if (nameView != null) {
             String title = cursor.getString(cursor.getColumnIndex(ChatSpaceColumns.DISPLAYNAME));
             if (title == null) title = cursor.getString(cursor.getColumnIndex(ChatSpaceColumns.TITLE));
@@ -91,14 +95,16 @@ public class RecipientsListAdapter extends CursorAdapter {
         	final boolean bStarred = cursor.getInt(cursor.getColumnIndex(ChatSpaceColumns.STARRED)) > 0;
         	
 			if (bStarred) {
-				ovrView.setBackground(mContext.getResources().getDrawable(R.drawable.bg_badge_favorite));
+                ovrView.setVisibility(View.VISIBLE);
 				if (nUnreadCount > 0) {
-					nameView.setTextColor(mContext.getResources().getColor(R.color.white));					
+                    ovrView.setBackground(mContext.getResources().getDrawable(R.drawable.bg_badge_normal));
+					nameView.setTextColor(mContext.getResources().getColor(R.color.white));
 				} else {
+                    ovrView.setBackground(mContext.getResources().getDrawable(R.drawable.bg_badge_favorite));
 					nameView.setTextColor(mContext.getResources().getColor(R.color.oliveblue));
 				}				
 			} else {
-				ovrView.setBackground(mContext.getResources().getDrawable(R.drawable.bg_badge_normal));
+                ovrView.setVisibility(View.INVISIBLE);
 				if (nUnreadCount > 0) {
 					nameView.setTextColor(mContext.getResources().getColor(R.color.white));					
 				} else {
@@ -108,15 +114,39 @@ public class RecipientsListAdapter extends CursorAdapter {
 			nameView.setSelected(true);
         	        	
         	final Cursor finalCursor = cursor;
+
+            favView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (mAction != null && event.getAction() == MotionEvent.ACTION_UP) {
+                        ((Activity)mContext).runOnUiThread(mAction);
+                        mAction = null;
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
         	favView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
+                    Vibrator vibe = (Vibrator)mContext.getSystemService(Context.VIBRATOR_SERVICE);
                     if (!bStarred) {
                         android.util.Log.d(TAG, "Starred to ON");
-                        DatabaseHelper.SpaceHelper.setStarred(mContext, spaceId, true);
+                        vibe.vibrate(100);
+                        mAction = new Runnable() {
+                            public void run() {
+                                DatabaseHelper.SpaceHelper.setStarred(mContext, spaceId, true);
+                            }
+                        };
                     } else {
                         android.util.Log.d(TAG, "Starred to OFF");
-                        DatabaseHelper.SpaceHelper.setStarred(mContext, spaceId, false);
+                        vibe.vibrate(100);
+                        mAction = new Runnable() {
+                            public void run() {
+                                DatabaseHelper.SpaceHelper.setStarred(mContext, spaceId, false);
+                            }
+                        };
                     }
                     return false;
                 }

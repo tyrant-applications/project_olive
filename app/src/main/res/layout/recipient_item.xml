@@ -14,12 +14,14 @@
         android:id="@+id/recipient_favorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="33dp">
+        android:layout_marginLeft="32dp">
 
         <ImageView
             android:id="@+id/recipient_pic"
-            android:layout_width="54dp"
-            android:layout_height="54dp"
+            android:layout_marginLeft="1dp"
+            android:layout_marginTop="1dp"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
             android:src="@drawable/ic_no_photo"/>
         
         <ImageView
@@ -56,8 +58,10 @@
     
     <TextView
 	    android:id="@+id/recipient_last_recv"
-	    android:layout_width="92dp"
+	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|right"
+        android:layout_marginRight="32dp"
 	    android:textSize="13sp"
 	    android:text="+ 20 mins"
 	    android:textColor="@color/black" />

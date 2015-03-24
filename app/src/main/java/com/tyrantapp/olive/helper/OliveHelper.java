@@ -338,23 +338,15 @@ public class OliveHelper {
     }
 
     public static String downloadCachedMedia(String URL, String basePath) {
+        String pszRet = null;
         if (URL != null) {
-            String filename = OliveHelper.getPathLastSegment(URL);
-            String filePath = basePath + filename;
-            if (!(new File(filePath).exists())) {
-                // thumbs
-                boolean bDownloaded = false;
-                if (downloadMedia(getSmallThumbFilename(URL), basePath) != null) bDownloaded = true;
-                if (downloadMedia(getMediumThumbFilename(URL), basePath) != null)
-                    bDownloaded = true;
-                if (downloadMedia(getLargeThumbFilename(URL), basePath) != null) bDownloaded = true;
-                if (!bDownloaded) {
-                    filePath = downloadMedia(URL, basePath);
-                }
-            }
-            return filePath;
+            // thumbs
+            pszRet = downloadMedia(getSmallThumbFilename(URL), basePath);
+            if (pszRet == null) pszRet = downloadMedia(getMediumThumbFilename(URL), basePath);
+            if (pszRet == null) pszRet = downloadMedia(getLargeThumbFilename(URL), basePath);
+            if (pszRet == null) pszRet = downloadMedia(URL, basePath);
         }
-        return null;
+        return pszRet;
     }
 
     public static String downloadMedia(String URL, String basePath) {

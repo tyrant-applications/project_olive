@@ -67,8 +67,7 @@
         android:name=".OliveApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/NoActionBar" >
+        android:label="@string/app_name">
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -81,7 +80,9 @@
         <activity
             android:name=".SplashActivity"
             android:label="@string/title_activity_splash"
-            android:windowSoftInputMode="adjustResize" >
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/AppThemeBlue">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -91,30 +92,38 @@
         <activity
             android:name=".SignInActivity"
             android:label="@string/title_activity_signin"
-            android:windowSoftInputMode="adjustPan">
+            android:windowSoftInputMode="adjustPan"
+            android:theme="@style/AppThemeBlue">
         </activity>
         <activity
             android:name=".SignUpActivity"
             android:label="@string/title_activity_signup"
-            android:windowSoftInputMode="adjustPan" >
+            android:windowSoftInputMode="adjustPan"
+            android:theme="@style/AppThemeBlue">
         </activity>
         <activity
             android:name=".PasscodeActivity"
-            android:label="@string/title_activity_passcode" >
+            android:label="@string/title_activity_passcode"
+            android:theme="@style/AppThemeBlue">
         </activity>
         <activity
             android:name=".MainActivity"
-            android:label="@string/title_activity_main" >
+            android:label="@string/title_activity_main"
+            android:launchMode="singleTask"
+            android:theme="@style/AppThemeDark">
         </activity>
         <activity
             android:name=".AddRecipientActivity"
             android:label="@string/title_activity_add_recipient"
-            android:windowSoftInputMode="adjustPan" >
+            android:windowSoftInputMode="adjustPan"
+            android:theme="@style/AppThemeBlue">
         </activity>
         <activity
             android:name=".ConversationActivity"
             android:label="@string/title_activity_conversation"
-            android:windowSoftInputMode="adjustResize" >
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTask"
+            android:theme="@style/AppThemeDark">
 
             <!-- android:parentActivityName=".MainActivity" -->
 
@@ -126,7 +135,8 @@
         <activity
             android:name=".KeyCustomizeActivity"
             android:label="@string/title_activity_key_customize"
-            android:windowSoftInputMode="adjustResize" >
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/AppThemeDark">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tyrantapp.olive.ConversationActivity" />
@@ -135,19 +145,22 @@
         <activity
             android:name=".SettingActivity"
             android:label="@string/title_activity_setting"
-            android:parentActivityName=".BaseActivity" >
+            android:parentActivityName=".BaseActivity"
+            android:theme="@style/AppThemeBlue">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="BaseActivity" />
         </activity>
         <activity
             android:name=".ChangePasswordActivity"
-            android:label="@string/title_activity_change_password" >
+            android:label="@string/title_activity_change_password"
+            android:theme="@style/AppThemeBlue">
         </activity>
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps">
+            android:label="@string/title_activity_maps"
+            android:theme="@style/AppThemeDark">
         </activity>
 
         <provider

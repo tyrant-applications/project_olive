@@ -7,12 +7,23 @@
     -->
     <!-- <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar"> -->
     
-    <style name="AppBaseTheme">
-        <!-- API 14 theme customizations can go here. -->
-    </style>
+    <!--<style name="AppBaseTheme">-->
+        <!--&lt;!&ndash; API 14 theme customizations can go here. &ndash;&gt;-->
+    <!--</style>-->
     
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <!--<item name="android:windowTranslucentStatus">true</item>-->
+    </style>
+
+    <style name="AppThemeDark" parent="AppTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <item name="android:colorPrimaryDark">@color/olivedark</item>
+    </style>
+
+    <style name="AppThemeBlue" parent="AppTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <item name="android:colorPrimaryDark">@color/oliveblue</item>
     </style>
 
 </resources>

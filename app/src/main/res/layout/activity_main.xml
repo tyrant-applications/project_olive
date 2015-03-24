@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.tyrantapp.olive.activities.MainActivity" >
+    tools:context="com.tyrantapp.olive.activities.MainActivity"
+    android:background="@color/white">
      
     <com.tyrantapp.olive.component.RecipientsListView
         android:id="@+id/recipients_list_view"
@@ -13,7 +14,8 @@
         android:descendantFocusability="afterDescendants"
         android:dividerHeight="0dp"
         android:divider="@color/transparent"
-        android:background="@color/white"
+        android:drawSelectorOnTop="true"
+        android:background="@color/transparent"
     	android:focusable="true" />
 
     <RelativeLayout
