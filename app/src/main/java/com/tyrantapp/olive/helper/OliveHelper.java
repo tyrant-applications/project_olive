@@ -97,12 +97,12 @@ public class OliveHelper {
         Builder builder = new NotificationCompat.Builder(context).setWhen(when)
                 .setSmallIcon(icon)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher))
-                .setContentTitle(context.getString(R.string.notification_title_message))
-                .setContentText(sender)
+                .setContentTitle(sender)
+                .setContentText(msg/*context.getString(R.string.notification_title_message)*/)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setContentIntent(intent)
-                        //.setTicker(message)
+                .setTicker(msg)
                 .setAutoCancel(true);
 
         if (!PreferenceHelper.getBooleanPreferences(context, SettingActivity.OLIVE_PREF_NOTIFICATION, true)) {

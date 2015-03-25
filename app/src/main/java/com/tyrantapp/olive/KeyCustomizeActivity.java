@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.tyrantapp.olive.configuration.Constants;
 import com.tyrantapp.olive.helper.DatabaseHelper;
@@ -76,9 +77,12 @@ public class KeyCustomizeActivity extends BaseActivity {
 
     public void onAccept(View view) {
         mButtonInfo.mContext = mButtonText.getText().toString();
-        DatabaseHelper.PresetButtonHelper.updateButton(this, mButtonId, mButtonInfo);
-
-        onBackPressed();
+        if (mButtonInfo.mContext != null && !mButtonInfo.mContext.isEmpty()) {
+            DatabaseHelper.PresetButtonHelper.updateButton(this, mButtonId, mButtonInfo);
+            onBackPressed();
+        } else {
+            Toast.makeText(this, R.string.error_no_context, Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onEditText(View view) {

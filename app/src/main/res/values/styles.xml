@@ -11,6 +11,7 @@
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
         -->
+        <item name="android:windowNoTitle">true</item>
     </style>
 
     <!-- Application theme. -->
@@ -20,7 +21,6 @@
     
     <!-- No ActionBar theme -->
     <style name="NoActionBar" parent="AppBaseTheme">
-	    <item name="android:windowNoTitle">true</item>
 	</style>
 
     <style name="AppThemeDark" parent="AppTheme">

@@ -156,22 +156,24 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
             // send text
 			android.util.Log.d(TAG, "onSendText [" + mSpaceId + "] : " + mTextEditor.getText());
 
-            ConversationMessage message = new ConversationMessage();
-            message.mMessageId = -1;
-            message.mAuthor = "user";
-            message.mMimetype = OliveHelper.MIMETYPE_TEXT;
-            message.mContext = mTextEditor.getText().toString();
-            message.mSpaceId = mSpaceId;
-            message.mSender = DatabaseHelper.UserHelper.getUserProfile(getApplicationContext()).mUsername;
-            message.mStatus = ConversationColumns.STATUS_PENDING;
-            message.mCreated = System.currentTimeMillis();
-            DatabaseHelper.ConversationHelper.addMessage(getApplicationContext(), message);
+            if (mTextEditor.getText().toString() != null && !mTextEditor.getText().toString().isEmpty()) {
+                ConversationMessage message = new ConversationMessage();
+                message.mMessageId = -1;
+                message.mAuthor = "user";
+                message.mMimetype = OliveHelper.MIMETYPE_TEXT;
+                message.mContext = mTextEditor.getText().toString();
+                message.mSpaceId = mSpaceId;
+                message.mSender = DatabaseHelper.UserHelper.getUserProfile(getApplicationContext()).mUsername;
+                message.mStatus = ConversationColumns.STATUS_PENDING;
+                message.mCreated = System.currentTimeMillis();
+                DatabaseHelper.ConversationHelper.addMessage(getApplicationContext(), message);
 
-            Intent intent = new Intent(getApplicationContext(), SyncNetworkService.class)
-                    .setAction(SyncNetworkService.INTENT_ACTION_SEND_MESSAGE);
-            startService(intent);
-	        
-	        changeNormalMode();
+                Intent intent = new Intent(getApplicationContext(), SyncNetworkService.class)
+                        .setAction(SyncNetworkService.INTENT_ACTION_SEND_MESSAGE);
+                startService(intent);
+
+                changeNormalMode();
+            }
 		}
 	};
 	
@@ -512,20 +514,22 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 		KeypadFragment fragment = (KeypadFragment)KeypadFragment.getFragment(sectionNumber);
 		ButtonInfo info = (ButtonInfo)fragment.getOliveButton(sectionNumber, index);
 
-        ConversationMessage message = new ConversationMessage();
-        message.mMessageId = -1;
-        message.mAuthor = info.mAuthor;
-        message.mMimetype = info.mMimetype;
-        message.mContext = info.mContext;
-        message.mSpaceId = mSpaceId;
-        message.mSender = DatabaseHelper.UserHelper.getUserProfile(this).mUsername;
-        message.mStatus = ConversationColumns.STATUS_PENDING;
-        message.mCreated = System.currentTimeMillis();
-        DatabaseHelper.ConversationHelper.addMessage(this, message);
+        if (info.mContext != null && !info.mContext.isEmpty()) {
+            ConversationMessage message = new ConversationMessage();
+            message.mMessageId = -1;
+            message.mAuthor = info.mAuthor;
+            message.mMimetype = info.mMimetype;
+            message.mContext = info.mContext;
+            message.mSpaceId = mSpaceId;
+            message.mSender = DatabaseHelper.UserHelper.getUserProfile(this).mUsername;
+            message.mStatus = ConversationColumns.STATUS_PENDING;
+            message.mCreated = System.currentTimeMillis();
+            DatabaseHelper.ConversationHelper.addMessage(this, message);
 
-        Intent intent = new Intent(this, SyncNetworkService.class)
-        	.setAction(SyncNetworkService.INTENT_ACTION_SEND_MESSAGE);
-        startService(intent);
+            Intent intent = new Intent(this, SyncNetworkService.class)
+                    .setAction(SyncNetworkService.INTENT_ACTION_SEND_MESSAGE);
+            startService(intent);
+        }
 	}
 
     @Override

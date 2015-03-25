@@ -20,6 +20,7 @@ import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMRegistrar;
 import com.kth.common.utils.LogUtils;
 import com.tyrantapp.olive.configuration.Constants;
+import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.network.AWSQueryManager;
 import com.tyrantapp.olive.network.RESTApiManager;
@@ -29,9 +30,15 @@ import com.tyrantapp.olive.util.SharedVariables;
 
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.display.DisplayManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
+
+import java.io.IOException;
 
 /**
  * {@link android.app.IntentService} responsible for handling GCM messages.
@@ -107,13 +114,43 @@ public class GCMIntentService extends GCMBaseIntentService {
             Long idRoom = Long.parseLong(message.getString("room_id"));
             String sender = message.getString("author");
             String alert = message.getString("contents");
+            int msgType = Integer.parseInt(message.getString("msg_type"));
+            if (msgType == 1) {
+                alert = "Received image.";
+            } else
+            if (msgType == 2) {
+                alert = "Received video.";
+            } else
+            if (msgType == 3) {
+                alert = "Received audio.";
+            } else
+            if (msgType == 4) {
+                double latitude = Double.parseDouble(alert.substring(0, alert.indexOf(",")));
+                double longitude = Double.parseDouble(alert.substring(alert.indexOf(",") + 1));
+                try {
+                    Geocoder geocoder = new Geocoder(context);
+                    for (Address address : geocoder.getFromLocation(latitude, longitude, 1)) {
+                        alert = address.getAddressLine(0);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else
+            if (msgType == 5) {
+                alert = "Received emoji.";
+            }
+
+            long msgId = Long.parseLong(message.getString("message_id"));
+            boolean hasMessage = (DatabaseHelper.ConversationHelper.getMessage(context, DatabaseHelper.ConversationHelper.getMessageId(context, msgId)) != null);
 
             // Notification?!
             String foregroundActivity = OliveHelper.getForegroundActivityName(context);
+            PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+            boolean isScreenOn = pm.isScreenOn();
             boolean isTopPackage = foregroundActivity.startsWith(OliveApplication.class.getPackage().getName());
             boolean isTopConversation = foregroundActivity.equals(ConversationActivity.class.getName());
 
-            boolean bNotifiy = true;
+            boolean bNotifiy = !hasMessage;
 
             Intent syncIntent = null;
             if (isTopPackage) {
@@ -138,7 +175,7 @@ public class GCMIntentService extends GCMBaseIntentService {
                 }
             }
 
-            if (bNotifiy)
+            if (bNotifiy || !isScreenOn)
                 OliveHelper.generateMessageNotification(context, idRoom, sender, alert, 1);
         } else
         if (pushType == 2) {

@@ -50,12 +50,14 @@
                 android:layout_marginTop="57dp"
                 android:hint="@string/prompt_username"
                 android:inputType="textEmailAddress"
+                android:imeOptions="actionNext"
                 android:maxLines="1"
                 android:singleLine="true"
                 android:textSize="15sp"
                 android:textColor="@color/white"
                 android:textColorHint="@color/white"
-                android:background="@drawable/bg_edit_box" />
+                android:background="@drawable/bg_edit_box"
+                android:nextFocusRight="@+id/password"/>
             
             <EditText
                 android:id="@+id/password"
@@ -65,14 +67,15 @@
                 android:hint="@string/prompt_password"
                 android:imeActionId="@+id/signup"
                 android:imeActionLabel="@string/action_sign_in_short"
-                android:imeOptions="actionUnspecified"
+                android:imeOptions="actionNext"
                 android:inputType="textPassword"
                 android:maxLines="1"
                 android:singleLine="true"
                 android:textSize="15sp"
                 android:textColor="@color/white"
                 android:textColorHint="@color/white"
-                android:background="@drawable/bg_edit_box" />
+                android:background="@drawable/bg_edit_box"
+                android:nextFocusRight="@+id/confirm_password"/>
 
             <EditText
                 android:id="@+id/confirm_password"
@@ -82,7 +85,7 @@
                 android:hint="@string/prompt_confirm_password"
                 android:imeActionId="@+id/signup"
                 android:imeActionLabel="@string/action_sign_in_short"
-                android:imeOptions="actionUnspecified"
+                android:imeOptions="actionDone"
                 android:inputType="textPassword"
                 android:maxLines="1"
                 android:singleLine="true"
