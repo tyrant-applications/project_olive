@@ -6,10 +6,14 @@
         res/values-v11/styles.xml on API 14+ devices.
     -->
     <!-- <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar"> -->
-    
-    <!--<style name="AppBaseTheme">-->
-        <!--&lt;!&ndash; API 14 theme customizations can go here. &ndash;&gt;-->
-    <!--</style>-->
+
+    <style name="AppBaseTheme" parent="android:Theme.Material.Light.NoActionBar">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
     
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
