@@ -62,7 +62,7 @@ public abstract class BaseActivity extends FragmentActivity {
 			if (resultCode == PasscodeActivity.RESULT_SUCCESS) {
                 getIntent().putExtra(PasscodeActivity.AUTHENTICATE_KEY, PasscodeActivity.requestAuthenticateKey());
             }
-		}
+        }
 	}
 	
 	protected void ignorePasscodeOnce() {
@@ -74,6 +74,12 @@ public abstract class BaseActivity extends FragmentActivity {
         startActivityForResult(intent, PasscodeActivity.REQUEST_CODE);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 	}
+
+    protected void startActivityIgnoreResult(Intent intent) {
+        startActivityForResult(intent, PasscodeActivity.IGNORE_CODE);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        ignorePasscodeOnce();
+    }
 
 	protected void setEnablePasscode(boolean enable) {
 		mActivatePasscode = enable;

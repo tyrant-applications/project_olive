@@ -3,10 +3,16 @@ package com.tyrantapp.olive.adapter;
 import com.tyrantapp.olive.R;
 import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
+import com.tyrantapp.olive.network.RESTApiManager;
 import com.tyrantapp.olive.provider.OliveContentProvider.ChatSpaceColumns;
+import com.tyrantapp.olive.service.SyncNetworkService;
+import com.tyrantapp.olive.type.UserProfile;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -50,7 +56,9 @@ public class RecipientsListAdapter extends CursorAdapter {
 		LinearLayout pltView = (LinearLayout) view.findViewById(R.id.recipient_plate);
 		RelativeLayout favView = (RelativeLayout) view.findViewById(R.id.recipient_favorite);
 		ImageView picView = (ImageView) view.findViewById(R.id.recipient_pic);
-		ImageView ovrView = (ImageView) view.findViewById(R.id.recipient_overlay);
+        ImageView addView = (ImageView) view.findViewById(R.id.add_friends);
+
+        ImageView ovrView = (ImageView) view.findViewById(R.id.recipient_overlay);
     	TextView unreadView = (TextView) view.findViewById(R.id.recipient_unread);
         TextView nameView = (TextView) view.findViewById(R.id.recipient_name);
         TextView timeView = (TextView) view.findViewById(R.id.recipient_last_recv);
@@ -89,7 +97,15 @@ public class RecipientsListAdapter extends CursorAdapter {
             } else {
                 picView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_no_photo_login));
             }
-        	
+
+            // if no friends
+            if (cursor.getString(cursor.getColumnIndex(ChatSpaceColumns.DISPLAYNAME)) == null ||
+                cursor.getString(cursor.getColumnIndex(ChatSpaceColumns.DISPLAYNAME)).equals("null")) {
+                addView.setVisibility(View.VISIBLE);
+            } else {
+                addView.setVisibility(View.GONE);
+            }
+
         	// favorite (starred)
         	final long spaceId = cursor.getLong(cursor.getColumnIndex(ChatSpaceColumns._ID));
         	final boolean bStarred = cursor.getInt(cursor.getColumnIndex(ChatSpaceColumns.STARRED)) > 0;
@@ -112,16 +128,52 @@ public class RecipientsListAdapter extends CursorAdapter {
 				}
 			}
 			nameView.setSelected(true);
-        	        	
-        	final Cursor finalCursor = cursor;
 
+            final UserProfile userProfile = DatabaseHelper.UserHelper.getUserProfile(mContext);
+            favView.setTag(new String[] {
+                    cursor.getString(cursor.getColumnIndex(ChatSpaceColumns.DISPLAYNAME)),
+                    cursor.getString(cursor.getColumnIndex(ChatSpaceColumns.PARTICIPANTS))
+            });
             favView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     if (mAction != null && event.getAction() == MotionEvent.ACTION_UP) {
-                        ((Activity)mContext).runOnUiThread(mAction);
+                        ((Activity) mContext).runOnUiThread(mAction);
                         mAction = null;
                         return true;
+                    } else if (mAction == null && event.getAction() == MotionEvent.ACTION_UP) {
+                        final String displayName = ((String[])v.getTag())[0];
+                        final String participants = ((String[])v.getTag())[1];
+
+                        if (displayName == null || displayName.equals("null")) {
+                            new AlertDialog.Builder(mContext)
+                                    .setTitle("Add Friend")
+                                    .setMessage("Add as friends?")
+                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            String username = userProfile.mUsername;
+                                            for (String participant : participants.split(",")) {
+                                                if (!participant.equals(username)) {
+                                                    if (RESTApiManager.getInstance().addFriends(new String[]{participant,}) == RESTApiManager.OLIVE_SUCCESS) {
+                                                        // Sync room and friends
+                                                        Intent syncIntent = null;
+
+                                                        syncIntent = new Intent(mContext, SyncNetworkService.class)
+                                                                .setAction(SyncNetworkService.INTENT_ACTION_SYNC_FRIENDS_LIST);
+                                                        mContext.startService(syncIntent);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    })
+                                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // do nothing
+                                        }
+                                    })
+                                    .setIcon(android.R.drawable.ic_input_add)
+                                    .show();
+                        }
                     }
                     return false;
                 }
@@ -171,4 +223,5 @@ public class RecipientsListAdapter extends CursorAdapter {
         View view = inflater.inflate(R.layout.recipient_item, parent, false);
         return view;
     }
+
 }

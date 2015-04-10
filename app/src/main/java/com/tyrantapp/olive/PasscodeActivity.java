@@ -14,8 +14,9 @@ public class PasscodeActivity extends BaseActivity {
 	private final static String TAG = "PasscodeActivity";
 	
 	public final static String	AUTHENTICATE_KEY	= "authenticate_key";
-	public final static int		REQUEST_CODE		= 1000;
-	public final static int		RESULT_SUCCESS		= 1001;
+    public final static int		REQUEST_CODE		= 1000;
+    public final static int		IGNORE_CODE 		= 1001;
+	public final static int		RESULT_SUCCESS		= 1002;
 
     private Handler mHandler = new Handler();
 

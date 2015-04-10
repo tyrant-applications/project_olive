@@ -15,6 +15,8 @@ import com.tyrantapp.olive.helper.DatabaseHelper;
 import com.tyrantapp.olive.helper.OliveHelper;
 import com.tyrantapp.olive.listener.OnOliveKeypadListener;
 import com.tyrantapp.olive.network.AWSQueryManager;
+import com.tyrantapp.olive.network.RESTApiManager;
+import com.tyrantapp.olive.provider.OliveContentProvider;
 import com.tyrantapp.olive.provider.OliveContentProvider.ConversationColumns;
 import com.tyrantapp.olive.service.SyncNetworkService;
 import com.tyrantapp.olive.type.ButtonInfo;
@@ -23,6 +25,7 @@ import com.tyrantapp.olive.type.ConversationMessage;
 import com.tyrantapp.olive.type.UserProfile;
 import com.tyrantapp.olive.util.SharedVariables;
 
+import android.database.DataSetObserver;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
@@ -35,8 +38,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
@@ -94,8 +95,9 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 	
 	private EditText					mTextEditor;
 	private Button						mTextSender;
+
+    private Cursor                      mCursorForUpdate;
 	
-	//private DataSetObserver	mConversationObserver = new DataSetObserver() {
 	private AdapterDataObserver	mConversationObserver = new AdapterDataObserver() {
 		@Override
 		public void onChanged() {
@@ -196,16 +198,22 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 
         if (mSpaceInfo == null) {
             throw new IllegalArgumentException();
+        } else
+        if (mSpaceInfo.mPhonenumber == null || mSpaceInfo.mPhonenumber.equals("null")) {
+            findViewById(R.id.call_button).setVisibility(View.INVISIBLE);
         }
-		
-		mConversationAdapter = new ConversationRecyclerAdapter(this, mSpaceId);
+
+        if (mSpaceInfo.mDisplayname == null || mSpaceInfo.mDisplayname.equals("null")) {
+            findViewById(R.id.add_button).setVisibility(View.VISIBLE);
+        }
+
+        mConversationAdapter = new ConversationRecyclerAdapter(this, mSpaceId);
 		mConversationView = (ConversationRecyclerView) findViewById(R.id.conversations_list_view);
 		mConversationView.setAdapter(mConversationAdapter);
 			
 		mConversationView.setOnItemClickListener(mOnConversationClickListener);
 		mConversationAdapter.registerAdapterDataObserver(mConversationObserver);
-		//mConversationAdapter.registerDataSetObserver(mConversationObserver);
-		
+
 		// Last Olive (interaction mode)
         mLastOliveText = (TextView) findViewById(R.id.conversation_last_olive_text);
         mLastOliveImage = (ImageView) findViewById(R.id.conversation_last_olive_image);
@@ -265,7 +273,6 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 			Cursor cursor = mConversationAdapter.getCursor();
 			if (cursor != null) cursor.moveToLast();
 			updateLastOlive(cursor);
-		
 		}
 		
 		setEnablePasscode(true);
@@ -296,7 +303,37 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
         if (mSpaceInfo.mChatroomId == SharedVariables.getLong(Constants.Notification.SHARED_NOTIFICATION_ROOM_ID)) {
             OliveHelper.removeNotification(this);
         }
-	}
+
+        Uri uri = Uri.withAppendedPath(OliveContentProvider.ChatSpaceColumns.CONTENT_URI, String.valueOf(mSpaceId));
+        mCursorForUpdate = getContentResolver().query(uri, OliveContentProvider.ChatSpaceColumns.PROJECTIONS, null, null, null);
+        mCursorForUpdate.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+
+                android.util.Log.d(TAG, "Chatroom Info Updated");
+                mSpaceInfo = DatabaseHelper.ChatSpaceHelper.getChatSpaceInfo(ConversationActivity.this, mSpaceId);
+
+                // title
+                TextView tv = (TextView) findViewById(R.id.title_name);
+                String title = mSpaceInfo.mDisplayname;
+                if (title == null) title = mSpaceInfo.mTitle;
+                tv.setText(title);
+
+                // call icon
+                if (mSpaceInfo == null) {
+                    throw new IllegalArgumentException();
+                } else
+                if (mSpaceInfo.mPhonenumber == null || mSpaceInfo.mPhonenumber.equals("null")) {
+                    findViewById(R.id.call_button).setVisibility(View.INVISIBLE);
+                }
+
+                if (mSpaceInfo.mDisplayname == null || mSpaceInfo.mDisplayname.equals("null")) {
+                    findViewById(R.id.add_button).setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
 	
 	@Override
 	protected void onResume() {
@@ -319,27 +356,51 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
                 .setAction(SyncNetworkService.INTENT_ACTION_READ_MESSAGES)
                 .putExtra(Constants.Intent.EXTRA_SPACE_ID, mSpaceId);
         startService(syncIntent);
+
+        mCursorForUpdate.close();
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.conversation, menu);
-		return true;
-	}
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		// Inflate the menu; this adds items to the action bar if it is present.
+//		getMenuInflater().inflate(R.menu.conversation, menu);
+//		return true;
+//	}
+//
+//	@Override
+//	public boolean onOptionsItemSelected(MenuItem item) {
+//		// Handle action bar item clicks here. The action bar will
+//		// automatically handle clicks on the Home/Up button, so long
+//		// as you specify a parent activity in AndroidManifest.xml.
+//		int id = item.getItemId();
+//		if (id == R.id.action_settings) {
+//			return true;
+//		}
+//		return super.onOptionsItemSelected(item);
+//	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}	
-	
+    public void onCall(View view) {
+        if (mSpaceInfo.mPhonenumber != null && !mSpaceInfo.mPhonenumber.equals("null")) {
+            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + mSpaceInfo.mPhonenumber));
+            startActivityIgnoreResult(intent);
+        }
+    }
+
+    public void onAdd(View view) {
+        for (String participant : mSpaceInfo.mParticipants.split(",")) {
+            if (!participant.equals(mUserProfile.mUsername)) {
+                if (mRESTApiManager.addFriends(new String[]{participant,}) == RESTApiManager.OLIVE_SUCCESS) {
+                    // Sync room and friends
+                    Intent syncIntent = null;
+
+                    syncIntent = new Intent(this, SyncNetworkService.class)
+                            .setAction(SyncNetworkService.INTENT_ACTION_SYNC_FRIENDS_LIST);
+                    startService(syncIntent);
+                }
+            }
+        }
+    }
+
 	@Override
 	 protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 	    super.onActivityResult(requestCode, resultCode, intent);
