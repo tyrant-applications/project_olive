@@ -25,10 +25,14 @@ import com.tyrantapp.olive.type.ConversationMessage;
 import com.tyrantapp.olive.type.UserProfile;
 import com.tyrantapp.olive.util.SharedVariables;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.database.ContentObserver;
 import android.database.DataSetObserver;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.content.Context;
@@ -306,11 +310,9 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
 
         Uri uri = Uri.withAppendedPath(OliveContentProvider.ChatSpaceColumns.CONTENT_URI, String.valueOf(mSpaceId));
         mCursorForUpdate = getContentResolver().query(uri, OliveContentProvider.ChatSpaceColumns.PROJECTIONS, null, null, null);
-        mCursorForUpdate.registerDataSetObserver(new DataSetObserver() {
+        mCursorForUpdate.registerContentObserver(new ContentObserver(new Handler()) {
             @Override
-            public void onChanged() {
-                super.onChanged();
-
+            public void onChange(boolean selfChange) {
                 android.util.Log.d(TAG, "Chatroom Info Updated");
                 mSpaceInfo = DatabaseHelper.ChatSpaceHelper.getChatSpaceInfo(ConversationActivity.this, mSpaceId);
 
@@ -326,10 +328,14 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
                 } else
                 if (mSpaceInfo.mPhonenumber == null || mSpaceInfo.mPhonenumber.equals("null")) {
                     findViewById(R.id.call_button).setVisibility(View.INVISIBLE);
+                } else {
+                    findViewById(R.id.call_button).setVisibility(View.VISIBLE);
                 }
 
                 if (mSpaceInfo.mDisplayname == null || mSpaceInfo.mDisplayname.equals("null")) {
                     findViewById(R.id.add_button).setVisibility(View.VISIBLE);
+                } else {
+                    findViewById(R.id.add_button).setVisibility(View.GONE);
                 }
             }
         });
@@ -387,18 +393,32 @@ public class ConversationActivity extends BaseActivity implements OnOliveKeypadL
     }
 
     public void onAdd(View view) {
-        for (String participant : mSpaceInfo.mParticipants.split(",")) {
-            if (!participant.equals(mUserProfile.mUsername)) {
-                if (mRESTApiManager.addFriends(new String[]{participant,}) == RESTApiManager.OLIVE_SUCCESS) {
-                    // Sync room and friends
-                    Intent syncIntent = null;
+        new AlertDialog.Builder(ConversationActivity.this)
+                .setTitle("Add Friend")
+                .setMessage("Add as friends?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        for (String participant : mSpaceInfo.mParticipants.split(",")) {
+                            if (!participant.equals(mUserProfile.mUsername)) {
+                                if (mRESTApiManager.addFriends(new String[]{participant,}) == RESTApiManager.OLIVE_SUCCESS) {
+                                    // Sync room and friends
+                                    Intent syncIntent = null;
 
-                    syncIntent = new Intent(this, SyncNetworkService.class)
-                            .setAction(SyncNetworkService.INTENT_ACTION_SYNC_FRIENDS_LIST);
-                    startService(syncIntent);
-                }
-            }
-        }
+                                    syncIntent = new Intent(ConversationActivity.this, SyncNetworkService.class)
+                                            .setAction(SyncNetworkService.INTENT_ACTION_SYNC_FRIENDS_LIST);
+                                    startService(syncIntent);
+                                }
+                            }
+                        }
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                })
+                .setIcon(android.R.drawable.ic_input_add)
+                .show();
     }
 
 	@Override

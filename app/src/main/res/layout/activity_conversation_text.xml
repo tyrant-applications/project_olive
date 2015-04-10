@@ -16,6 +16,8 @@
 	    android:hint="Up to 30 characters"
 	    android:textColor="@color/black"
 	    android:textColorHint="@color/graylite"
+        android:singleLine="true"
+        android:maxLength="30"
         android:background="@drawable/bg_conversation_edittext"/>
     
     <Button 

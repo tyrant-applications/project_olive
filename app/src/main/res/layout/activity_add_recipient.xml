@@ -33,6 +33,10 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_frame_edittext"
                     android:text="Get from contacts"
+                    android:textSize="15sp"
+                    android:textColor="@android:color/white"
+                    android:textAllCaps="false"
+                    android:typeface="sans"
                     android:onClick="onSearchFriends"/>
 
             </LinearLayout>
@@ -48,13 +52,19 @@
                     android:layout_width="257dp"
                     android:layout_height="45dp"
                     android:paddingLeft="10dp"
+                    android:textSize="15sp"
+                    android:typeface="sans"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="@android:color/white"
+                    android:singleLine="true"
                     android:hint="@string/edittext_hint_search_friend"
                     android:background="@drawable/bg_frame_edittext"/>
 
-                <Button
+                <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/ic_btn_search"
+                    android:scaleType="fitXY"
                     android:onClick="onSearchFriend"/>
 
             </LinearLayout>

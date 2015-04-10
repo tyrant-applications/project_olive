@@ -160,7 +160,7 @@ public class OliveContentProvider extends ContentProvider {
         public static final String		PICTURE			= "picture";
 
         public static final String[] 	PROJECTIONS = new String[] { _ID, CHATROOM_ID, PARTICIPANTS, TITLE, STARRED, UNREAD, CONV_ID, SENDER, SNIPPET, LAST_UPDATED, RECIPIENT_ID, DISPLAYNAME, PHONENUMBER, PICTURE, };
-        public static final String 		ORDERBY = UNREAD + " DESC, " + STARRED + " DESC, " + TITLE;
+        public static final String 		ORDERBY = UNREAD + " DESC, " + STARRED + " DESC, " + DISPLAYNAME + " IS NULL, " + TITLE + "=" + DISPLAYNAME + ", " + DISPLAYNAME/*TITLE*/;
     }
 
     public static final class PresetButtonColumns implements BaseColumns {
